@@ -9,4 +9,8 @@ export default antfu({
   },
   formatters: true,
   react: true,
+  rules: {
+    "style/multiline-ternary": "warn",
+    "style/arrow-parens": ["warn", "always"],
+  },
 });
