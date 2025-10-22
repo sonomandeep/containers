@@ -122,4 +122,12 @@
   h1 {
     @apply font-medium;
   }
+
+  h2 {
+    @apply font-medium text-sm;
+  }
+
+  p {
+    @apply text-sm text-neutral-700;
+  }
 }
