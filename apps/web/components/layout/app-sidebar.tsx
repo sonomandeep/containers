@@ -46,7 +46,7 @@ export function AppSidebar() {
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="inline-flex items-center justify-between">
-          <div className="inline-flex items-center gap-4">
+          <div className="inline-flex items-center gap-3">
             <div className="bg-neutral-200 size-8 rounded-md"></div>
             <h1>mando.sh</h1>
           </div>
