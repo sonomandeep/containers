@@ -1,5 +1,7 @@
 export default function Page() {
   return (
-    <main>Hello World</main>
+    <main className="h-full w-full flex items-center justify-center">
+      Hello World
+    </main>
   );
 }
