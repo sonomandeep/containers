@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +15,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="h-screen w-full">{children}</body>
+      <body className="h-screen w-full">
+        <SidebarProvider>
+          <AppSidebar />
+
+          <SidebarInset>
+            <main className="h-full w-full">{children}</main>
+          </SidebarInset>
+        </SidebarProvider>
+      </body>
     </html>
   );
 }
