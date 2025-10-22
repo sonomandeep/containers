@@ -1,13 +1,13 @@
 {
   "name": "web",
-  "version": "0.1.0",
   "type": "module",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --max-warnings 0",
+    "lint": "eslint . --fix",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -16,10 +16,15 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
+    "@eslint-react/eslint-plugin": "^2.2.2",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
     "eslint": "^9.34.0",
+    "eslint-plugin-format": "^1.0.2",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.23",
     "typescript": "5.9.2"
   }
 }

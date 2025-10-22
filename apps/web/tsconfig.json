@@ -5,23 +5,23 @@
         "name": "next"
       }
     ],
+    "incremental": true,
     "target": "ES2017",
+    "jsx": "preserve",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "incremental": true,
     "module": "esnext",
-    "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": false,
+    "noEmit": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "skipLibCheck": true
   },
   "include": [
     "**/*.ts",
