@@ -15,7 +15,10 @@
         "hono": "^4.10.2",
       },
       "devDependencies": {
+        "@antfu/eslint-config": "^6.0.0",
         "@types/bun": "latest",
+        "eslint": "^9.37.0",
+        "eslint-plugin-format": "^1.0.2",
       },
     },
     "apps/web": {

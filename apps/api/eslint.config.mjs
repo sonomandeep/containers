@@ -2,15 +2,15 @@ import antfu from "@antfu/eslint-config";
 
 export default antfu({
   formatters: true,
-  react: true,
   stylistic: {
     indent: 2,
-    jsx: true,
     semi: true,
     quotes: "double",
   },
   rules: {
-    "style/multiline-ternary": "warn",
-    "style/arrow-parens": ["warn", "always"],
+    "style/operator-linebreak": ["off"],
+    "style/arrow-parens": ["error", "always"],
+    "style/member-delimiter-style": ["error"],
+    "style/brace-style": ["error", "1tbs"],
   },
 });
