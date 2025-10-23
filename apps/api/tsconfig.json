@@ -4,15 +4,15 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "module": "es2022",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "types": ["node"],
     "strict": true,
     "outDir": "./dist",
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"]
 }
