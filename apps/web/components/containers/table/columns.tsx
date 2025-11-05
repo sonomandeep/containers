@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { ActivityIcon, BoxIcon, CalendarIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
+import { ActivityIcon, BoxIcon, CalendarIcon, HashIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,9 +35,26 @@ export const columns: ColumnDef<Container>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 50,
-    minSize: 50,
-    maxSize: 50,
+    size: 36,
+    minSize: 36,
+    maxSize: 36,
+  },
+  {
+    accessorKey: "id",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <HashIcon className="size-3.5" />
+          ID
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("id")}
+      </div>
+    ),
+    size: 200,
   },
   {
     accessorKey: "name",

@@ -35,7 +35,7 @@ export function ContainersTable<TData, TValue>({
   });
 
   return (
-    <div className="overflow-hidden rounded-md">
+    <div className="flex flex-col overflow-hidden rounded-md h-full">
       <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-neutral-100">
         <h2>All Containers</h2>
 
@@ -45,62 +45,66 @@ export function ContainersTable<TData, TValue>({
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="hover:bg-transparent">
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead
-                    key={header.id}
-                    className={cn(header.id === "select" && "text-center size-8! p-0!")}
-                    style={{
-                      width: header.getSize(),
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length
-            ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(cell.column.id === "select" && "text-center size-8! p-0!")}
-                        style={{
-                          width: cell.column.getSize(),
-                        }}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
+      <div className="flex-1">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={cn(header.id === "select" && "text-center p-0!")}
+                      style={{
+                        width: header.getSize(),
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length
+              ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(cell.column.id === "select" && "text-center p-0!")}
+                          style={{
+                            width: cell.column.getSize(),
+                          }}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )
+              : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      No results.
+                    </TableCell>
                   </TableRow>
-                ))
-              )
-            : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-        </TableBody>
-      </Table>
+                )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div>ciao</div>
     </div>
   );
 }
