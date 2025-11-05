@@ -6,6 +6,18 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Containers - Mando",
   description: "Web docker containers platform.",
+  icons: {
+    icon: [
+      {
+        url: "icon.ico",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "icon2.ico",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
