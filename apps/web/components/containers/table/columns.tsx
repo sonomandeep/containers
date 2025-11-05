@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlayIcon, SquareIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -60,27 +60,37 @@ export const columns: ColumnDef<Container>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue<Container["status"]>("status");
-      return (
-        <Badge
-          variant={status === "Running" ? "default" : "secondary"}
-          className={
-            status === "Running"
-              ? "bg-green-500/10 text-green-600"
-              : "bg-zinc-500/10 text-zinc-600"
-          }
-        >
-          {status}
-        </Badge>
-      );
+
+      switch (status) {
+        case "Running":
+          return (
+            <Badge
+              variant="success"
+            >
+              <PlayIcon />
+              {status}
+            </Badge>
+          );
+
+        case "Exited":
+          return (
+            <Badge
+              variant="destructive"
+            >
+              <SquareIcon />
+              {status}
+            </Badge>
+          );
+      }
     },
   },
   {
     accessorKey: "ports",
     header: "Ports",
     cell: ({ row }) => (
-      <div className="font-mono text-xs text-muted-foreground">
+      <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
         {row.getValue("ports")}
-      </div>
+      </Badge>
     ),
   },
   {
@@ -90,18 +100,9 @@ export const columns: ColumnDef<Container>[] = [
       const date = row.getValue<Date>("created");
       return (
         <div className="text-sm text-muted-foreground">
-          {format(date, "dd MMM yyyy HH:mm")}
+          {format(date, "eee dd dd MMM yyyy")}
         </div>
       );
     },
-  },
-  {
-    id: "actions",
-    header: "",
-    cell: () => (
-      <Button variant="ghost" size="icon" className="h-8 w-8">
-        <MoreHorizontal className="h-4 w-4" />
-      </Button>
-    ),
   },
 ];

@@ -89,9 +89,8 @@ async function getData(): Promise<Array<Container>> {
 
 export default async function Page() {
   const data = await getData();
+
   return (
-    <div>
-      <ContainersTable columns={columns} data={data} />
-    </div>
+    <ContainersTable columns={columns} data={data} />
   );
 }
