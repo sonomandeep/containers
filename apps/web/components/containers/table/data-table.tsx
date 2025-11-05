@@ -53,7 +53,7 @@ export function ContainersTable<TData, TValue>({
                 return (
                   <TableHead
                     key={header.id}
-                    className={cn(header.id === "select" && "size-10")}
+                    className={cn(header.id === "select" && "text-center size-8! p-0!")}
                     style={{
                       width: header.getSize(),
                     }}
@@ -81,7 +81,7 @@ export function ContainersTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={cn(cell.column.id === "select" && "size-10")}
+                        className={cn(cell.column.id === "select" && "text-center size-8! p-0!")}
                         style={{
                           width: cell.column.getSize(),
                         }}
