@@ -34,7 +34,9 @@ export const columns: ColumnDef<Container>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 40,
+    size: 50,
+    minSize: 50,
+    maxSize: 50,
   },
   {
     accessorKey: "name",
@@ -51,6 +53,7 @@ export const columns: ColumnDef<Container>[] = [
         {row.getValue("name")}
       </div>
     ),
+    size: 200,
   },
   {
     accessorKey: "image",
@@ -67,6 +70,7 @@ export const columns: ColumnDef<Container>[] = [
         {row.getValue("image")}
       </div>
     ),
+    size: 200,
   },
   {
     accessorKey: "status",
@@ -103,6 +107,7 @@ export const columns: ColumnDef<Container>[] = [
           );
       }
     },
+    size: 200,
   },
   {
     accessorKey: "ports",
@@ -119,6 +124,7 @@ export const columns: ColumnDef<Container>[] = [
         {row.getValue("ports")}
       </Badge>
     ),
+    size: 200,
   },
   {
     accessorKey: "created",
@@ -138,5 +144,6 @@ export const columns: ColumnDef<Container>[] = [
         </div>
       );
     },
+    size: 200,
   },
 ];

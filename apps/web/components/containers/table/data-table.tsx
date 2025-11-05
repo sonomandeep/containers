@@ -31,6 +31,7 @@ export function ContainersTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    columnResizeMode: "onChange",
   });
 
   return (
@@ -52,7 +53,10 @@ export function ContainersTable<TData, TValue>({
                 return (
                   <TableHead
                     key={header.id}
-                    className={cn(header.id === "select") && "size-10"}
+                    className={cn(header.id === "select" && "size-10")}
+                    style={{
+                      width: header.getSize(),
+                    }}
                   >
                     {header.isPlaceholder
                       ? null
@@ -78,6 +82,9 @@ export function ContainersTable<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className={cn(cell.column.id === "select" && "size-10")}
+                        style={{
+                          width: cell.column.getSize(),
+                        }}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
