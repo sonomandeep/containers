@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import Footer from "../footer";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -104,7 +105,7 @@ export function ContainersTable<TData, TValue>({
         </Table>
       </div>
 
-      <div>ciao</div>
+      <Footer />
     </div>
   );
 }
