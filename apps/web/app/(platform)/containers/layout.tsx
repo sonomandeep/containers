@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col gap-3">
       <PageHeader icon={BoxIcon} title="Containers" />
 
       <div className="p-3 bg-background border rounded-md w-full h-full flex-1">

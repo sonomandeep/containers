@@ -1,4 +1,6 @@
 import type { LucideIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   icon: LucideIcon;
@@ -7,9 +9,16 @@ interface Props {
 
 export default function PageHeader({ icon: Icon, title }: Props) {
   return (
-    <header className="inline-flex gap-2 items-center py-2 pb-3 px-3">
-      <Icon className="size-4 opacity-60" />
-      <h1>{title}</h1>
+    <header className="inline-flex gap-2 items-center justify-between px-1">
+      <div className="inline-flex items-center gap-2">
+        <Icon className="size-4 opacity-80" />
+        <h1>{title}</h1>
+      </div>
+
+      <Button size="sm" variant="outline">
+        <PlusIcon className="size-3.5 opacity-80" />
+        New Container
+      </Button>
     </header>
   );
 }
