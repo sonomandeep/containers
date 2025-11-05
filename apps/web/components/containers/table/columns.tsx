@@ -2,7 +2,8 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { ActivityIcon, BoxIcon, CalendarIcon, LayersIcon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
+import { ActivityIcon, BoxIcon, CalendarIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -49,7 +50,7 @@ export const columns: ColumnDef<Container>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="truncate max-w-[160px]">
+      <div>
         {row.getValue("name")}
       </div>
     ),
@@ -60,15 +61,35 @@ export const columns: ColumnDef<Container>[] = [
     header: () => {
       return (
         <div className="inline-flex items-center gap-2">
-          <LayersIcon className="size-3.5" />
+          <Layers2Icon className="size-3.5" />
           Image
         </div>
       );
     },
     cell: ({ row }) => (
-      <div className="truncate max-w-[180px]">
-        {row.getValue("image")}
-      </div>
+      <Link href={`/images/${row.getValue("image")}`}>
+        <Badge variant="secondary">
+          <Layers2Icon className="opacity-60" />
+          {row.getValue("image")}
+        </Badge>
+      </Link>
+    ),
+    size: 200,
+  },
+  {
+    accessorKey: "ports",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <NetworkIcon className="size-3.5" />
+          Ports
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <Badge variant="outline" className="font-mono">
+        {row.getValue("ports")}
+      </Badge>
     ),
     size: 200,
   },
@@ -110,23 +131,6 @@ export const columns: ColumnDef<Container>[] = [
     size: 200,
   },
   {
-    accessorKey: "ports",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <NetworkIcon className="size-3.5" />
-          Ports
-        </div>
-      );
-    },
-    cell: ({ row }) => (
-      <Badge variant="outline" className="font-mono">
-        {row.getValue("ports")}
-      </Badge>
-    ),
-    size: 200,
-  },
-  {
     accessorKey: "created",
     header: () => {
       return (
@@ -140,7 +144,7 @@ export const columns: ColumnDef<Container>[] = [
       const date = row.getValue<Date>("created");
       return (
         <div>
-          {format(date, "eee dd dd MMM yyyy")}
+          {format(date, "eee dd MMM yyyy")}
         </div>
       );
     },

@@ -3,8 +3,8 @@
 import {
   BoxIcon,
   HardDriveIcon,
+  Layers2Icon,
   LayoutDashboardIcon,
-  ServerIcon,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -30,7 +30,7 @@ const items = [
   {
     name: "Images",
     url: "/images",
-    icon: ServerIcon,
+    icon: Layers2Icon,
   },
   {
     name: "Volumes",
