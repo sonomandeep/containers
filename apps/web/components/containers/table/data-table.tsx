@@ -35,7 +35,7 @@ export function ContainersTable<TData, TValue>({
 
   return (
     <div className="overflow-hidden rounded-md">
-      <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b">
+      <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-neutral-100">
         <h2>All Containers</h2>
 
         <div className="inline-flex items-center gap-4">
@@ -47,7 +47,7 @@ export function ContainersTable<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="hover:bg-transparent">
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead

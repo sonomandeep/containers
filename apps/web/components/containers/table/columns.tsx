@@ -2,9 +2,8 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { MoreHorizontal, PlayIcon, SquareIcon } from "lucide-react";
+import { ActivityIcon, BoxIcon, CalendarIcon, LayersIcon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export interface Container {
@@ -39,25 +38,46 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <BoxIcon className="size-3.5" />
+          Name
+        </div>
+      );
+    },
     cell: ({ row }) => (
-      <div className="font-medium truncate max-w-[160px]">
+      <div className="truncate max-w-[160px]">
         {row.getValue("name")}
       </div>
     ),
   },
   {
     accessorKey: "image",
-    header: "Image",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <LayersIcon className="size-3.5" />
+          Image
+        </div>
+      );
+    },
     cell: ({ row }) => (
-      <div className="text-muted-foreground truncate max-w-[180px]">
+      <div className="truncate max-w-[180px]">
         {row.getValue("image")}
       </div>
     ),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <ActivityIcon className="size-3.5" />
+          Status
+        </div>
+      );
+    },
     cell: ({ row }) => {
       const status = row.getValue<Container["status"]>("status");
 
@@ -86,20 +106,34 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "ports",
-    header: "Ports",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <NetworkIcon className="size-3.5" />
+          Ports
+        </div>
+      );
+    },
     cell: ({ row }) => (
-      <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+      <Badge variant="outline" className="font-mono">
         {row.getValue("ports")}
       </Badge>
     ),
   },
   {
     accessorKey: "created",
-    header: "Created",
+    header: () => {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <CalendarIcon className="size-3.5" />
+          Created
+        </div>
+      );
+    },
     cell: ({ row }) => {
       const date = row.getValue<Date>("created");
       return (
-        <div className="text-sm text-muted-foreground">
+        <div>
           {format(date, "eee dd dd MMM yyyy")}
         </div>
       );
