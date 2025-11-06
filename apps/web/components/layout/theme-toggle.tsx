@@ -30,7 +30,7 @@ export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <ToggleGroup type="single" className="w-full p-1" spacing={1}>
+    <ToggleGroup type="single" className="w-full p-1" spacing={1} defaultValue={theme}>
       {items.map((item) => (
         <ThemeToggleButton key={item.value} item={item} isActive={theme === item.value} setActive={setTheme} />
       ))}
