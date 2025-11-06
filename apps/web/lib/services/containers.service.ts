@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
+import { logger } from "@/lib/logger";
 
 export async function listContainers() {
   const { data, error } = await $api("/containers", {
@@ -7,5 +8,10 @@ export async function listContainers() {
     output: z.array(z.any()),
   });
 
-  return { data, error };
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }

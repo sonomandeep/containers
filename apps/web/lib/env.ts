@@ -5,6 +5,7 @@ import { z } from "zod";
 config();
 
 const envSchema = z.object({
+  NODE_ENV: z.string().default("development"),
   API_BASE_URL: z.string().nonempty(),
 });
 
