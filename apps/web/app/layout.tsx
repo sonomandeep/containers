@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -37,15 +38,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.className} ${jetbrainsMono.className}`}>
+    <html lang="en" className={`${inter.className} ${jetbrainsMono.className}`} suppressHydrationWarning>
       <body className="h-screen w-full font-sans">
-        <SidebarProvider>
-          <AppSidebar />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SidebarProvider>
+            <AppSidebar />
 
-          <SidebarInset>
-            <main className="h-full w-full">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
+            <SidebarInset>
+              <main className="h-full w-full">{children}</main>
+            </SidebarInset>
+          </SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
