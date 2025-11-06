@@ -1,8 +1,8 @@
 {
   "name": "@containers/shared",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -16,7 +16,9 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.2.0",
     "@types/node": "^22.10.5",
+    "eslint": "^9.38.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"
   }
