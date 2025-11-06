@@ -36,8 +36,8 @@ export function ContainersTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-md h-full">
-      <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-neutral-100">
+    <div className="flex flex-col overflow-hidden h-full">
+      <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-secondary">
         <h2>All Containers</h2>
 
         <div className="inline-flex items-center gap-4">

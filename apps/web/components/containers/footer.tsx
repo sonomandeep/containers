@@ -17,7 +17,7 @@ import {
 
 export default function Footer() {
   return (
-    <div className="grid grid-cols-3 px-2 pt-2 border-t border-t-neutral-100">
+    <div className="grid grid-cols-3 px-2 pt-2 border-t border-secondary">
       <div>
         <p className="text-muted-foreground">
           Results:
