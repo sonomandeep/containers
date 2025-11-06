@@ -6,6 +6,7 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@containers/shared": "workspace:*",
     "@hono/zod-openapi": "^1.1.4",
     "@scalar/hono-api-reference": "^0.9.22",
     "dotenv": "^17.2.3",

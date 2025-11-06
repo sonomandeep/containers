@@ -1,20 +1,12 @@
 "use client";
 
+import type { Container } from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ActivityIcon, BoxIcon, CalendarIcon, HashIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-
-export interface Container {
-  id: string;
-  name: string;
-  image: string;
-  status: "Running" | "Exited";
-  ports: string;
-  created: Date;
-}
 
 export const columns: ColumnDef<Container>[] = [
   {
@@ -111,7 +103,7 @@ export const columns: ColumnDef<Container>[] = [
     size: 200,
   },
   {
-    accessorKey: "status",
+    accessorKey: "state",
     header: () => {
       return (
         <div className="inline-flex items-center gap-2">
@@ -121,26 +113,26 @@ export const columns: ColumnDef<Container>[] = [
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue<Container["status"]>("status");
+      const state = row.getValue<Container["state"]>("state");
 
-      switch (status) {
-        case "Running":
+      switch (state) {
+        case "running":
           return (
             <Badge
               variant="success"
             >
               <PlayIcon />
-              {status}
+              Running
             </Badge>
           );
 
-        case "Exited":
+        case "exited":
           return (
             <Badge
               variant="destructive"
             >
               <SquareIcon />
-              {status}
+              Exited
             </Badge>
           );
       }

@@ -1,3 +1,4 @@
+import { containerSchema } from "@containers/shared";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
@@ -5,7 +6,7 @@ import { logger } from "@/lib/logger";
 export async function listContainers() {
   const { data, error } = await $api("/containers", {
     method: "get",
-    output: z.array(z.any()),
+    output: z.array(containerSchema),
   });
 
   if (error) {
