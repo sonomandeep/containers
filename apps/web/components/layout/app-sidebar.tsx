@@ -6,7 +6,7 @@ import {
   Layers2Icon,
   LayoutDashboardIcon,
 } from "lucide-react";
-import Image from "next/image";
+import Logo from "@/components/ui/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -44,7 +44,7 @@ export function AppSidebar() {
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="inline-flex items-center gap-3">
-          <Image src="/logo.svg" alt="ACME Inc. logo" width={24} height={24} />
+          <Logo size={24} />
           <h1>ACME Inc.</h1>
         </div>
       </SidebarHeader>
