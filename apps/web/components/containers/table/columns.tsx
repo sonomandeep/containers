@@ -66,9 +66,7 @@ export const columns: ColumnDef<Container>[] = [
         <Tooltip>
           <TooltipTrigger>{id.slice(0, 12)}</TooltipTrigger>
 
-          <TooltipContent side="right">
-            <p>{id}</p>
-          </TooltipContent>
+          <TooltipContent side="right">{id}</TooltipContent>
         </Tooltip>
       );
     },

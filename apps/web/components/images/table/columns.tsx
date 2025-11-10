@@ -79,9 +79,7 @@ export const columns: ColumnDef<Image>[] = [
         <Tooltip>
           <TooltipTrigger>{id.slice(7, 19)}</TooltipTrigger>
 
-          <TooltipContent side="right">
-            <p>{id}</p>
-          </TooltipContent>
+          <TooltipContent side="right">{id}</TooltipContent>
         </Tooltip>
       );
     },
@@ -170,9 +168,9 @@ export const columns: ColumnDef<Image>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const containers =
-        row.getValue<Image["containers"]>("containers") ??
-        EMPTY_CONTAINERS_STATE;
+      const containers
+        = row.getValue<Image["containers"]>("containers")
+          ?? EMPTY_CONTAINERS_STATE;
 
       return <ContainerStateBadges state={containers} />;
     },
