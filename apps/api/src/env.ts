@@ -7,7 +7,9 @@ config();
 const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(8080),
-  LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]),
+  LOG_LEVEL: z
+    .enum(["trace", "debug", "info", "warn", "error", "fatal"])
+    .default("info"),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -21,8 +21,7 @@ export default function Footer() {
       <div>
         <p className="text-muted-foreground">
           Results:
-          <span className="text-foreground">&nbsp;1&nbsp;</span>
-          -
+          <span className="text-foreground">&nbsp;1&nbsp;</span>-
           <span className="text-foreground">&nbsp;10&nbsp;</span>
           of 22
         </p>
@@ -36,7 +35,9 @@ export default function Footer() {
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationLink size="icon-sm" href="#">1</PaginationLink>
+              <PaginationLink size="icon-sm" href="#">
+                1
+              </PaginationLink>
             </PaginationItem>
 
             <PaginationItem>
@@ -46,7 +47,9 @@ export default function Footer() {
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationLink size="icon-sm" href="#">3</PaginationLink>
+              <PaginationLink size="icon-sm" href="#">
+                3
+              </PaginationLink>
             </PaginationItem>
 
             <PaginationItem>
@@ -65,7 +68,7 @@ export default function Footer() {
           <SelectContent>
             <SelectGroup>
               <SelectItem value="10">10 per Page</SelectItem>
-              <SelectItem value="25">50 per Page</SelectItem>
+              <SelectItem value="25">25 per Page</SelectItem>
               <SelectItem value="50">50 per Page</SelectItem>
             </SelectGroup>
           </SelectContent>
