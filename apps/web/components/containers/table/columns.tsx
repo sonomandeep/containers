@@ -131,8 +131,8 @@ export const columns: ColumnDef<Container>[] = [
       return (
         <div className="inline-flex gap-2">
           {ports.map((port) => {
-            const ipLabel =
-              port.ip === "0.0.0.0"
+            const ipLabel
+              = port.ip === "0.0.0.0"
                 ? "IPv4"
                 : port.ip === "::"
                   ? "IPv6"
