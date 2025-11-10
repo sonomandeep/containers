@@ -9,6 +9,7 @@
     "@containers/shared": "workspace:*",
     "@hono/zod-openapi": "^1.1.4",
     "@scalar/hono-api-reference": "^0.9.22",
+    "dockerode": "^4.0.9",
     "dotenv": "^17.2.3",
     "hono": "^4.10.2",
     "pino": "^10.1.0",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
     "@types/bun": "latest",
+    "@types/dockerode": "^3.3.45",
     "eslint": "^9.37.0",
     "eslint-plugin-format": "^1.0.2"
   }

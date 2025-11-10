@@ -21,7 +21,8 @@ export default function Footer() {
       <div>
         <p className="text-muted-foreground">
           Results:
-          <span className="text-foreground">&nbsp;1&nbsp;</span>-
+          <span className="text-foreground">&nbsp;1&nbsp;</span>
+          -
           <span className="text-foreground">&nbsp;10&nbsp;</span>
           of 22
         </p>

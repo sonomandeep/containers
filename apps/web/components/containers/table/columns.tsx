@@ -1,12 +1,17 @@
 "use client";
 
-import type { Container } from "@containers/shared";
+import type { Container, ContainerPort, ContainerState } from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ActivityIcon, BoxIcon, CalendarIcon, HashIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const columns: ColumnDef<Container>[] = [
   {
@@ -41,11 +46,24 @@ export const columns: ColumnDef<Container>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("id")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const id = row.getValue<string>("id");
+
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            {id.slice(
+              0,
+              12,
+            )}
+          </TooltipTrigger>
+
+          <TooltipContent side="right">
+            <p>{id}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
     size: 200,
   },
   {
@@ -95,11 +113,27 @@ export const columns: ColumnDef<Container>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <Badge variant="outline" className="font-mono">
-        {row.getValue("ports")}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const ports = row.getValue<Array<ContainerPort>>("ports");
+
+      if (ports.length === 0) {
+        return (
+          <Badge variant="outline" className="font-mono">
+            -
+          </Badge>
+        );
+      }
+
+      return (
+        <div className="inline-flex gap-2">
+          {ports.map((port) => (
+            <Badge key={`${port.publicPort}:${port.privatePort}`} variant="outline" className="font-mono">
+              {`${port.publicPort}:${port.privatePort}`}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
     size: 200,
   },
   {
@@ -113,7 +147,7 @@ export const columns: ColumnDef<Container>[] = [
       );
     },
     cell: ({ row }) => {
-      const state = row.getValue<Container["state"]>("state");
+      const state = row.getValue<ContainerState>("state");
 
       switch (state) {
         case "running":
@@ -150,10 +184,11 @@ export const columns: ColumnDef<Container>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = row.getValue<Date>("created");
+      const date = row.getValue<number>("created");
+
       return (
         <div>
-          {format(date, "eee dd MMM yyyy")}
+          {format(date * 1000, "eee dd MMM yyyy")}
         </div>
       );
     },
