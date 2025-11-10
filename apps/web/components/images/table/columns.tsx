@@ -131,7 +131,7 @@ export const columns: ColumnDef<Image>[] = [
 
       return (
         <div className="inline-flex items-center gap-2 whitespace-nowrap">
-          <Badge variant="outline" className="font-mono max-w-[140px] truncate">
+          <Badge variant="outline" className="font-mono truncate">
             {primary}
           </Badge>
 
@@ -170,9 +170,9 @@ export const columns: ColumnDef<Image>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const containers
-        = row.getValue<Image["containers"]>("containers")
-          ?? EMPTY_CONTAINERS_STATE;
+      const containers =
+        row.getValue<Image["containers"]>("containers") ??
+        EMPTY_CONTAINERS_STATE;
 
       return <ContainerStateBadges state={containers} />;
     },
