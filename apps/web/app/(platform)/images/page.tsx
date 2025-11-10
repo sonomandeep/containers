@@ -1,5 +1,5 @@
 import { columns } from "@/components/images/table/columns";
-import { DataTable } from "@/components/tables/data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { logger } from "@/lib/logger";
 import { listImages } from "@/lib/services/images.service";
 

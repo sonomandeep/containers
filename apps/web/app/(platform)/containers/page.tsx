@@ -1,5 +1,5 @@
 import { columns } from "@/components/containers/table/columns";
-import { DataTable } from "@/components/tables/data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
 
