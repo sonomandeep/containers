@@ -12,5 +12,6 @@ export default antfu({
   rules: {
     "style/multiline-ternary": "warn",
     "style/arrow-parens": ["warn", "always"],
+    "react/no-context-provider": ["off"],
   },
 });

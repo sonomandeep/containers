@@ -1,5 +1,10 @@
 import { columns } from "@/components/containers/table/columns";
-import { DataTable } from "@/components/ui/data-table";
+import {
+  DataTable,
+  DataTableFooter,
+  DataTableHeader,
+  DataTableTable,
+} from "@/components/ui/data-table";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
 
@@ -11,5 +16,11 @@ export default async function Page() {
     throw new Error(error.statusText);
   }
 
-  return <DataTable columns={columns} data={data} title="All Containers" />;
+  return (
+    <DataTable columns={columns} data={data}>
+      <DataTableHeader title="All Containers" />
+      <DataTableTable />
+      <DataTableFooter />
+    </DataTable>
+  );
 }
