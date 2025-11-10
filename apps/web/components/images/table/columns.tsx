@@ -4,11 +4,10 @@ import type { Image } from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
-  BadgeCheckIcon,
   BoxIcon,
   CalendarIcon,
-  FingerprintIcon,
   HardDriveIcon,
+  HashIcon,
   Layers2Icon,
   TagIcon,
 } from "lucide-react";
@@ -20,6 +19,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatBytes } from "@/lib/utils";
+
+const containerStateMeta = {
+  running: {
+    label: "Running",
+    dotClass: "bg-green-500",
+  },
+  paused: {
+    label: "Paused",
+    dotClass: "bg-orange-500",
+  },
+  exited: {
+    label: "Exited",
+    dotClass: "bg-red-500",
+  },
+} as const;
+
+const EMPTY_CONTAINERS_STATE: Image["containers"] = {
+  running: 0,
+  paused: 0,
+  exited: 0,
+};
 
 export const columns: ColumnDef<Image>[] = [
   {
@@ -48,7 +68,7 @@ export const columns: ColumnDef<Image>[] = [
     accessorKey: "id",
     header: () => (
       <div className="inline-flex items-center gap-2">
-        <FingerprintIcon className="size-3.5" />
+        <HashIcon className="size-3.5" />
         ID
       </div>
     ),
@@ -65,7 +85,7 @@ export const columns: ColumnDef<Image>[] = [
         </Tooltip>
       );
     },
-    size: 160,
+    size: 200,
   },
   {
     id: "repository",
@@ -86,7 +106,7 @@ export const columns: ColumnDef<Image>[] = [
         </Badge>
       );
     },
-    size: 220,
+    size: 200,
   },
   {
     accessorKey: "repoTags",
@@ -107,23 +127,24 @@ export const columns: ColumnDef<Image>[] = [
         );
       }
 
+      const [primary, ...rest] = tags;
+
       return (
-        <div className="inline-flex flex-wrap gap-2">
-          {tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="outline" className="font-mono">
-              {tag}
-            </Badge>
-          ))}
-          {tags.length > 3 && (
-            <Badge variant="secondary" className="font-mono">
-              +
-              {tags.length - 3}
+        <div className="inline-flex items-center gap-2 whitespace-nowrap">
+          <Badge variant="outline" className="font-mono max-w-[140px] truncate">
+            {primary}
+          </Badge>
+
+          {rest.length > 0 && (
+            <Badge variant="outline" className="font-mono">
+              <span>+</span>
+              {rest.length}
             </Badge>
           )}
         </div>
       );
     },
-    size: 240,
+    size: 200,
   },
   {
     accessorKey: "size",
@@ -138,7 +159,7 @@ export const columns: ColumnDef<Image>[] = [
 
       return <span className="font-mono">{formatBytes(size)}</span>;
     },
-    size: 120,
+    size: 200,
   },
   {
     accessorKey: "containers",
@@ -149,15 +170,13 @@ export const columns: ColumnDef<Image>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const containers = row.getValue<number>("containers");
+      const containers
+        = row.getValue<Image["containers"]>("containers")
+          ?? EMPTY_CONTAINERS_STATE;
 
-      return (
-        <Badge variant="outline" className="font-mono">
-          {containers}
-        </Badge>
-      );
+      return <ContainerStateBadges state={containers} />;
     },
-    size: 140,
+    size: 200,
   },
   {
     accessorKey: "created",
@@ -170,13 +189,51 @@ export const columns: ColumnDef<Image>[] = [
     cell: ({ row }) => {
       const created = row.getValue<number>("created");
 
-      return (
-        <div className="inline-flex items-center gap-2">
-          <BadgeCheckIcon className="size-3 opacity-60" />
-          {format(created * 1000, "eee dd MMM yyyy")}
-        </div>
-      );
+      return <div>{format(created * 1000, "eee dd MMM yyyy")}</div>;
     },
     size: 200,
   },
 ];
+
+type ContainerStateKey = keyof typeof containerStateMeta;
+
+function ContainerStateBadges({ state }: { state: Image["containers"] }) {
+  const items = (Object.keys(containerStateMeta) as Array<ContainerStateKey>)
+    .map((key) => ({
+      key,
+      count: state[key],
+      ...containerStateMeta[key],
+    }))
+    .filter((item) => item.count > 0);
+
+  if (!items.length) {
+    return (
+      <Badge variant="outline" className="font-mono text-muted-foreground">
+        0
+      </Badge>
+    );
+  }
+
+  return (
+    <div className="inline-flex flex-wrap gap-2">
+      {items.map(({ key, count, label, dotClass }) => (
+        <Tooltip key={key}>
+          <TooltipTrigger asChild>
+            <Badge variant="outline" className="gap-1.5">
+              <span
+                className={`size-1.5 rounded-full ${dotClass}`}
+                aria-hidden="true"
+              />
+              <span className="font-mono">{count}</span>
+              <span className="sr-only">{label}</span>
+            </Badge>
+          </TooltipTrigger>
+
+          <TooltipContent>
+            <span className="text-xs font-medium">{label}</span>
+          </TooltipContent>
+        </Tooltip>
+      ))}
+    </div>
+  );
+}
