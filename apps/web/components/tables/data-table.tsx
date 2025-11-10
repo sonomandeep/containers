@@ -6,8 +6,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import { ArrowUpDownIcon, FunnelIcon } from "lucide-react";
+import Footer from "@/components/containers/footer";
 import {
   Table,
   TableBody,
@@ -17,16 +17,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import Footer from "../footer";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  title: string;
 }
 
-export function ContainersTable<TData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
+  title,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -38,7 +39,7 @@ export function ContainersTable<TData, TValue>({
   return (
     <div className="flex flex-col overflow-hidden h-full">
       <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-secondary">
-        <h2>All Containers</h2>
+        <h2>{title}</h2>
 
         <div className="inline-flex items-center gap-4">
           <FunnelIcon className="size-3.5 opacity-60" />
@@ -55,7 +56,9 @@ export function ContainersTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className={cn(header.id === "select" && "text-center p-0!")}
+                      className={cn(
+                        header.id === "select" && "text-center p-0!",
+                      )}
                       style={{
                         width: header.getSize(),
                       }}
@@ -83,12 +86,17 @@ export function ContainersTable<TData, TValue>({
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className={cn(cell.column.id === "select" && "text-center p-0!")}
+                          className={cn(
+                            cell.column.id === "select" && "text-center p-0!",
+                          )}
                           style={{
                             width: cell.column.getSize(),
                           }}
                         >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -96,7 +104,10 @@ export function ContainersTable<TData, TValue>({
                 )
               : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
                       No results.
                     </TableCell>
                   </TableRow>
