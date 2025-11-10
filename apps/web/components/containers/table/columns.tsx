@@ -1,9 +1,22 @@
 "use client";
 
-import type { Container, ContainerPort, ContainerState } from "@containers/shared";
+import type {
+  Container,
+  ContainerPort,
+  ContainerState,
+} from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { ActivityIcon, BoxIcon, CalendarIcon, HashIcon, Layers2Icon, NetworkIcon, PlayIcon, SquareIcon } from "lucide-react";
+import {
+  ActivityIcon,
+  BoxIcon,
+  CalendarIcon,
+  HashIcon,
+  Layers2Icon,
+  NetworkIcon,
+  PlayIcon,
+  SquareIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -51,12 +64,7 @@ export const columns: ColumnDef<Container>[] = [
 
       return (
         <Tooltip>
-          <TooltipTrigger>
-            {id.slice(
-              0,
-              12,
-            )}
-          </TooltipTrigger>
+          <TooltipTrigger>{id.slice(0, 12)}</TooltipTrigger>
 
           <TooltipContent side="right">
             <p>{id}</p>
@@ -76,11 +84,7 @@ export const columns: ColumnDef<Container>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("name")}
-      </div>
-    ),
+    cell: ({ row }) => <div>{row.getValue("name")}</div>,
     size: 200,
   },
   {
@@ -126,11 +130,27 @@ export const columns: ColumnDef<Container>[] = [
 
       return (
         <div className="inline-flex gap-2">
-          {ports.map((port) => (
-            <Badge key={`${port.publicPort}:${port.privatePort}`} variant="outline" className="font-mono">
-              {`${port.publicPort}:${port.privatePort}`}
-            </Badge>
-          ))}
+          {ports.map((port) => {
+            const ipLabel =
+              port.ip === "0.0.0.0"
+                ? "IPv4"
+                : port.ip === "::"
+                  ? "IPv6"
+                  : port.ip;
+
+            return (
+              <Badge
+                key={`${port.ip}-${port.publicPort}-${port.privatePort}`}
+                variant="outline"
+                className="inline-flex items-center gap-2 font-mono"
+              >
+                {`${port.publicPort}:${port.privatePort}`}
+                <span className="text-[11px] uppercase tracking-wide">
+                  {ipLabel}
+                </span>
+              </Badge>
+            );
+          })}
         </div>
       );
     },
@@ -152,9 +172,7 @@ export const columns: ColumnDef<Container>[] = [
       switch (state) {
         case "running":
           return (
-            <Badge
-              variant="success"
-            >
+            <Badge variant="success">
               <PlayIcon />
               Running
             </Badge>
@@ -162,9 +180,7 @@ export const columns: ColumnDef<Container>[] = [
 
         case "exited":
           return (
-            <Badge
-              variant="destructive"
-            >
+            <Badge variant="destructive">
               <SquareIcon />
               Exited
             </Badge>
@@ -186,11 +202,7 @@ export const columns: ColumnDef<Container>[] = [
     cell: ({ row }) => {
       const date = row.getValue<number>("created");
 
-      return (
-        <div>
-          {format(date * 1000, "eee dd MMM yyyy")}
-        </div>
-      );
+      return <div>{format(date * 1000, "eee dd MMM yyyy")}</div>;
     },
     size: 200,
   },
