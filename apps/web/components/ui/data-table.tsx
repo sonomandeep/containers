@@ -1,7 +1,11 @@
 "use client";
 
-import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
-import type { ReactNode } from "react";
+import type {
+  ColumnDef,
+  Row,
+  Table as TableInstance,
+} from "@tanstack/react-table";
+import type { MouseEvent, ReactNode } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -43,9 +47,9 @@ interface DataTableContextValue<TData> {
 
 const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
 
-type DataTableRenderable<TData>
-  = | ReactNode
-    | ((context: DataTableContextValue<TData>) => ReactNode);
+type DataTableRenderable<TData> =
+  | ReactNode
+  | ((context: DataTableContextValue<TData>) => ReactNode);
 
 function DefaultHeaderActions() {
   return (
@@ -145,15 +149,42 @@ export function DataTableHeader<TData>({
   );
 }
 
-interface DataTableTableProps {
+interface DataTableTableProps<TData = unknown> {
   emptyMessage?: ReactNode;
+  onRowClick?: (row: Row<TData>) => void;
 }
 
-export function DataTableTable({
+export function DataTableTable<TData>({
   emptyMessage = "No results.",
-}: DataTableTableProps) {
-  const { table, columnsLength } = useDataTableContext<unknown>();
+  onRowClick,
+}: DataTableTableProps<TData>) {
+  const { table, columnsLength } = useDataTableContext<TData>();
   const rows = table.getRowModel().rows;
+  const interactiveSelector =
+    "a, button, input, textarea, select, label, [role='button'], [data-row-click-ignore]";
+
+  const getRowClickHandler = (row: Row<TData>) => {
+    if (!onRowClick) {
+      return undefined;
+    }
+
+    return (event: MouseEvent<HTMLTableRowElement>) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      const target = event.target;
+
+      if (
+        target instanceof Element &&
+        target.closest(interactiveSelector) !== null
+      ) {
+        return;
+      }
+
+      onRowClick(row);
+    };
+  };
 
   return (
     <div className="flex-1">
@@ -180,34 +211,34 @@ export function DataTableTable({
         </TableHeader>
 
         <TableBody>
-          {rows?.length
-            ? (
-                rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+          {rows?.length ? (
+            rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                onClick={getRowClickHandler(row)}
+                className={cn(onRowClick && "cursor-pointer")}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(
+                      cell.column.id === "select" && "text-center p-0!",
+                    )}
+                    style={{ width: cell.column.getSize() }}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          cell.column.id === "select" && "text-center p-0!",
-                        )}
-                        style={{ width: cell.column.getSize() }}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              )
-            : (
-                <TableRow>
-                  <TableCell colSpan={columnsLength} className="h-24 text-center">
-                    {emptyMessage}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
-                </TableRow>
-              )}
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columnsLength} className="h-24 text-center">
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
@@ -271,9 +302,7 @@ function DefaultFooter<TData>({
             {end}
             &nbsp;
           </span>
-          of
-          {" "}
-          {totalRows}
+          of {totalRows}
         </p>
       </div>
 
@@ -338,9 +367,7 @@ function DefaultFooter<TData>({
             <SelectGroup>
               {pageSizeOptions.map((option) => (
                 <SelectItem key={option} value={String(option)}>
-                  {option}
-                  {" "}
-                  per Page
+                  {option} per Page
                 </SelectItem>
               ))}
             </SelectGroup>
