@@ -14,12 +14,11 @@ import {
   HashIcon,
   Layers2Icon,
   NetworkIcon,
-  PlayIcon,
-  SquareIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ContainerStateBadge } from "@/components/ui/container-state-badge";
 import {
   Tooltip,
   TooltipContent,
@@ -167,23 +166,7 @@ export const columns: ColumnDef<Container>[] = [
     cell: ({ row }) => {
       const state = row.getValue<ContainerState>("state");
 
-      switch (state) {
-        case "running":
-          return (
-            <Badge variant="success">
-              <PlayIcon />
-              Running
-            </Badge>
-          );
-
-        case "exited":
-          return (
-            <Badge variant="destructive">
-              <SquareIcon />
-              Exited
-            </Badge>
-          );
-      }
+      return state ? <ContainerStateBadge state={state} /> : null;
     },
     size: 200,
   },

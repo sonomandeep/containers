@@ -43,11 +43,13 @@ export function ContainersTable({ data }: ContainersTableProps) {
         <DataTableFooter />
       </DataTable>
 
-      <ContainerSheet
-        container={selectedContainer}
-        open={isSheetOpen}
-        onOpenChange={handleOpenChange}
-      />
+      {selectedContainer !== null && (
+        <ContainerSheet
+          container={selectedContainer}
+          open={isSheetOpen}
+          onOpenChange={handleOpenChange}
+        />
+      )}
     </>
   );
 }

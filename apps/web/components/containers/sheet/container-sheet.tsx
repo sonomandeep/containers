@@ -1,10 +1,21 @@
 "use client";
 
-import type { Container } from "@containers/shared";
-import { format } from "date-fns";
+import type { Container, ContainerPort } from "@containers/shared";
+import { format, formatDistanceToNow } from "date-fns";
+import {
+  ActivityIcon,
+  BoxIcon,
+  CalendarIcon,
+  ChevronLeftIcon,
+  HashIcon,
+  Layers2Icon,
+  NetworkIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ContainerStateBadge } from "@/components/ui/container-state-badge";
+import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 import {
   Sheet,
   SheetClose,
@@ -16,101 +27,126 @@ import {
 } from "@/components/ui/sheet";
 
 interface Props {
-  container: Container | null;
+  container: Container;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function ContainerSheet({ container, open, onOpenChange }: Props) {
-  const createdAt
-    = container && container.created
-      ? format(container.created * 1000, "eee dd MMM yyyy, HH:mm")
-      : null;
+  const createdLabel = format(container.created * 1000, "eee dd MMM yyyy");
+
+  const renderPorts = (ports: ContainerPort[]) => {
+    if (!ports.length) {
+      return (
+        <Badge variant="outline" className="font-mono">
+          -
+        </Badge>
+      );
+    }
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {ports.map((port) => {
+          const ipLabel
+            = port.ip === "0.0.0.0"
+              ? "IPv4"
+              : port.ip === "::"
+                ? "IPv6"
+                : port.ip;
+
+          return (
+            <Badge
+              key={`${port.ip}-${port.publicPort}-${port.privatePort}`}
+              variant="outline"
+              className="inline-flex items-center gap-2 font-mono"
+            >
+              {`${port.publicPort}:${port.privatePort}`}
+              <span className="text-[11px] uppercase tracking-wide">
+                {ipLabel}
+              </span>
+            </Badge>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
-        <SheetHeader>
-          <SheetTitle>
-            {container ? container.name : "Container details"}
-          </SheetTitle>
-          <SheetDescription>
-            {container
-              ? "Inspect the selected container and perform quick actions."
-              : "Select a container row to view its details."}
-          </SheetDescription>
+        <div className="flex items-center px-4 h-[53px] border-b border-secondary">
+          <div className="inline-flex items-center">
+            <div className="inline-flex items-center gap-2">
+              <SheetClose asChild>
+                <Button size="icon-xs" variant="ghost">
+                  <ChevronLeftIcon className="size-3.5 opacity-60" />
+                </Button>
+              </SheetClose>
+
+              <div className="h-6 bg-neutral-100 inline-flex items-center gap-1.5 px-2 rounded-md">
+                <BoxIcon className="size-3.5 opacity-60" />
+                <span className="text-sm text-muted-foreground">
+                  {container.id.slice(0, 12)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <SheetHeader className="border-b border-secondary flex-row items-center gap-4">
+          <div className="bg-secondary size-10 rounded-md" />
+
+          <div className="flex-col items-center">
+            <SheetTitle>{container.name}</SheetTitle>
+
+            <SheetDescription>
+              Created&nbsp;
+              {formatDistanceToNow(container.created * 1000, {
+                addSuffix: true,
+              })}
+            </SheetDescription>
+          </div>
         </SheetHeader>
 
-        {container
-          ? (
-              <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="container-sheet-id">Container ID</Label>
-                  <Input
-                    id="container-sheet-id"
-                    value={container.id}
-                    readOnly
-                    className="font-mono"
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="container-sheet-image">Image</Label>
-                  <Input
-                    id="container-sheet-image"
-                    value={container.image}
-                    readOnly
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="container-sheet-state">Status</Label>
-                  <Input
-                    id="container-sheet-state"
-                    value={container.state}
-                    readOnly
-                    className="uppercase"
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <Label>Ports</Label>
-                  {container.ports.length
-                    ? (
-                        <div className="flex flex-wrap gap-2">
-                          {container.ports.map((port) => (
-                            <span
-                              key={`${port.ip}-${port.publicPort}-${port.privatePort}`}
-                              className="rounded-md border px-2 py-1 text-sm font-medium font-mono"
-                            >
-                              {port.publicPort}
-                              :
-                              {port.privatePort}
-                            </span>
-                          ))}
-                        </div>
-                      )
-                    : (
-                        <Input value="-" readOnly />
-                      )}
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="container-sheet-created">Created</Label>
-                  <Input
-                    id="container-sheet-created"
-                    value={createdAt ?? "-"}
-                    readOnly
-                  />
-                </div>
-              </div>
-            )
-          : (
-              <div className="px-4 py-8 text-sm text-muted-foreground">
-                Select a container to populate this panel.
-              </div>
-            )}
+        <div className="p-4">
+          <InfoCard>
+            <InfoCardRow icon={HashIcon} label="ID">
+              <p className="font-mono">{container.id.slice(0, 12)}</p>
+            </InfoCardRow>
 
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button variant="outline">Close</Button>
-          </SheetClose>
+            <InfoCardRow icon={BoxIcon} label="Name">
+              <p>{container.name}</p>
+            </InfoCardRow>
+
+            <InfoCardRow icon={Layers2Icon} label="Image">
+              <Link href={`/images/${container.image}`}>
+                <Badge variant="secondary" className="inline-flex gap-2">
+                  <Layers2Icon className="opacity-60 size-3.5" />
+                  {container.image}
+                </Badge>
+              </Link>
+            </InfoCardRow>
+
+            <InfoCardRow icon={NetworkIcon} label="Ports">
+              {renderPorts(container.ports)}
+            </InfoCardRow>
+
+            <InfoCardRow icon={ActivityIcon} label="Status">
+              <ContainerStateBadge state={container.state} className="text-red-500!" />
+            </InfoCardRow>
+
+            <InfoCardRow icon={CalendarIcon} label="Created">
+              <p>{createdLabel}</p>
+            </InfoCardRow>
+          </InfoCard>
+        </div>
+
+        <SheetFooter className="border-t border-secondary p-2">
+          <div className="inline-flex items-center justify-end">
+            <SheetClose asChild>
+              <Button variant="outline">Close</Button>
+            </SheetClose>
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>
