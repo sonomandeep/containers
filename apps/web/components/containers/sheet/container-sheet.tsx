@@ -118,7 +118,7 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
             </InfoCardRow>
 
             <InfoCardRow icon={ActivityIcon} label="Status">
-              <ContainerStateBadge state={container.state} className="text-red-500!" />
+              <ContainerStateBadge state={container.state} />
             </InfoCardRow>
 
             <InfoCardRow icon={CalendarIcon} label="Created">

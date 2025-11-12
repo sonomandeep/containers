@@ -45,7 +45,7 @@ export function InfoCardRow({ icon, label, children }: InfoCardRowProps) {
         <span>{label}</span>
       </div>
 
-      <div className="text-sm text-foreground [&>*]:text-sm [&>*]:text-foreground">
+      <div className="text-sm text-foreground [&>*]:text-sm">
         {children}
       </div>
     </div>
