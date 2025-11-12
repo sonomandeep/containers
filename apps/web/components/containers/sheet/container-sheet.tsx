@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ContainerPortBadge } from "@/components/ui/container-port-badge";
 import { ContainerStateBadge } from "@/components/ui/container-state-badge";
 import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 import {
@@ -46,27 +47,12 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
 
     return (
       <div className="flex flex-wrap gap-2">
-        {ports.map((port) => {
-          const ipLabel
-            = port.ip === "0.0.0.0"
-              ? "IPv4"
-              : port.ip === "::"
-                ? "IPv6"
-                : port.ip;
-
-          return (
-            <Badge
-              key={`${port.ip}-${port.publicPort}-${port.privatePort}`}
-              variant="outline"
-              className="inline-flex items-center gap-2 font-mono"
-            >
-              {`${port.publicPort}:${port.privatePort}`}
-              <span className="text-[11px] uppercase tracking-wide">
-                {ipLabel}
-              </span>
-            </Badge>
-          );
-        })}
+        {ports.map((port) => (
+          <ContainerPortBadge
+            key={`${port.ip}-${port.publicPort}-${port.privatePort}`}
+            port={port}
+          />
+        ))}
       </div>
     );
   };
