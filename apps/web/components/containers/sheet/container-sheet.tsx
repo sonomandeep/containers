@@ -94,7 +94,7 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
           </div>
         </SheetHeader>
 
-        <div className="p-4">
+        <div className="p-4 border-b border-secondary">
           <InfoCard>
             <InfoCardRow icon={HashIcon} label="ID">
               <p className="font-mono">{container.id.slice(0, 12)}</p>
