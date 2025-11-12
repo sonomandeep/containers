@@ -47,9 +47,9 @@ interface DataTableContextValue<TData> {
 
 const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
 
-type DataTableRenderable<TData> =
-  | ReactNode
-  | ((context: DataTableContextValue<TData>) => ReactNode);
+type DataTableRenderable<TData>
+  = | ReactNode
+    | ((context: DataTableContextValue<TData>) => ReactNode);
 
 function DefaultHeaderActions() {
   return (
@@ -160,8 +160,8 @@ export function DataTableTable<TData>({
 }: DataTableTableProps<TData>) {
   const { table, columnsLength } = useDataTableContext<TData>();
   const rows = table.getRowModel().rows;
-  const interactiveSelector =
-    "a, button, input, textarea, select, label, [role='button'], [data-row-click-ignore]";
+  const interactiveSelector
+    = "a, button, input, textarea, select, label, [role='button'], [data-row-click-ignore]";
 
   const getRowClickHandler = (row: Row<TData>) => {
     if (!onRowClick) {
@@ -176,8 +176,8 @@ export function DataTableTable<TData>({
       const target = event.target;
 
       if (
-        target instanceof Element &&
-        target.closest(interactiveSelector) !== null
+        target instanceof Element
+        && target.closest(interactiveSelector) !== null
       ) {
         return;
       }
@@ -211,34 +211,36 @@ export function DataTableTable<TData>({
         </TableHeader>
 
         <TableBody>
-          {rows?.length ? (
-            rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                onClick={getRowClickHandler(row)}
-                className={cn(onRowClick && "cursor-pointer")}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn(
-                      cell.column.id === "select" && "text-center p-0!",
-                    )}
-                    style={{ width: cell.column.getSize() }}
+          {rows?.length
+            ? (
+                rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    onClick={getRowClickHandler(row)}
+                    className={cn(onRowClick && "cursor-pointer")}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          cell.column.id === "select" && "text-center p-0!",
+                        )}
+                        style={{ width: cell.column.getSize() }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )
+            : (
+                <TableRow>
+                  <TableCell colSpan={columnsLength} className="h-24 text-center">
+                    {emptyMessage}
                   </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columnsLength} className="h-24 text-center">
-                {emptyMessage}
-              </TableCell>
-            </TableRow>
-          )}
+                </TableRow>
+              )}
         </TableBody>
       </Table>
     </div>
@@ -302,7 +304,9 @@ function DefaultFooter<TData>({
             {end}
             &nbsp;
           </span>
-          of {totalRows}
+          of
+          {" "}
+          {totalRows}
         </p>
       </div>
 
@@ -367,7 +371,9 @@ function DefaultFooter<TData>({
             <SelectGroup>
               {pageSizeOptions.map((option) => (
                 <SelectItem key={option} value={String(option)}>
-                  {option} per Page
+                  {option}
+                  {" "}
+                  per Page
                 </SelectItem>
               ))}
             </SelectGroup>
