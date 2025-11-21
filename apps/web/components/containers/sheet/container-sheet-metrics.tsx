@@ -145,13 +145,7 @@ export function ContainerSheetMetrics({ metrics }: Props) {
   ];
 
   return (
-    <div className="p-4 border-b border-secondary space-y-4">
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">
-          Runtime metrics
-        </p>
-      </div>
-
+    <div className="p-4 space-y-4">
       {hasAnyMetricValues
         ? (
             <div className="grid gap-4 md:grid-cols-2">
@@ -435,7 +429,7 @@ function MetricCard({
   children,
 }: MetricCardProps) {
   return (
-    <div className="rounded-lg border border-secondary bg-secondary/40 p-4 space-y-4">
+    <div className="rounded-lg bg-secondary/40 p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>

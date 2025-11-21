@@ -2,6 +2,7 @@
 
 import type { Container } from "@containers/shared";
 import { format, formatDistanceToNow } from "date-fns";
+import { ActivityIcon, ScrollTextIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,6 +10,7 @@ import {
   SheetContent,
   SheetFooter,
 } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContainerSheetHeader } from "./container-sheet-header";
 import { ContainerSheetInfo } from "./container-sheet-info";
 import { ContainerSheetMetrics } from "./container-sheet-metrics";
@@ -38,8 +40,38 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
             createdLabel={createdLabel}
           />
 
-          <div className="flex-1 overflow-y-auto min-h-0">
-            <ContainerSheetMetrics metrics={container.metrics} />
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <Tabs defaultValue="metrics" className="flex h-full flex-col gap-0">
+              <div className="p-4 border-b border-secondary">
+                <TabsList className="gap-2">
+                  <TabsTrigger value="metrics">
+                    <ActivityIcon
+                      className="size-3.5 -ms-0.5 opacity-60"
+                      aria-hidden="true"
+                    />
+                    Metrics
+                  </TabsTrigger>
+                  <TabsTrigger value="logs">
+                    <ScrollTextIcon
+                      className="size-3.5 -ms-0.5 opacity-60"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                    Logs
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="metrics" className="flex-1 overflow-y-auto">
+                <ContainerSheetMetrics metrics={container.metrics} />
+              </TabsContent>
+
+              <TabsContent value="logs" className="flex-1 overflow-y-auto">
+                <div className="p-4 text-sm text-muted-foreground">
+                  Logs will appear here.
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
