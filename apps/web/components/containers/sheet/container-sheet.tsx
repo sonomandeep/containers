@@ -26,15 +26,22 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
-        <ContainerSheetHeader
-          container={container}
-          createdRelative={createdRelative}
-        />
+      <SheetContent className="p-0">
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <ContainerSheetHeader
+            container={container}
+            createdRelative={createdRelative}
+          />
 
-        <ContainerSheetInfo container={container} createdLabel={createdLabel} />
+          <ContainerSheetInfo
+            container={container}
+            createdLabel={createdLabel}
+          />
 
-        <ContainerSheetMetrics metrics={container.metrics} />
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <ContainerSheetMetrics metrics={container.metrics} />
+          </div>
+        </div>
 
         <SheetFooter className="border-t border-secondary p-2">
           <div className="inline-flex items-center justify-end">
