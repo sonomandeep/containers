@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const containerStateSchema = z.enum(["running", "paused", "exited"]);
+export const containerStateSchema = z.enum([
+  "running",
+  "paused",
+  "exited",
+  "restarting",
+]);
 
 export type ContainerState = z.infer<typeof containerStateSchema>;
 
@@ -19,6 +24,8 @@ export const containerMetricsSchema = z.object({
   memoryLimit: z.number().optional().nullable(),
   networkRx: z.number().optional().nullable(),
   networkTx: z.number().optional().nullable(),
+  diskRead: z.number().optional().nullable(),
+  diskWrite: z.number().optional().nullable(),
 });
 
 export type ContainerMetrics = z.infer<typeof containerMetricsSchema>;

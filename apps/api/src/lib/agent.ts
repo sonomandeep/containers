@@ -117,6 +117,7 @@ function normalizeMetrics(stats: Docker.Stats): ContainerMetrics {
   const memoryUsage = stats.memory_stats?.usage ?? null;
   const memoryLimit = stats.memory_stats?.limit ?? null;
   const { rx, tx } = aggregateNetworkIo(stats);
+  const { readBytes, writeBytes } = aggregateBlockIo(stats);
 
   return {
     cpuPercent,
@@ -124,6 +125,8 @@ function normalizeMetrics(stats: Docker.Stats): ContainerMetrics {
     memoryLimit,
     networkRx: rx,
     networkTx: tx,
+    diskRead: readBytes,
+    diskWrite: writeBytes,
   };
 }
 
@@ -176,5 +179,55 @@ function aggregateNetworkIo(stats: Docker.Stats): {
   return {
     rx: rx || null,
     tx: tx || null,
+  };
+}
+
+function aggregateBlockIo(stats: Docker.Stats): {
+  readBytes: number | null;
+  writeBytes: number | null;
+} {
+  const entries = stats.blkio_stats?.io_service_bytes_recursive;
+
+  if (!entries || !Array.isArray(entries)) {
+    return { readBytes: null, writeBytes: null };
+  }
+
+  let readBytes = 0;
+  let writeBytes = 0;
+
+  for (const entry of entries) {
+    if (!entry) {
+      continue;
+    }
+
+    const opSource =
+      typeof entry.Op === "string"
+        ? entry.Op
+        : typeof entry.op === "string"
+          ? entry.op
+          : null;
+    const value =
+      typeof entry.Value === "number"
+        ? entry.Value
+        : typeof entry.value === "number"
+          ? entry.value
+          : 0;
+
+    if (!opSource) {
+      continue;
+    }
+
+    const op = opSource.toLowerCase();
+
+    if (op === "read") {
+      readBytes += value;
+    } else if (op === "write") {
+      writeBytes += value;
+    }
+  }
+
+  return {
+    readBytes: readBytes || null,
+    writeBytes: writeBytes || null,
   };
 }

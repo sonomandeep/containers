@@ -2,7 +2,12 @@
 
 import type { ContainerState } from "@containers/shared";
 import type { ComponentProps, ComponentType } from "react";
-import { PauseIcon, PlayIcon, SquareIcon } from "lucide-react";
+import {
+  PauseIcon,
+  PlayIcon,
+  RefreshCcwIcon,
+  SquareIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +27,11 @@ const STATE_CONFIG: Record<ContainerState, StateConfig> = {
     label: "Paused",
     variant: "warning",
     icon: PauseIcon,
+  },
+  restarting: {
+    label: "Restarting",
+    variant: "warning",
+    icon: RefreshCcwIcon,
   },
   exited: {
     label: "Exited",
