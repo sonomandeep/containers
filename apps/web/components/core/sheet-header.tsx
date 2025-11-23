@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   SheetClose,
   SheetHeader as SheetHeaderPrimitive,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +75,9 @@ export function SheetHeaderBadge({
       {...props}
     >
       {Icon ? <Icon className="size-3.5 opacity-60" /> : null}
-      <span className="text-sm text-muted-foreground">{children}</span>
+      <SheetTitle className="text-sm text-muted-foreground font-normal">
+        {children}
+      </SheetTitle>
     </div>
   );
 }
@@ -97,11 +100,7 @@ export function SheetHeaderContent({
   );
 }
 
-export function SheetHeaderIcon({
-  children,
-  className,
-  ...props
-}: DivProps) {
+export function SheetHeaderIcon({ children, className, ...props }: DivProps) {
   return (
     <div
       className={cn(

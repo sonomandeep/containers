@@ -1,18 +1,15 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import { BoxIcon, PlusIcon } from "lucide-react";
 import {
   SheetHeaderBackButton,
-  SheetHeaderContent,
-  SheetHeaderIcon,
+  SheetHeaderBadge,
   SheetHeaderToolbar,
 } from "@/components/core/sheet-header";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
@@ -28,19 +25,11 @@ export function LaunchContainerSheet() {
 
       <SheetContent side="right">
         <SheetHeaderToolbar>
-          <SheetHeaderBackButton />
-        </SheetHeaderToolbar>
-
-        <SheetHeaderContent>
-          <SheetHeaderIcon />
-
-          <div className="flex flex-col gap-1">
-            <SheetTitle>New Container</SheetTitle>
-            <SheetDescription>
-              Configure and launch a new workload.
-            </SheetDescription>
+          <div className="inline-flex items-center gap-2">
+            <SheetHeaderBackButton />
+            <SheetHeaderBadge icon={BoxIcon}>New Container</SheetHeaderBadge>
           </div>
-        </SheetHeaderContent>
+        </SheetHeaderToolbar>
 
         <div className="p-4">Hello World</div>
       </SheetContent>
