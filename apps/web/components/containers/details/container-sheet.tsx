@@ -2,16 +2,24 @@
 
 import type { Container } from "@containers/shared";
 import { format, formatDistanceToNow } from "date-fns";
-import { ActivityIcon, ScrollTextIcon } from "lucide-react";
+import { ActivityIcon, BoxIcon, ScrollTextIcon } from "lucide-react";
+import {
+  SheetHeaderBackButton,
+  SheetHeaderBadge,
+  SheetHeaderContent,
+  SheetHeaderIcon,
+  SheetHeaderToolbar,
+} from "@/components/core/sheet-header";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ContainerSheetHeader } from "./container-sheet-header";
 import { ContainerSheetInfo } from "./container-sheet-info";
 import { ContainerSheetMetrics } from "./container-sheet-metrics";
 
@@ -30,10 +38,29 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="p-0">
         <div className="flex flex-1 flex-col overflow-hidden">
-          <ContainerSheetHeader
-            container={container}
-            createdRelative={createdRelative}
-          />
+          <SheetHeaderToolbar>
+            <div className="inline-flex items-center gap-2">
+              <SheetHeaderBackButton />
+              <SheetHeaderBadge icon={BoxIcon}>
+                {container.id.slice(0, 12)}
+              </SheetHeaderBadge>
+            </div>
+          </SheetHeaderToolbar>
+
+          <SheetHeaderContent>
+            <SheetHeaderIcon>
+              <BoxIcon className="size-5 opacity-70" />
+            </SheetHeaderIcon>
+
+            <div className="flex flex-col">
+              <SheetTitle>{container.name}</SheetTitle>
+
+              <SheetDescription>
+                Created&nbsp;
+                {createdRelative}
+              </SheetDescription>
+            </div>
+          </SheetHeaderContent>
 
           <ContainerSheetInfo
             container={container}

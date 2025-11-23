@@ -3,7 +3,7 @@
 import type { Container } from "@containers/shared";
 import type { Row } from "@tanstack/react-table";
 import { useState } from "react";
-import { ContainerSheet } from "@/components/containers/sheet/container-sheet";
+import { ContainerSheet } from "@/components/containers/details";
 import {
   DataTable,
   DataTableFooter,
