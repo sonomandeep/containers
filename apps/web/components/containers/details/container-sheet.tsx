@@ -3,6 +3,13 @@
 import type { Container } from "@containers/shared";
 import { format, formatDistanceToNow } from "date-fns";
 import { ActivityIcon, BoxIcon, ScrollTextIcon } from "lucide-react";
+import {
+  SheetHeaderBackButton,
+  SheetHeaderBadge,
+  SheetHeaderContent,
+  SheetHeaderIcon,
+  SheetHeaderToolbar,
+} from "@/components/core/sheet-header";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,13 +20,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  SheetHeaderBadge,
-  SheetHeaderBackButton,
-  SheetHeaderContent,
-  SheetHeaderIcon,
-  SheetHeaderToolbar,
-} from "@/components/core/sheet-header";
 import { ContainerSheetInfo } from "./container-sheet-info";
 import { ContainerSheetMetrics } from "./container-sheet-metrics";
 

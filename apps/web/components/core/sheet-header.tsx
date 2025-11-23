@@ -2,8 +2,9 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import type { ButtonProps } from "@/components/ui/button";
 import { ChevronLeftIcon } from "lucide-react";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   SheetClose,
   SheetHeader as SheetHeaderPrimitive,
