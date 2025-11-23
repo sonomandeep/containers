@@ -1,7 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import type { ButtonProps } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps extends React.ComponentProps<"header"> {
@@ -45,9 +46,11 @@ export function PageHeaderTitle({
 
       <div className="flex flex-col leading-tight">
         <h1 className="text-base font-medium">{children}</h1>
-        {description ? (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        ) : null}
+        {description
+          ? (
+              <p className="text-xs text-muted-foreground">{description}</p>
+            )
+          : null}
       </div>
     </div>
   );
