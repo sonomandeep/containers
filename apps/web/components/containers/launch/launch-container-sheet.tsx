@@ -10,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-export function NewContainerSheet() {
+export function LaunchContainerSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>

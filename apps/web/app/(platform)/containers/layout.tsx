@@ -1,5 +1,5 @@
 import { BoxIcon } from "lucide-react";
-import { NewContainerSheet } from "@/components/containers/new-container-sheet";
+import { LaunchContainerSheet } from "@/components/containers/launch";
 import PageHeader from "@/components/layout/page-header";
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
       <PageHeader
         icon={BoxIcon}
         title="Containers"
-        action={<NewContainerSheet />}
+        action={<LaunchContainerSheet />}
       />
 
       <div className="p-3 bg-background border rounded-md w-full h-full flex-1">
