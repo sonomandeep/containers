@@ -2,7 +2,7 @@
 
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CornerDownLeftIcon } from "lucide-react";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
