@@ -2,7 +2,7 @@
 
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CornerDownLeftIcon } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -45,8 +45,12 @@ export function PullImageDialog() {
     },
     error: null,
   });
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
+    if (!hasSubmitted)
+      return;
+
     if (isPending)
       return;
 
@@ -58,7 +62,7 @@ export function PullImageDialog() {
     if (state.error === null && Object.keys(state.data ?? {}).length > 0) {
       toast.success("Image pulled successfully.");
     }
-  }, [state, isPending]);
+  }, [state, isPending, hasSubmitted]);
 
   return (
     <Dialog>
@@ -81,7 +85,11 @@ export function PullImageDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <form action={action} className="flex flex-col gap-4">
+        <form
+          action={action}
+          className="flex flex-col gap-4"
+          onSubmit={() => setHasSubmitted(true)}
+        >
           <FieldSet>
             <FieldGroup className="gap-4">
               <Field>
