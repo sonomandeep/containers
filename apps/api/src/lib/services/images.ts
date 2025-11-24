@@ -28,7 +28,7 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
       id: info.Id,
       repoTags: info.RepoTags ?? [],
       repoDigests: info.RepoDigests ?? [],
-      created: Number(info.Created) ?? 0,
+      created: (new Date(info.Created)).valueOf() ?? 0,
       size: info.Size ?? 0,
       virtualSize: info.VirtualSize ?? 0,
     };
