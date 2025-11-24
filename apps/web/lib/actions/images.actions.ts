@@ -9,7 +9,7 @@ export interface PullImageActionFormState {
   error: Partial<PullImageInput> & { root?: string };
 }
 
-export async function pullImageAction(_prevState: { data: PullImageInput; error: PullImageInput }, formData: FormData): Promise<PullImageActionFormState> {
+export async function pullImageAction(_prevState: PullImageActionFormState, formData: FormData): Promise<PullImageActionFormState> {
   const input = validateFormData(pullImageInputSchema, formData);
   if (!input.ok) {
     console.log("pullImageAction - validation error");

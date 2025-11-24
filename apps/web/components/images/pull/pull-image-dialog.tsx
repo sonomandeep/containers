@@ -3,6 +3,7 @@
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
@@ -45,12 +46,25 @@ export function PullImageDialog() {
     error: null,
   });
 
+  useEffect(() => {
+    if (isPending)
+      return;
+
+    if (state?.error?.root) {
+      toast.error(state.error.root || "An unexpected error occurred.");
+      return;
+    }
+
+    if (state.error === null && Object.keys(state.data ?? {}).length > 0) {
+      toast.success("Image pulled successfully.");
+    }
+  }, [state, isPending]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button size="sm">
           Pull Image
-
           <KbdGroup>
             <Kbd>
               <CornerDownLeftIcon />
@@ -71,23 +85,42 @@ export function PullImageDialog() {
           <FieldSet>
             <FieldGroup className="gap-4">
               <Field>
-                <FieldLabel htmlFor="name">Image (Registry and Image name)</FieldLabel>
+                <FieldLabel htmlFor="name">
+                  Image (Registry and Image name)
+                </FieldLabel>
 
                 <ButtonGroup className="w-full">
-                  <Select defaultValue={state.data.registry as string} name="registry" value={registry.host} onValueChange={(value) => setRegistry(REGISTRIES.find((current) => current.host === value))}>
-                    <SelectTrigger className="font-mono w-40">{registry.label}</SelectTrigger>
+                  <Select
+                    defaultValue={state.data.registry as string}
+                    name="registry"
+                    value={registry.host}
+                    onValueChange={(value) =>
+                      setRegistry(
+                        REGISTRIES.find((current) => current.host === value),
+                      )}
+                  >
+                    <SelectTrigger className="font-mono w-40">
+                      {registry.label}
+                    </SelectTrigger>
 
                     <SelectContent className="min-w-24">
                       {REGISTRIES.map((current) => (
                         <SelectItem key={current.host} value={current.host}>
                           {current.label}
-                          <span className="text-muted-foreground">{current.host}</span>
+                          <span className="text-muted-foreground">
+                            {current.host}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
 
-                  <Input id="name" name="name" defaultValue={state.data.name as string} placeholder="nginx" />
+                  <Input
+                    id="name"
+                    name="name"
+                    defaultValue={state.data.name as string}
+                    placeholder="nginx"
+                  />
                 </ButtonGroup>
 
                 {state?.error?.registry && (
@@ -104,7 +137,13 @@ export function PullImageDialog() {
 
               <Field>
                 <FieldLabel htmlFor="tag">Image Tag</FieldLabel>
-                <Input id="tag" name="tag" defaultValue={state.data.tag as string} placeholder="latest" autoComplete="off" />
+                <Input
+                  id="tag"
+                  name="tag"
+                  defaultValue={state.data.tag as string}
+                  placeholder="latest"
+                  autoComplete="off"
+                />
 
                 {state?.error?.tag && (
                   <FieldError>{state.error.tag}</FieldError>
@@ -122,7 +161,6 @@ export function PullImageDialog() {
               <DialogClose asChild>
                 <Button size="sm" variant="secondary" type="button">
                   Cancel
-
                   <KbdGroup>
                     <Kbd>ESC</Kbd>
                   </KbdGroup>
@@ -132,9 +170,10 @@ export function PullImageDialog() {
 
             <Button size="sm" type="submit" disabled={isPending}>
               Pull Image
-
               {isPending
-                ? (<Spinner />)
+                ? (
+                    <Spinner />
+                  )
                 : (
                     <KbdGroup>
                       <Kbd>
