@@ -51,16 +51,16 @@ export function PullImageDialog() {
       <form>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Pull Image</DialogTitle>
+            <DialogTitle>Pull Docker Image</DialogTitle>
             <DialogDescription>
-              Enter the name and tag of the image you want to pull.
+              Select the registry, image name and tag to pull.
             </DialogDescription>
           </DialogHeader>
 
           <FieldSet>
-            <FieldGroup>
+            <FieldGroup className="gap-4">
               <Field>
-                <FieldLabel htmlFor="name">name</FieldLabel>
+                <FieldLabel htmlFor="name">Image (Registry and Image name)</FieldLabel>
 
                 <ButtonGroup className="w-full">
                   <Select value={registry.host} onValueChange={(value) => setRegistry(REGISTRIES.find((current) => current.host === value))}>
@@ -78,12 +78,17 @@ export function PullImageDialog() {
 
                   <Input id="name" name="name" placeholder="nginx" />
                 </ButtonGroup>
-                <FieldDescription>This appears on invoices and emails.</FieldDescription>
+                <FieldDescription>
+                  Use the full image name as on the registry.
+                </FieldDescription>
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="tag">Tag</FieldLabel>
+                <FieldLabel htmlFor="tag">Image Tag</FieldLabel>
                 <Input id="tag" name="tag" placeholder="latest" autoComplete="off" />
+                <FieldDescription>
+                  Specify the image tag (e.g. latest, 1.28).
+                </FieldDescription>
               </Field>
             </FieldGroup>
           </FieldSet>
