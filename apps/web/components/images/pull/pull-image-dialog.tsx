@@ -32,7 +32,12 @@ export function PullImageDialog() {
       <DialogTrigger asChild>
         <Button size="sm">
           Pull Image
-          <CornerDownLeftIcon className="size-3.5 opacity-60" />
+
+          <KbdGroup>
+            <Kbd>
+              <CornerDownLeftIcon />
+            </Kbd>
+          </KbdGroup>
         </Button>
       </DialogTrigger>
 
