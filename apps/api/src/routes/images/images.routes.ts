@@ -2,7 +2,7 @@ import { imageSchema } from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
-import { notFoundSchema } from "@/lib/constants";
+import { internalServerErrorSchema, notFoundSchema } from "@/lib/constants";
 
 const tags = ["images"];
 
@@ -39,6 +39,10 @@ export const pull = createRoute({
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Image not found",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error",
     ),
   },
 });

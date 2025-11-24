@@ -31,3 +31,8 @@ export type ZodSchema =
   | z.core.$ZodObject
   | z.ZodArray<z.core.$ZodObject>;
 export type ZodIssue = z.core.$ZodIssue;
+
+export interface DockerodeError extends Error {
+  statusCode?: number;
+  json?: unknown;
+}

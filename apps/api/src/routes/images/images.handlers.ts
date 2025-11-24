@@ -1,7 +1,6 @@
 import type { ListRoute, PullRoute } from "./images.routes";
 import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { listImages } from "@/lib/agent";
 import { pullImage } from "@/lib/services/images";
 
@@ -18,8 +17,8 @@ export const pull: AppRouteHandler<PullRoute> = async (c) => {
   if (result.error || result.data === null) {
     c.var.logger.error(result.error);
     return c.json({
-      message: HttpStatusPhrases.NOT_FOUND,
-    }, HttpStatusCodes.NOT_FOUND);
+      message: result.error.message,
+    }, result.error.code);
   }
 
   return c.json(result.data, HttpStatusCodes.OK);
