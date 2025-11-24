@@ -14,6 +14,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
@@ -50,26 +57,36 @@ export function PullImageDialog() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <ButtonGroup className="w-full">
-              <Select value={registry.host} onValueChange={(value) => setRegistry(REGISTRIES.find((current) => current.host === value))}>
-                <SelectTrigger className="font-mono w-40">{registry.label}</SelectTrigger>
+          <FieldSet>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="name">name</FieldLabel>
 
-                <SelectContent className="min-w-24">
-                  {REGISTRIES.map((current) => (
-                    <SelectItem key={current.host} value={current.host}>
-                      {current.label}
-                      <span className="text-muted-foreground">{current.host}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ButtonGroup className="w-full">
+                  <Select value={registry.host} onValueChange={(value) => setRegistry(REGISTRIES.find((current) => current.host === value))}>
+                    <SelectTrigger className="font-mono w-40">{registry.label}</SelectTrigger>
 
-              <Input placeholder="nginx" />
-            </ButtonGroup>
+                    <SelectContent className="min-w-24">
+                      {REGISTRIES.map((current) => (
+                        <SelectItem key={current.host} value={current.host}>
+                          {current.label}
+                          <span className="text-muted-foreground">{current.host}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-            <Input placeholder="Tag" />
-          </div>
+                  <Input id="name" name="name" placeholder="nginx" />
+                </ButtonGroup>
+                <FieldDescription>This appears on invoices and emails.</FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="tag">Tag</FieldLabel>
+                <Input id="tag" name="tag" placeholder="latest" autoComplete="off" />
+              </Field>
+            </FieldGroup>
+          </FieldSet>
 
           <DialogFooter>
             <ButtonGroup>
