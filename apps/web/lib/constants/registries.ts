@@ -2,7 +2,7 @@ const REGISTRIES = [
   {
     id: 0,
     label: "Docker Hub",
-    host: "docker.io",
+    host: "docker.io/library",
   },
   {
     id: 1,

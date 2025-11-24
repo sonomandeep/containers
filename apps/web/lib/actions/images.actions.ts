@@ -2,7 +2,7 @@
 
 import type { PullImageInput } from "@/lib/services/images.service";
 import { logger } from "@/lib/logger";
-import { pullImageInputSchema } from "@/lib/services/images.service";
+import { pullImage, pullImageInputSchema } from "@/lib/services/images.service";
 import { validateFormData } from "@/lib/utils";
 
 export interface PullImageActionFormState {
@@ -17,9 +17,15 @@ export async function pullImageAction(_prevState: PullImageActionFormState, form
     return { data: input.data, error: input.errors };
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const { error } = await pullImage(input.data);
 
-  logger.debug(input);
+  if (error) {
+    if (error.status === 404) {
+      return { data: input.data, error: { root: "Image not found on the registry." } };
+    }
+
+    return { data: input.data, error: { root: "Unexpected error while pulling the image." } };
+  }
 
   return { data: input.data, error: null };
 }

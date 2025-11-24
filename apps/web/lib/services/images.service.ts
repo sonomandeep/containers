@@ -1,4 +1,6 @@
+import type { Image, ServiceResponse } from "@containers/shared";
 import { imageSchema } from "@containers/shared";
+import { updateTag } from "next/cache";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
@@ -7,6 +9,9 @@ export async function listImages() {
   const { data, error } = await $api("/images", {
     method: "get",
     output: z.array(imageSchema),
+    next: {
+      tags: ["images"],
+    },
   });
 
   if (error) {
@@ -42,6 +47,26 @@ export const pullImageInputSchema = z.object({
 
 export type PullImageInput = z.infer<typeof pullImageInputSchema>;
 
-export async function pullImage(input: PullImageInput) {
-  logger.debug(input);
+export async function pullImage(input: PullImageInput): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
+  const { data, error } = await $api("/images", {
+    method: "post",
+    body: JSON.stringify({
+      registry: input.registry,
+      name: input.name,
+      tag: input.tag,
+    }),
+    headers: {
+      "content-type": "application/json",
+    },
+    output: imageSchema,
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  updateTag("images");
+
+  return { data, error: null };
 }
