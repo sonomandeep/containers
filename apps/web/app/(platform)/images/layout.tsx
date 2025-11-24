@@ -1,6 +1,6 @@
 import { Layers2Icon } from "lucide-react";
+import { PullImageDialog } from "@/components/images/pull/pull-image-dialog";
 import PageHeader, {
-  PageHeaderAction,
   PageHeaderActions,
   PageHeaderTitle,
 } from "@/components/layout/page-header";
@@ -16,7 +16,7 @@ export default function RootLayout({
         <PageHeaderTitle icon={Layers2Icon}>Images</PageHeaderTitle>
 
         <PageHeaderActions>
-          <PageHeaderAction>Pull Image</PageHeaderAction>
+          <PullImageDialog />
         </PageHeaderActions>
       </PageHeader>
 

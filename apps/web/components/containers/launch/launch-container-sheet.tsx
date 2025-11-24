@@ -1,6 +1,6 @@
 "use client";
 
-import { BoxIcon, CornerDownLeftIcon, PlusIcon } from "lucide-react";
+import { BoxIcon, CornerDownLeftIcon } from "lucide-react";
 import {
   SheetHeaderBackButton,
   SheetHeaderBadge,
@@ -36,9 +36,9 @@ export function LaunchContainerSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm" variant="outline">
-          <PlusIcon className="size-3.5 opacity-80" />
+        <Button size="sm">
           New Container
+          <CornerDownLeftIcon className="size-3.5 opacity-60" />
         </Button>
       </SheetTrigger>
 
