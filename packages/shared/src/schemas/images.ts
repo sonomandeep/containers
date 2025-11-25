@@ -14,9 +14,9 @@ export const imageSchema = z.object({
   repoDigests: z.array(z.string()),
   created: z.number(),
   size: z.number(),
-  sharedSize: z.number(),
-  virtualSize: z.number(),
-  containers: imageContainersSchema,
+  sharedSize: z.number().optional(),
+  virtualSize: z.number().optional(),
+  containers: imageContainersSchema.optional(),
 });
 
 export type Image = z.infer<typeof imageSchema>;

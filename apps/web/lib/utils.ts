@@ -1,5 +1,7 @@
 import type { ClassValue } from "clsx";
+import type { z } from "zod";
 import { clsx } from "clsx";
+
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -18,4 +20,33 @@ export function formatBytes(bytes: number) {
   const value = bytes / 1024 ** exponent;
 
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[exponent]}`;
+}
+
+type RawInput = Record<string, FormDataEntryValue>;
+
+type ValidationResult<TSchema extends z.ZodTypeAny>
+  = | { ok: true; data: z.infer<TSchema>; errors: null }
+    | { ok: false; data: RawInput; errors: Record<string, string> };
+
+export function validateFormData<TSchema extends z.ZodTypeAny>(
+  schema: TSchema,
+  formData: FormData,
+): ValidationResult<TSchema> {
+  const raw = Object.fromEntries(formData.entries()) as RawInput;
+  const result = schema.safeParse(raw);
+
+  if (!result.success) {
+    const errors: Record<string, string> = {};
+
+    for (const issue of result.error.issues) {
+      const field = issue.path[0];
+      if (typeof field === "string" && !errors[field]) {
+        errors[field] = issue.message;
+      }
+    }
+
+    return { ok: false, data: raw, errors };
+  }
+
+  return { ok: true, data: result.data, errors: null };
 }

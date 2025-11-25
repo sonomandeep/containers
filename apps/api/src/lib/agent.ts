@@ -6,7 +6,7 @@ import type {
 } from "@containers/shared";
 import Docker from "dockerode";
 
-const docker = new Docker({
+export const docker = new Docker({
   socketPath: "/var/run/docker.sock",
 });
 

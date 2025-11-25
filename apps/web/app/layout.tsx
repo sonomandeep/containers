@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -46,6 +47,7 @@ export default function RootLayout({
 
             <SidebarInset>
               <main className="h-full w-full">{children}</main>
+              <Toaster />
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
