@@ -1,19 +1,8 @@
 "use client";
 
 import type { Image } from "@containers/shared";
-import { ArrowUpDownIcon, CornerDownLeftIcon, FunnelIcon, Trash2Icon } from "lucide-react";
-import { useEffect } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ArrowUpDownIcon, FunnelIcon } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +12,6 @@ import {
   DataTableTable,
   useDataTableContext,
 } from "@/components/ui/data-table";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { Spinner } from "@/components/ui/spinner";
 import { columns } from "./columns";
 import RemoveImagesDialog from "./remove-images.dialog";
 

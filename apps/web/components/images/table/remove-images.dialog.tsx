@@ -20,6 +20,9 @@ interface Props {
 }
 
 export default function RemoveImagesDialog({ images }: Props) {
+  const totalImages = images.length;
+  const entityLabel = totalImages === 1 ? "image" : "images";
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -33,10 +36,11 @@ export default function RemoveImagesDialog({ images }: Props) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {`Remove ${totalImages} ${entityLabel}?`}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your account
-            and remove your data from our servers.
+            {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -52,7 +56,9 @@ export default function RemoveImagesDialog({ images }: Props) {
 
           <AlertDialogAction size="sm" variant="destructive">
             <>
-              Pull Image
+              {
+                `Delete ${entityLabel}`
+              }
               {false
                 ? (
                     <Spinner />
