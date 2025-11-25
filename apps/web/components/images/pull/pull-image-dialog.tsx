@@ -1,5 +1,6 @@
 "use client";
 
+import type { Registry } from "@/lib/constants/registries";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
@@ -17,11 +18,14 @@ import {
 } from "@/components/ui/dialog";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
+import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
@@ -34,8 +38,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { pullImageAction } from "@/lib/actions/images.actions";
 import REGISTRIES from "@/lib/constants/registries";
 
+const DEFAULT_REGISTRY = REGISTRIES.at(0)!;
+
+function getRegistryByHost(host?: string | null): Registry {
+  return REGISTRIES.find((current) => current.host === host) ?? DEFAULT_REGISTRY;
+}
+
 export function PullImageDialog() {
-  const [registry, setRegistry] = useState(REGISTRIES.at(0));
   const [state, action, isPending] = useActionState(pullImageAction, {
     data: {
       name: "",
@@ -44,6 +53,15 @@ export function PullImageDialog() {
     },
     error: null,
   });
+  const [registry, setRegistry] = useState<Registry>(() =>
+    getRegistryByHost(state.data.registry as string | undefined),
+  );
+  const [imageName, setImageName] = useState(
+    typeof state.data.name === "string" ? state.data.name : "",
+  );
+  const [tag, setTag] = useState(
+    typeof state.data.tag === "string" ? state.data.tag : "latest",
+  );
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
@@ -62,6 +80,16 @@ export function PullImageDialog() {
       toast.success("Image pulled successfully.");
     }
   }, [state, isPending, hasSubmitted]);
+
+  const imageReference = (() => {
+    const trimmedName = imageName.trim();
+    const trimmedTag = tag.trim();
+
+    if (!trimmedName)
+      return null;
+
+    return `${registry.host}/${trimmedName}${trimmedTag ? `:${trimmedTag}` : ""}`;
+  })();
 
   return (
     <Dialog>
@@ -92,18 +120,13 @@ export function PullImageDialog() {
           <FieldSet>
             <FieldGroup className="gap-4">
               <Field data-invalid={!!state?.error?.registry}>
-                <FieldLabel htmlFor="registry">
-                  Registry
-                </FieldLabel>
+                <FieldLabel htmlFor="registry">Registry</FieldLabel>
 
                 <Select
-                  defaultValue={state.data.registry as string}
                   name="registry"
                   value={registry.host}
                   onValueChange={(value) =>
-                    setRegistry(
-                      REGISTRIES.find((current) => current.host === value),
-                    )}
+                    setRegistry(getRegistryByHost(value))}
                 >
                   <SelectTrigger
                     className=""
@@ -127,6 +150,10 @@ export function PullImageDialog() {
                 {state?.error?.registry && (
                   <FieldError>{state.error.registry}</FieldError>
                 )}
+
+                <FieldDescription>
+                  Where the image is hosted (e.g. Docker Hub, GHCR).
+                </FieldDescription>
               </Field>
 
               <div className="grid grid-cols-[1fr_128px] gap-2">
@@ -136,7 +163,8 @@ export function PullImageDialog() {
                   <Input
                     id="name"
                     name="name"
-                    defaultValue={state.data.name as string}
+                    value={imageName}
+                    onChange={(event) => setImageName(event.target.value)}
                     placeholder="nginx"
                     aria-invalid={!!state?.error?.name}
                   />
@@ -144,6 +172,10 @@ export function PullImageDialog() {
                   {state?.error?.name && (
                     <FieldError>{state.error.name}</FieldError>
                   )}
+
+                  <FieldDescription>
+                    Specify the image name and tag (e.g. nginx:1.25)
+                  </FieldDescription>
                 </Field>
 
                 <Field data-invalid={!!state?.error?.tag}>
@@ -152,7 +184,8 @@ export function PullImageDialog() {
                   <Input
                     id="tag"
                     name="tag"
-                    defaultValue={state.data.tag as string}
+                    value={tag}
+                    onChange={(event) => setTag(event.target.value)}
                     placeholder="latest"
                     autoComplete="off"
                     aria-invalid={!!state?.error?.tag}
@@ -163,6 +196,16 @@ export function PullImageDialog() {
                   )}
                 </Field>
               </div>
+
+              {imageReference && (
+                <>
+                  <FieldSeparator></FieldSeparator>
+
+                  <InfoCard>
+                    <InfoCardRow label="Image reference"><span className="font-mono">{imageReference}</span></InfoCardRow>
+                  </InfoCard>
+                </>
+              )}
             </FieldGroup>
           </FieldSet>
 

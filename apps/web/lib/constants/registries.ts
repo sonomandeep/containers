@@ -1,8 +1,14 @@
-const REGISTRIES = [
+export interface Registry {
+  id: number;
+  label: string;
+  host: string;
+}
+
+const REGISTRIES: Array<Registry> = [
   {
     id: 0,
     label: "Docker Hub",
-    host: "docker.io/library",
+    host: "docker.io",
   },
   {
     id: 1,
