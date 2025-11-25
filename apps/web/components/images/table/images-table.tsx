@@ -2,6 +2,7 @@
 
 import type { Image } from "@containers/shared";
 import { ArrowUpDownIcon, CornerDownLeftIcon, FunnelIcon, Trash2Icon } from "lucide-react";
+import { useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { columns } from "./columns";
+import RemoveImagesDialog from "./remove-images.dialog";
 
 interface ImagesTableProps {
   data: Image[];
@@ -62,59 +64,12 @@ function ImagesTableHeaderTitle() {
 
 function ImagesTableHeaderActions() {
   const { table } = useDataTableContext<Image>();
-  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
 
   return (
     <>
-      {selectedCount > 0 && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="icon-sm"
-              variant="destructive-ghost"
-              aria-label={`Delete ${selectedCount} selected images`}
-            >
-              <Trash2Icon className="size-3.5" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your account
-                and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel variant="secondary" size="sm">
-                <>
-                  Cancel
-                  <KbdGroup>
-                    <Kbd>ESC</Kbd>
-                  </KbdGroup>
-                </>
-              </AlertDialogCancel>
-
-              <AlertDialogAction size="sm" variant="destructive">
-                <>
-                  Pull Image
-                  {false
-                    ? (
-                        <Spinner />
-                      )
-                    : (
-                        <KbdGroup>
-                          <Kbd>
-                            <CornerDownLeftIcon />
-                          </Kbd>
-                        </KbdGroup>
-                      )}
-                </>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      {selectedRows.length > 0 && (
+        <RemoveImagesDialog images={selectedRows.map((row) => row.original)} />
       )}
 
       <Button variant="ghost" size="icon-sm" aria-label="Filter images">
