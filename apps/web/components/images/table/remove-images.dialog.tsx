@@ -56,11 +56,17 @@ export default function RemoveImagesDialog({ images }: Props) {
         <div className="grid grid-cols-2 gap-2">
           {images.map((image) => (
             <Item key={image.id} variant="outline" className="p-2 flex-nowrap">
-              <ItemContent className="overflow-hidden">
-                <ItemTitle>{image.repoTags.at(0) || "none"}</ItemTitle>
+              <ItemContent>
+                <ItemTitle>
+                  <span className="overflow-hidden text-ellipsis w-full max-w-32">
+                    {image.repoTags.at(0) || "none"}
+                  </span>
+                </ItemTitle>
               </ItemContent>
 
-              <ItemActions><ContainersState state={image.containers} /></ItemActions>
+              <ItemActions>
+                <ContainersState state={image.containers} />
+              </ItemActions>
             </Item>
           ))}
         </div>
