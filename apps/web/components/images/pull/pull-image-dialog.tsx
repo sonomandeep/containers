@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -41,7 +40,7 @@ export function PullImageDialog() {
     data: {
       name: "",
       registry: "",
-      tag: "",
+      tag: "latest",
     },
     error: null,
   });
@@ -81,7 +80,7 @@ export function PullImageDialog() {
         <DialogHeader>
           <DialogTitle>Pull Docker Image</DialogTitle>
           <DialogDescription>
-            Select the registry, image name and tag to pull.
+            Choose the registry and specify the image to download.
           </DialogDescription>
         </DialogHeader>
 
@@ -92,75 +91,78 @@ export function PullImageDialog() {
         >
           <FieldSet>
             <FieldGroup className="gap-4">
-              <Field>
-                <FieldLabel htmlFor="name">
-                  Image (Registry and Image name)
+              <Field data-invalid={!!state?.error?.registry}>
+                <FieldLabel htmlFor="registry">
+                  Registry
                 </FieldLabel>
 
-                <ButtonGroup className="w-full">
-                  <Select
-                    defaultValue={state.data.registry as string}
-                    name="registry"
-                    value={registry.host}
-                    onValueChange={(value) =>
-                      setRegistry(
-                        REGISTRIES.find((current) => current.host === value),
-                      )}
+                <Select
+                  defaultValue={state.data.registry as string}
+                  name="registry"
+                  value={registry.host}
+                  onValueChange={(value) =>
+                    setRegistry(
+                      REGISTRIES.find((current) => current.host === value),
+                    )}
+                >
+                  <SelectTrigger
+                    className=""
+                    aria-invalid={!!state?.error?.registry}
                   >
-                    <SelectTrigger className="font-mono w-40">
-                      {registry.label}
-                    </SelectTrigger>
+                    {registry.label}
+                  </SelectTrigger>
 
-                    <SelectContent className="min-w-24">
-                      {REGISTRIES.map((current) => (
-                        <SelectItem key={current.host} value={current.host}>
-                          {current.label}
-                          <span className="text-muted-foreground">
-                            {current.host}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SelectContent className="min-w-24">
+                    {REGISTRIES.map((current) => (
+                      <SelectItem key={current.host} value={current.host}>
+                        {current.label}
+                        <span className="text-muted-foreground">
+                          {current.host}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {state?.error?.registry && (
+                  <FieldError>{state.error.registry}</FieldError>
+                )}
+              </Field>
+
+              <div className="grid grid-cols-[1fr_128px] gap-2">
+                <Field data-invalid={!!state?.error?.name}>
+                  <FieldLabel htmlFor="tag">Image Name</FieldLabel>
 
                   <Input
                     id="name"
                     name="name"
                     defaultValue={state.data.name as string}
                     placeholder="nginx"
+                    aria-invalid={!!state?.error?.name}
                   />
-                </ButtonGroup>
 
-                {state?.error?.registry && (
-                  <FieldError>{state.error.registry}</FieldError>
-                )}
-                {state?.error?.name && (
-                  <FieldError>{state.error.name}</FieldError>
-                )}
+                  {state?.error?.name && (
+                    <FieldError>{state.error.name}</FieldError>
+                  )}
+                </Field>
 
-                <FieldDescription>
-                  Use the full image name as on the registry.
-                </FieldDescription>
-              </Field>
+                <Field data-invalid={!!state?.error?.tag}>
+                  <FieldLabel htmlFor="tag">Tag</FieldLabel>
 
-              <Field>
-                <FieldLabel htmlFor="tag">Image Tag</FieldLabel>
-                <Input
-                  id="tag"
-                  name="tag"
-                  defaultValue={state.data.tag as string}
-                  placeholder="latest"
-                  autoComplete="off"
-                />
+                  <Input
+                    id="tag"
+                    name="tag"
+                    defaultValue={state.data.tag as string}
+                    placeholder="latest"
+                    autoComplete="off"
+                    aria-invalid={!!state?.error?.tag}
+                  />
 
-                {state?.error?.tag && (
-                  <FieldError>{state.error.tag}</FieldError>
-                )}
-
-                <FieldDescription>
-                  Specify the image tag (e.g. latest, 1.28).
-                </FieldDescription>
-              </Field>
+                  {state?.error?.tag && (
+                    <FieldError>{state.error.tag}</FieldError>
+                  )}
+                </Field>
+              </div>
             </FieldGroup>
           </FieldSet>
 
