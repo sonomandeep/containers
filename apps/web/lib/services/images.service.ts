@@ -74,7 +74,12 @@ export async function pullImage(
 }
 
 const formBooleanSchema = z
-  .union([z.literal("true"), z.literal("false"), z.boolean()])
+  .union([
+    z.literal("true"),
+    z.literal("false"),
+    z.literal("on"),
+    z.boolean(),
+  ])
   .optional()
   .transform((value) => {
     if (typeof value === "boolean") {
@@ -82,7 +87,7 @@ const formBooleanSchema = z
     }
 
     if (typeof value === "string") {
-      return value === "true";
+      return value === "true" || value === "on";
     }
 
     return false;
