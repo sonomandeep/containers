@@ -2,6 +2,7 @@
 
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
+import { ContainersState } from "@/components/images/containers-state";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +23,11 @@ import {
 } from "@/components/ui/item";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
-import { ContainersState } from "../containers-state";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Props {
   images: Array<Image>;
@@ -58,9 +63,17 @@ export default function RemoveImagesDialog({ images }: Props) {
             <Item key={image.id} variant="outline" className="p-2 flex-nowrap">
               <ItemContent>
                 <ItemTitle>
-                  <span className="overflow-hidden text-ellipsis w-full max-w-32">
-                    {image.repoTags.at(0) || "none"}
-                  </span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <span className="overflow-hidden text-ellipsis w-full max-w-32">
+                        {image.repoTags.at(0) || "none"}
+                      </span>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="bottom">
+                      {image.repoTags.join(" - ") || "none"}
+                    </TooltipContent>
+                  </Tooltip>
                 </ItemTitle>
               </ItemContent>
 
