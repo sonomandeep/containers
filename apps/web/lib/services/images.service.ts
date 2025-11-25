@@ -47,7 +47,22 @@ export const pullImageInputSchema = z.object({
 
 export type PullImageInput = z.infer<typeof pullImageInputSchema>;
 
-export async function pullImage(input: PullImageInput): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
+export const removeImagesInputSchema = z.object({
+  ids: z
+    .array(
+      z
+        .string()
+        .min(1, { message: "Image id is required." })
+        .max(128, { message: "Image id is too long." }),
+    )
+    .min(1, { message: "Please select at least one image to remove." }),
+});
+
+export type RemoveImagesInput = z.infer<typeof removeImagesInputSchema>;
+
+export async function pullImage(
+  input: PullImageInput,
+): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
   const { data, error } = await $api("/images", {
     method: "post",
     body: JSON.stringify({

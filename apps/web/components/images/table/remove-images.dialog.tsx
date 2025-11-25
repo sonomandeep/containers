@@ -2,6 +2,8 @@
 
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
 import {
   AlertDialog,
@@ -28,6 +30,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { removeImagesAction } from "@/lib/actions/images.actions";
 
 interface Props {
   images: Array<Image>;
@@ -36,6 +39,35 @@ interface Props {
 export default function RemoveImagesDialog({ images }: Props) {
   const totalImages = images.length;
   const entityLabel = totalImages === 1 ? "image" : "images";
+
+  const [state, action, isPending] = useActionState(removeImagesAction, {
+    data: { ids: [] },
+    error: null,
+  });
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!hasSubmitted)
+      return;
+
+    if (isPending)
+      return;
+
+    if (state?.error?.root) {
+      toast.error(state.error.root || "Unable to delete the selected images.");
+      return;
+    }
+
+    if (
+      state.error === null
+      && Array.isArray(state.data?.ids)
+      && state.data.ids.length > 0
+    ) {
+      toast.success(
+        `Deleted ${state.data.ids.length} Docker ${state.data.ids.length === 1 ? "image" : "images"}.`,
+      );
+    }
+  }, [state, isPending, hasSubmitted]);
 
   return (
     <AlertDialog>
@@ -49,70 +81,82 @@ export default function RemoveImagesDialog({ images }: Props) {
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {`Remove ${totalImages} ${entityLabel}?`}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <div className="grid grid-cols-2 gap-2">
+        <form
+          action={action}
+          className="space-y-4"
+          onSubmit={() => setHasSubmitted(true)}
+        >
           {images.map((image) => (
-            <Item key={image.id} variant="outline" className="p-2 flex-nowrap">
-              <ItemContent>
-                <ItemTitle>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <span className="overflow-hidden text-ellipsis w-full max-w-32">
-                        {image.repoTags.at(0) || "none"}
-                      </span>
-                    </TooltipTrigger>
-
-                    <TooltipContent side="bottom">
-                      {image.repoTags.join(" - ") || "none"}
-                    </TooltipContent>
-                  </Tooltip>
-                </ItemTitle>
-              </ItemContent>
-
-              <ItemActions>
-                <ContainersState state={image.containers} />
-              </ItemActions>
-            </Item>
+            <input key={image.id} type="hidden" name="ids" value={image.id} />
           ))}
-        </div>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel variant="secondary" size="sm">
-            <>
-              Cancel
-              <KbdGroup>
-                <Kbd>ESC</Kbd>
-              </KbdGroup>
-            </>
-          </AlertDialogCancel>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {`Remove ${totalImages} ${entityLabel}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-          <AlertDialogAction size="sm" variant="destructive">
-            <>
-              {
-                `Delete ${entityLabel}`
-              }
-              {false
-                ? (
-                    <Spinner />
-                  )
-                : (
-                    <KbdGroup>
-                      <Kbd>
-                        <CornerDownLeftIcon />
-                      </Kbd>
-                    </KbdGroup>
-                  )}
-            </>
-          </AlertDialogAction>
-        </AlertDialogFooter>
+          <div className="grid grid-cols-2 gap-2">
+            {images.map((image) => (
+              <Item
+                key={image.id}
+                variant="outline"
+                className="p-2 flex-nowrap"
+              >
+                <ItemContent>
+                  <ItemTitle>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="overflow-hidden text-ellipsis w-full max-w-32">
+                          {image.repoTags.at(0) || "none"}
+                        </span>
+                      </TooltipTrigger>
+
+                      <TooltipContent side="bottom">
+                        {image.repoTags.join(" - ") || "none"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </ItemTitle>
+                </ItemContent>
+
+                <ItemActions>
+                  <ContainersState state={image.containers} />
+                </ItemActions>
+              </Item>
+            ))}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="secondary" size="sm" type="button">
+              <>
+                Cancel
+                <KbdGroup>
+                  <Kbd>ESC</Kbd>
+                </KbdGroup>
+              </>
+            </AlertDialogCancel>
+
+            <AlertDialogAction size="sm" variant="destructive" type="submit">
+              <>
+                {`Delete ${entityLabel}`}
+                {isPending
+                  ? (
+                      <Spinner />
+                    )
+                  : (
+                      <KbdGroup>
+                        <Kbd>
+                          <CornerDownLeftIcon />
+                        </Kbd>
+                      </KbdGroup>
+                    )}
+              </>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </form>
       </AlertDialogContent>
     </AlertDialog>
   );
