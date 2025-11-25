@@ -2,7 +2,7 @@
 
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { removeImagesAction } from "@/lib/actions/images.actions";
+import { cn } from "@/lib/utils";
 
 interface Props {
   images: Array<Image>;
@@ -38,6 +39,7 @@ export default function RemoveImagesDialog({ images }: Props) {
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [forceDelete, setForceDelete] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!hasSubmitted)
@@ -59,12 +61,16 @@ export default function RemoveImagesDialog({ images }: Props) {
       toast.success(
         `Deleted ${state.data.images.length} Docker ${state.data.images.length === 1 ? "image" : "images"}.`,
       );
+
+      startTransition(() => {
+        setOpen(false);
+      });
     }
   }, [state, isPending, hasSubmitted]);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild className={cn(images.length === 0 && "hidden")}>
         <Button
           size="icon-sm"
           variant="destructive-ghost"

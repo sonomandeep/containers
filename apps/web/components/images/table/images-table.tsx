@@ -55,9 +55,7 @@ function ImagesTableHeaderActions() {
 
   return (
     <>
-      {selectedRows.length > 0 && (
-        <RemoveImagesDialog images={selectedRows.map((row) => row.original)} />
-      )}
+      <RemoveImagesDialog images={selectedRows.map((row) => row.original)} />
 
       <Button variant="ghost" size="icon-sm" aria-label="Filter images">
         <FunnelIcon className="size-3.5 opacity-60" />
