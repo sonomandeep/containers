@@ -5,19 +5,9 @@ import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Item,
   ItemActions,
@@ -73,8 +63,8 @@ export default function RemoveImagesDialog({ images }: Props) {
   }, [state, isPending, hasSubmitted]);
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button
           size="icon-sm"
           variant="destructive-ghost"
@@ -82,8 +72,9 @@ export default function RemoveImagesDialog({ images }: Props) {
         >
           <Trash2Icon className="size-3.5" />
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
+      </DialogTrigger>
+
+      <DialogContent>
         <form
           action={action}
           className="space-y-4"
@@ -94,14 +85,14 @@ export default function RemoveImagesDialog({ images }: Props) {
           ))}
           <input type="hidden" name="force" value={forceDelete ? "true" : "false"} />
 
-          <AlertDialogHeader>
-            <AlertDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {`Remove ${totalImages} ${entityLabel}?`}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid grid-cols-2 gap-2">
             {images.map((image) => (
@@ -148,35 +139,33 @@ export default function RemoveImagesDialog({ images }: Props) {
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel variant="secondary" size="sm" type="button">
-              <>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="secondary" size="sm" type="button">
                 Cancel
                 <KbdGroup>
                   <Kbd>ESC</Kbd>
                 </KbdGroup>
-              </>
-            </AlertDialogCancel>
+              </Button>
+            </DialogClose>
 
-            <AlertDialogAction size="sm" variant="destructive" type="submit">
-              <>
-                {`Delete ${entityLabel}`}
-                {isPending
-                  ? (
-                      <Spinner />
-                    )
-                  : (
-                      <KbdGroup>
-                        <Kbd>
-                          <CornerDownLeftIcon />
-                        </Kbd>
-                      </KbdGroup>
-                    )}
-              </>
-            </AlertDialogAction>
-          </AlertDialogFooter>
+            <Button size="sm" variant="destructive" type="submit" disabled={isPending}>
+              {`Delete ${entityLabel}`}
+              {isPending
+                ? (
+                    <Spinner />
+                  )
+                : (
+                    <KbdGroup>
+                      <Kbd>
+                        <CornerDownLeftIcon />
+                      </Kbd>
+                    </KbdGroup>
+                  )}
+            </Button>
+          </DialogFooter>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
