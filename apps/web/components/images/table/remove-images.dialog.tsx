@@ -24,8 +24,8 @@ import {
   ItemContent,
   ItemTitle,
 } from "@/components/ui/item";
-import { Label } from "@/components/ui/label";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
