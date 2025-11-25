@@ -2,12 +2,14 @@
 
 import type { Image } from "@containers/shared";
 import { ArrowUpDownIcon, FunnelIcon, Trash2Icon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DataTable,
   DataTableFooter,
   DataTableHeader,
   DataTableTable,
+  useDataTableContext,
 } from "@/components/ui/data-table";
 import { columns } from "./columns";
 
@@ -19,12 +21,8 @@ export function ImagesTable({ data }: ImagesTableProps) {
   return (
     <DataTable columns={columns} data={data}>
       <DataTableHeader
-        title="All Images"
-        actions={({ table }) => (
-          <ImagesTableHeaderActions
-            selectedCount={table.getFilteredSelectedRowModel().rows.length}
-          />
-        )}
+        title={<ImagesTableHeaderTitle />}
+        actions={<ImagesTableHeaderActions />}
       />
       <DataTableTable />
       <DataTableFooter />
@@ -32,29 +30,43 @@ export function ImagesTable({ data }: ImagesTableProps) {
   );
 }
 
-interface ImagesTableHeaderActionsProps {
-  selectedCount: number;
+function ImagesTableHeaderTitle() {
+  const { table } = useDataTableContext<Image>();
+  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
+  return (
+    <div className="inline-flex items-center gap-2">
+      <h2>All Images</h2>
+
+      {selectedCount > 0 && (
+        <Badge variant="outline" className="px-2 text-xs font-mono">
+          {`${selectedCount} selected`}
+        </Badge>
+      )}
+    </div>
+  );
 }
 
-function ImagesTableHeaderActions({
-  selectedCount,
-}: ImagesTableHeaderActionsProps) {
+function ImagesTableHeaderActions() {
+  const { table } = useDataTableContext<Image>();
+  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
   return (
     <>
       {selectedCount > 0 && (
-        <Button
-          variant="destructive-ghost"
-          size="icon-sm"
+        <button
+          type="button"
+          className="inline-flex size-8 items-center justify-center rounded-md text-destructive transition hover:bg-destructive/10"
           aria-label={`Delete ${selectedCount} selected images`}
         >
           <Trash2Icon className="size-3.5" />
-        </Button>
+        </button>
       )}
 
-      <Button variant="ghost" size="icon-sm">
+      <Button variant="ghost" size="icon-sm" aria-label="Filter images">
         <FunnelIcon className="size-3.5 opacity-60" />
       </Button>
-      <Button variant="ghost" size="icon-sm">
+      <Button variant="ghost" size="icon-sm" aria-label="Sort images">
         <ArrowUpDownIcon className="size-3.5 opacity-60" />
       </Button>
     </>
