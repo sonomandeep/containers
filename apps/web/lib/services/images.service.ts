@@ -47,7 +47,9 @@ export const pullImageInputSchema = z.object({
 
 export type PullImageInput = z.infer<typeof pullImageInputSchema>;
 
-export async function pullImage(input: PullImageInput): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
+export async function pullImage(
+  input: PullImageInput,
+): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
   const { data, error } = await $api("/images", {
     method: "post",
     body: JSON.stringify({
@@ -69,4 +71,66 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
   updateTag("images");
 
   return { data, error: null };
+}
+
+const formBooleanSchema = z
+  .union([
+    z.literal("true"),
+    z.literal("false"),
+    z.literal("on"),
+    z.boolean(),
+  ])
+  .optional()
+  .transform((value) => {
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      return value === "true" || value === "on";
+    }
+
+    return false;
+  });
+
+const imageIdSchema = z
+  .string()
+  .min(1, { message: "Image id is required." })
+  .max(128, { message: "Image id is too long." });
+
+export const removeImagesInputSchema = z.object({
+  images: z
+    .preprocess((value) => {
+      if (Array.isArray(value)) {
+        return value;
+      }
+
+      if (typeof value === "string") {
+        return [value];
+      }
+
+      return value;
+    }, z.array(imageIdSchema).min(1, { message: "Please select at least one image to remove." })),
+  force: formBooleanSchema,
+});
+
+export type RemoveImagesInput = z.infer<typeof removeImagesInputSchema>;
+
+export async function removeImages(input: RemoveImagesInput): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
+  const { error } = await $api("/images/remove", {
+    method: "post",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  updateTag("images");
+
+  return { data: null, error: null };
 }

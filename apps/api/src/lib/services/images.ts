@@ -59,3 +59,58 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
     };
   }
 }
+
+interface RemoveImagesInput {
+  images: Array<string>;
+  force?: boolean;
+}
+
+async function removeImage(imageId: string, force?: boolean) {
+  if (force) {
+    const containers = await docker.listContainers({
+      all: true,
+      filters: {
+        ancestor: [imageId],
+      },
+    });
+
+    for (const containerInfo of containers) {
+      const container = docker.getContainer(containerInfo.Id);
+      await container.remove({ force: true });
+    }
+  }
+
+  const image = docker.getImage(imageId);
+  await image.remove(force ? { force: true } : undefined);
+}
+
+export async function removeImages(input: RemoveImagesInput): Promise<ServiceResponse<null, { message: string; code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR | typeof HttpStatusCodes.CONFLICT }>> {
+  try {
+    for (const imageId of input.images) {
+      await removeImage(imageId, input.force);
+    }
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch (error) {
+    if (isDockerodeError(error) && error.statusCode === HttpStatusCodes.CONFLICT) {
+      return {
+        data: null,
+        error: {
+          message: "Cannot delete images with existing containers. Stop them or retry with force delete.",
+          code: HttpStatusCodes.CONFLICT,
+        },
+      };
+    }
+
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}

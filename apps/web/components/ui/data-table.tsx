@@ -3,6 +3,7 @@
 import type {
   ColumnDef,
   Row,
+  RowSelectionState,
   Table as TableInstance,
 } from "@tanstack/react-table";
 import type { MouseEvent, ReactNode } from "react";
@@ -13,7 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDownIcon, FunnelIcon } from "lucide-react";
-import { createContext, use } from "react";
+import { createContext, use, useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -95,12 +96,18 @@ export function DataTable<TData, TValue>({
   children,
   className,
 }: DataTableProps<TData, TValue>) {
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     columnResizeMode: "onChange",
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
   });
 
   return (
@@ -142,7 +149,7 @@ export function DataTableHeader<TData>({
     <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-secondary">
       {title ? typeof title === "string" ? <h2>{title}</h2> : title : <span />}
 
-      <div className="inline-flex items-center gap-4">
+      <div className="inline-flex items-center gap-2">
         {renderSlot(actions, context, <DefaultHeaderActions />)}
       </div>
     </div>

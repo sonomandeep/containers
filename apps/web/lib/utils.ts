@@ -22,7 +22,8 @@ export function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[exponent]}`;
 }
 
-type RawInput = Record<string, FormDataEntryValue>;
+type RawInputValue = FormDataEntryValue | FormDataEntryValue[];
+type RawInput = Record<string, RawInputValue>;
 
 type ValidationResult<TSchema extends z.ZodTypeAny>
   = | { ok: true; data: z.infer<TSchema>; errors: null }
@@ -32,7 +33,23 @@ export function validateFormData<TSchema extends z.ZodTypeAny>(
   schema: TSchema,
   formData: FormData,
 ): ValidationResult<TSchema> {
-  const raw = Object.fromEntries(formData.entries()) as RawInput;
+  const rawEntries = Array.from(formData.entries());
+  const raw = rawEntries.reduce<RawInput>((acc, [key, value]) => {
+    if (key in acc) {
+      const current = acc[key];
+      if (Array.isArray(current)) {
+        current.push(value);
+      }
+      else {
+        acc[key] = [current, value];
+      }
+    }
+    else {
+      acc[key] = value;
+    }
+
+    return acc;
+  }, {});
   const result = schema.safeParse(raw);
 
   if (!result.success) {

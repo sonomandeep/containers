@@ -19,21 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatBytes } from "@/lib/utils";
-
-const containerStateMeta = {
-  running: {
-    label: "Running",
-    dotClass: "bg-green-500",
-  },
-  paused: {
-    label: "Paused",
-    dotClass: "bg-orange-500",
-  },
-  exited: {
-    label: "Exited",
-    dotClass: "bg-red-500",
-  },
-} as const;
+import { ContainersState } from "../containers-state";
 
 const EMPTY_CONTAINERS_STATE: Image["containers"] = {
   running: 0,
@@ -172,7 +158,7 @@ export const columns: ColumnDef<Image>[] = [
         = row.getValue<Image["containers"]>("containers")
           ?? EMPTY_CONTAINERS_STATE;
 
-      return <ContainerStateBadges state={containers} />;
+      return <ContainersState state={containers} />;
     },
     size: 200,
   },
@@ -192,46 +178,3 @@ export const columns: ColumnDef<Image>[] = [
     size: 200,
   },
 ];
-
-type ContainerStateKey = keyof typeof containerStateMeta;
-
-function ContainerStateBadges({ state }: { state: Image["containers"] }) {
-  const items = (Object.keys(containerStateMeta) as Array<ContainerStateKey>)
-    .map((key) => ({
-      key,
-      count: state[key],
-      ...containerStateMeta[key],
-    }))
-    .filter((item) => item.count > 0);
-
-  if (!items.length) {
-    return (
-      <Badge variant="outline" className="font-mono text-muted-foreground">
-        0
-      </Badge>
-    );
-  }
-
-  return (
-    <div className="inline-flex flex-wrap gap-2">
-      {items.map(({ key, count, label, dotClass }) => (
-        <Tooltip key={key}>
-          <TooltipTrigger asChild>
-            <Badge variant="outline" className="gap-1.5">
-              <span
-                className={`size-1.5 rounded-full ${dotClass}`}
-                aria-hidden="true"
-              />
-              <span className="font-mono">{count}</span>
-              <span className="sr-only">{label}</span>
-            </Badge>
-          </TooltipTrigger>
-
-          <TooltipContent>
-            <span className="text-xs font-medium">{label}</span>
-          </TooltipContent>
-        </Tooltip>
-      ))}
-    </div>
-  );
-}
