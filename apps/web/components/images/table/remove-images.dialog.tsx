@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDataTableContext } from "@/components/ui/data-table";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@/components/ui/field";
 import {
   Item,
   ItemActions,
@@ -16,7 +17,6 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
@@ -39,7 +39,6 @@ export default function RemoveImagesDialog({ images }: Props) {
     error: null,
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [forceDelete, setForceDelete] = useState(false);
   const [open, setOpen] = useState(false);
   const { table } = useDataTableContext<Image>();
 
@@ -92,7 +91,6 @@ export default function RemoveImagesDialog({ images }: Props) {
           {images.map((image) => (
             <input key={image.id} type="hidden" name="images" value={image.id} />
           ))}
-          <input type="hidden" name="force" value={forceDelete ? "true" : "false"} />
 
           <DialogHeader>
             <DialogTitle>
@@ -133,20 +131,29 @@ export default function RemoveImagesDialog({ images }: Props) {
             ))}
           </div>
 
-          <div className="flex items-start gap-3 rounded-md border border-dashed border-secondary/70 bg-secondary/10 p-3">
-            <Checkbox
-              id="force-delete"
-              checked={forceDelete}
-              onCheckedChange={(checked) => setForceDelete(checked === true)}
-              aria-label="Force delete selected images"
-            />
-            <div className="space-y-1">
-              <Label htmlFor="force-delete">Force delete</Label>
-              <p className="text-xs text-muted-foreground">
-                Docker will stop and remove containers that still use the selected images.
-              </p>
-            </div>
-          </div>
+          <FieldGroup>
+
+            <FieldSeparator />
+
+            <FieldSet>
+              <FieldLabel htmlFor="force-delete">
+                <Field orientation="horizontal">
+                  <FieldContent>
+                    <FieldTitle>Force remove</FieldTitle>
+                    <FieldDescription>
+                      Docker will stop and remove containers that still use the selected images.
+                    </FieldDescription>
+                  </FieldContent>
+
+                  <Checkbox
+                    id="force-delete"
+                    name="force"
+                    aria-label="Force delete selected images"
+                  />
+                </Field>
+              </FieldLabel>
+            </FieldSet>
+          </FieldGroup>
 
           <DialogFooter>
             <DialogClose asChild>
