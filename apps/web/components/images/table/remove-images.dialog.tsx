@@ -137,19 +137,20 @@ export default function RemoveImagesDialog({ images }: Props) {
 
             <FieldSet>
               <FieldLabel htmlFor="force-delete">
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldTitle>Force remove</FieldTitle>
-                    <FieldDescription>
-                      Docker will stop and remove containers that still use the selected images.
-                    </FieldDescription>
-                  </FieldContent>
-
+                <Field orientation="horizontal" className="p-3!">
                   <Checkbox
                     id="force-delete"
                     name="force"
                     aria-label="Force delete selected images"
                   />
+
+                  <FieldContent>
+                    <FieldTitle>Force remove</FieldTitle>
+                    <FieldDescription>
+                      Docker stops and removes containers using these images.
+                    </FieldDescription>
+                  </FieldContent>
+
                 </Field>
               </FieldLabel>
             </FieldSet>
