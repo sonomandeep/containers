@@ -65,9 +65,18 @@ export async function removeImagesAction(
   const { error } = await removeImages(input.data);
 
   if (error) {
+    if (error.status === 409) {
+      return {
+        data: input.data,
+        error: {
+          root: "Stop and remove all containers that use the selected images before deleting them.",
+        },
+      };
+    }
+
     return {
       data: input.data,
-      error: { root: "Unexpected error while pulling the image." },
+      error: { root: "Unexpected error while deleting the selected images." },
     };
   }
 

@@ -62,6 +62,10 @@ export const remove = createRoute({
       createMessageObjectSchema("images deleted"),
       "Images deleted",
     ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema("Cannot delete images with existing containers."),
+      "Images still referenced by containers",
+    ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
       "Internal server error",

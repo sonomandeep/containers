@@ -2,7 +2,7 @@ import type { ListRoute, PullRoute, RemoveRoute } from "./images.routes";
 import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { listImages } from "@/lib/agent";
-import { pullImage } from "@/lib/services/images";
+import { pullImage, removeImages } from "@/lib/services/images";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const images = await listImages();
@@ -27,9 +27,13 @@ export const pull: AppRouteHandler<PullRoute> = async (c) => {
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   const input = c.req.valid("json");
 
-  // TODO: implement removeImages function in images.service
+  const result = await removeImages(input);
+  if (result.error) {
+    c.var.logger.error(result.error);
+    return c.json({
+      message: result.error.message,
+    }, result.error.code);
+  }
 
-  c.var.logger.info(input, "input");
-
-  return c.json({ message: "images deleted" });
+  return c.json({ message: "images deleted" }, HttpStatusCodes.OK);
 };
