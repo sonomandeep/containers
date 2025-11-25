@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDataTableContext } from "@/components/ui/data-table";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Item,
@@ -40,6 +41,7 @@ export default function RemoveImagesDialog({ images }: Props) {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [forceDelete, setForceDelete] = useState(false);
   const [open, setOpen] = useState(false);
+  const { table } = useDataTableContext<Image>();
 
   useEffect(() => {
     if (!hasSubmitted)
@@ -64,9 +66,10 @@ export default function RemoveImagesDialog({ images }: Props) {
 
       startTransition(() => {
         setOpen(false);
+        table.resetRowSelection();
       });
     }
-  }, [state, isPending, hasSubmitted]);
+  }, [state, isPending, hasSubmitted, table]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
