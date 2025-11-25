@@ -1,4 +1,4 @@
-import type { ListRoute, PullRoute } from "./images.routes";
+import type { ListRoute, PullRoute, RemoveRoute } from "./images.routes";
 import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { listImages } from "@/lib/agent";
@@ -22,4 +22,14 @@ export const pull: AppRouteHandler<PullRoute> = async (c) => {
   }
 
   return c.json(result.data, HttpStatusCodes.OK);
+};
+
+export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+  const input = c.req.valid("json");
+
+  // TODO: implement removeImages function in images.service
+
+  c.var.logger.info(input, "input");
+
+  return c.json({ message: "images deleted" });
 };

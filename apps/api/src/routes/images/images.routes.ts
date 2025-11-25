@@ -2,6 +2,7 @@ import { imageSchema } from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
+import { createMessageObjectSchema } from "stoker/openapi/schemas";
 import { internalServerErrorSchema, notFoundSchema } from "@/lib/constants";
 
 const tags = ["images"];
@@ -17,8 +18,6 @@ export const list = createRoute({
     ),
   },
 });
-
-export type ListRoute = typeof list;
 
 export const pull = createRoute({
   path: "/images",
@@ -47,4 +46,29 @@ export const pull = createRoute({
   },
 });
 
+export const remove = createRoute({
+  path: "/images/remove",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(z.object(
+      {
+        images: z.array(z.string()),
+      },
+    ), "Array of images to delete"),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("images deleted"),
+      "Images deleted",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error",
+    ),
+  },
+});
+
+export type ListRoute = typeof list;
 export type PullRoute = typeof pull;
+export type RemoveRoute = typeof remove;
