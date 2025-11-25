@@ -2,7 +2,7 @@
 
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export default function RemoveImagesDialog({ images }: Props) {
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const { table } = useDataTableContext<Image>();
 
   useEffect(() => {
@@ -82,7 +83,12 @@ export default function RemoveImagesDialog({ images }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          confirmButtonRef.current?.focus();
+        }}
+      >
         <form
           action={action}
           className="space-y-4"
@@ -166,7 +172,13 @@ export default function RemoveImagesDialog({ images }: Props) {
               </Button>
             </DialogClose>
 
-            <Button size="sm" variant="destructive" type="submit" disabled={isPending}>
+            <Button
+              ref={confirmButtonRef}
+              size="sm"
+              variant="destructive"
+              type="submit"
+              disabled={isPending}
+            >
               {`Delete ${entityLabel}`}
               {isPending
                 ? (
