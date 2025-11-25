@@ -54,6 +54,7 @@ export const remove = createRoute({
     body: jsonContentRequired(z.object(
       {
         images: z.array(z.string()),
+        force: z.boolean().optional().default(false),
       },
     ), "Array of images to delete"),
   },
@@ -63,7 +64,7 @@ export const remove = createRoute({
       "Images deleted",
     ),
     [HttpStatusCodes.CONFLICT]: jsonContent(
-      createMessageObjectSchema("Cannot delete images with existing containers."),
+      createMessageObjectSchema("Cannot delete images with existing containers. Stop them or retry with force delete."),
       "Images still referenced by containers",
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(

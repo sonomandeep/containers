@@ -69,7 +69,9 @@ export async function removeImagesAction(
       return {
         data: input.data,
         error: {
-          root: "Stop and remove all containers that use the selected images before deleting them.",
+          root: input.data.force
+            ? "Docker reported containers still referencing these images. Stop them manually and retry."
+            : "Stop and remove all containers that use the selected images or enable Force delete.",
         },
       };
     }

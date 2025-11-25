@@ -10,12 +10,6 @@ interface PullImageInput {
   tag: string;
 }
 
-interface RemoveImagesInput {
-  images: Array<string>;
-}
-
-const IMAGE_IN_USE_MESSAGE = "Cannot delete images with existing containers.";
-
 export async function pullImage(input: PullImageInput): Promise<ServiceResponse<Image, { message: string; code: typeof HttpStatusCodes.NOT_FOUND | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR }>> {
   try {
     const stream = await docker.pull(`${input.registry}/${input.name}:${input.tag}`);
@@ -66,11 +60,34 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
   }
 }
 
+interface RemoveImagesInput {
+  images: Array<string>;
+  force?: boolean;
+}
+
+async function removeImage(imageId: string, force?: boolean) {
+  if (force) {
+    const containers = await docker.listContainers({
+      all: true,
+      filters: {
+        ancestor: [imageId],
+      },
+    });
+
+    for (const containerInfo of containers) {
+      const container = docker.getContainer(containerInfo.Id);
+      await container.remove({ force: true });
+    }
+  }
+
+  const image = docker.getImage(imageId);
+  await image.remove(force ? { force: true } : undefined);
+}
+
 export async function removeImages(input: RemoveImagesInput): Promise<ServiceResponse<null, { message: string; code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR | typeof HttpStatusCodes.CONFLICT }>> {
   try {
     for (const imageId of input.images) {
-      const image = docker.getImage(imageId);
-      await image.remove();
+      await removeImage(imageId, input.force);
     }
 
     return {
@@ -82,7 +99,7 @@ export async function removeImages(input: RemoveImagesInput): Promise<ServiceRes
       return {
         data: null,
         error: {
-          message: IMAGE_IN_USE_MESSAGE,
+          message: "Cannot delete images with existing containers. Stop them or retry with force delete.",
           code: HttpStatusCodes.CONFLICT,
         },
       };

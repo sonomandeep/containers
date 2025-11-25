@@ -17,12 +17,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Item,
   ItemActions,
   ItemContent,
   ItemTitle,
 } from "@/components/ui/item";
+import { Label } from "@/components/ui/label";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -45,6 +47,7 @@ export default function RemoveImagesDialog({ images }: Props) {
     error: null,
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [forceDelete, setForceDelete] = useState(false);
 
   useEffect(() => {
     if (!hasSubmitted)
@@ -89,6 +92,7 @@ export default function RemoveImagesDialog({ images }: Props) {
           {images.map((image) => (
             <input key={image.id} type="hidden" name="images" value={image.id} />
           ))}
+          <input type="hidden" name="force" value={forceDelete ? "true" : "false"} />
 
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -127,6 +131,21 @@ export default function RemoveImagesDialog({ images }: Props) {
                 </ItemActions>
               </Item>
             ))}
+          </div>
+
+          <div className="flex items-start gap-3 rounded-md border border-dashed border-secondary/70 bg-secondary/10 p-3">
+            <Checkbox
+              id="force-delete"
+              checked={forceDelete}
+              onCheckedChange={(checked) => setForceDelete(checked === true)}
+              aria-label="Force delete selected images"
+            />
+            <div className="space-y-1">
+              <Label htmlFor="force-delete">Force delete</Label>
+              <p className="text-xs text-muted-foreground">
+                Docker will stop and remove containers that still use the selected images.
+              </p>
+            </div>
           </div>
 
           <AlertDialogFooter>
