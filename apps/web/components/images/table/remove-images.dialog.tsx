@@ -1,3 +1,5 @@
+"use client";
+
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
 import {
@@ -12,8 +14,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
+import { ContainersState } from "../containers-state";
 
 interface Props {
   images: Array<Image>;
@@ -29,7 +38,7 @@ export default function RemoveImagesDialog({ images }: Props) {
         <Button
           size="icon-sm"
           variant="destructive-ghost"
-          aria-label={`Delete ${images.length} selected images`}
+          aria-label={`Delete ${totalImages} selected images`}
         >
           <Trash2Icon className="size-3.5" />
         </Button>
@@ -43,6 +52,18 @@ export default function RemoveImagesDialog({ images }: Props) {
             {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <div className="grid grid-cols-2 gap-2">
+          {images.map((image) => (
+            <Item key={image.id} variant="outline" className="p-2 flex-nowrap">
+              <ItemContent className="overflow-hidden">
+                <ItemTitle>{image.repoTags.at(0) || "none"}</ItemTitle>
+              </ItemContent>
+
+              <ItemActions><ContainersState state={image.containers} /></ItemActions>
+            </Item>
+          ))}
+        </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel variant="secondary" size="sm">
