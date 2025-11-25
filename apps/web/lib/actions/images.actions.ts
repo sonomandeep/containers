@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import {
   pullImage,
   pullImageInputSchema,
+  removeImages,
   removeImagesInputSchema,
 } from "@/lib/services/images.service";
 import { validateFormData } from "@/lib/utils";
@@ -61,10 +62,14 @@ export async function removeImagesAction(
     return { data: input.data, error: input.errors };
   }
 
-  logger.info(
-    { ids: input.data.ids },
-    "removeImagesAction - received form data",
-  );
+  const { error } = await removeImages(input.data);
 
-  return { data: {}, error: { root: "error" } };
+  if (error) {
+    return {
+      data: input.data,
+      error: { root: "Unexpected error while pulling the image." },
+    };
+  }
+
+  return { data: input.data, error: null };
 }

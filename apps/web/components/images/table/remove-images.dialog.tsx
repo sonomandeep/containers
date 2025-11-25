@@ -41,7 +41,7 @@ export default function RemoveImagesDialog({ images }: Props) {
   const entityLabel = totalImages === 1 ? "image" : "images";
 
   const [state, action, isPending] = useActionState(removeImagesAction, {
-    data: { ids: [] },
+    data: { images: [] },
     error: null,
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -60,11 +60,11 @@ export default function RemoveImagesDialog({ images }: Props) {
 
     if (
       state.error === null
-      && Array.isArray(state.data?.ids)
-      && state.data.ids.length > 0
+      && Array.isArray(state.data?.images)
+      && state.data.images.length > 0
     ) {
       toast.success(
-        `Deleted ${state.data.ids.length} Docker ${state.data.ids.length === 1 ? "image" : "images"}.`,
+        `Deleted ${state.data.images.length} Docker ${state.data.images.length === 1 ? "image" : "images"}.`,
       );
     }
   }, [state, isPending, hasSubmitted]);
@@ -87,7 +87,7 @@ export default function RemoveImagesDialog({ images }: Props) {
           onSubmit={() => setHasSubmitted(true)}
         >
           {images.map((image) => (
-            <input key={image.id} type="hidden" name="ids" value={image.id} />
+            <input key={image.id} type="hidden" name="images" value={image.id} />
           ))}
 
           <AlertDialogHeader>
