@@ -1,7 +1,18 @@
 "use client";
 
 import type { Image } from "@containers/shared";
-import { ArrowUpDownIcon, FunnelIcon, Trash2Icon } from "lucide-react";
+import { ArrowUpDownIcon, CornerDownLeftIcon, FunnelIcon, Trash2Icon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +22,8 @@ import {
   DataTableTable,
   useDataTableContext,
 } from "@/components/ui/data-table";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Spinner } from "@/components/ui/spinner";
 import { columns } from "./columns";
 
 interface ImagesTableProps {
@@ -54,13 +67,54 @@ function ImagesTableHeaderActions() {
   return (
     <>
       {selectedCount > 0 && (
-        <button
-          type="button"
-          className="inline-flex size-8 items-center justify-center rounded-md text-destructive transition hover:bg-destructive/10"
-          aria-label={`Delete ${selectedCount} selected images`}
-        >
-          <Trash2Icon className="size-3.5" />
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon-sm"
+              variant="destructive-ghost"
+              aria-label={`Delete ${selectedCount} selected images`}
+            >
+              <Trash2Icon className="size-3.5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your account
+                and remove your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel variant="secondary" size="sm">
+                <>
+                  Cancel
+                  <KbdGroup>
+                    <Kbd>ESC</Kbd>
+                  </KbdGroup>
+                </>
+              </AlertDialogCancel>
+
+              <AlertDialogAction size="sm" variant="destructive">
+                <>
+                  Pull Image
+                  {false
+                    ? (
+                        <Spinner />
+                      )
+                    : (
+                        <KbdGroup>
+                          <Kbd>
+                            <CornerDownLeftIcon />
+                          </Kbd>
+                        </KbdGroup>
+                      )}
+                </>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
 
       <Button variant="ghost" size="icon-sm" aria-label="Filter images">
