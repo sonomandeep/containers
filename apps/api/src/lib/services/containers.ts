@@ -9,13 +9,13 @@ interface RemoveContainerInput {
   force?: boolean;
 }
 
-type RemoveContainerError = {
+interface RemoveContainerError {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-};
+}
 
 export async function removeContainer(
   input: RemoveContainerInput,
