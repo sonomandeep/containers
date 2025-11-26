@@ -1,8 +1,6 @@
 "use client";
 
-import type {
-  Container,
-} from "@containers/shared";
+import type { Container } from "@containers/shared";
 import {
   MoreHorizontalIcon,
   PlayIcon,
@@ -53,7 +51,7 @@ export default function ContainerActionsDropdown({
       label: "Remove",
       icon: Trash2Icon,
       disabled:
-          state === "running" || state === "paused" || state === "restarting",
+        state === "running" || state === "paused" || state === "restarting",
       variant: "destructive",
     },
   ];
@@ -77,7 +75,7 @@ export default function ContainerActionsDropdown({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-44">
+      <DropdownMenuContent data-row-click-ignore align="end" className="w-44">
         {actionItems.map(({ id, label, icon: Icon, disabled, variant }) => (
           <DropdownMenuItem
             key={id}
