@@ -1,3 +1,4 @@
+import type { ServiceResponse } from "@containers/shared";
 import { containerSchema } from "@containers/shared";
 import { updateTag } from "next/cache";
 import { z } from "zod";
@@ -22,18 +23,24 @@ export async function listContainers() {
 }
 
 export const removeContainerInputSchema = z.object({
-  containerId: z
-    .string()
-    .nonempty(),
+  containerId: z.string().min(1, { message: "Container id is required." }),
 });
 
 export type RemoveContainerInput = z.infer<typeof removeContainerInputSchema>;
 
-export async function removeContainer(input: RemoveContainerInput) {
-  logger.info(
-    { containerId: input.containerId },
-    "Mock remove container action triggered.",
-  );
+export async function removeContainer(
+  input: RemoveContainerInput,
+): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
+  const path = `/containers/${encodeURIComponent(input.containerId)}`;
+
+  const { error } = await $api(path, {
+    method: "delete",
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
 
   updateTag("containers");
 
