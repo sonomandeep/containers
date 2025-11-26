@@ -10,7 +10,7 @@ import { validateFormData } from "@/lib/utils";
 
 export interface RemoveContainerActionFormState {
   data: Partial<RemoveContainerInput>;
-  error: Partial<RemoveContainerInput> & { root?: string };
+  error: (Partial<RemoveContainerInput> & { root?: string }) | null;
 }
 
 export async function removeContainerAction(

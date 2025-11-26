@@ -1,4 +1,5 @@
 import { containerSchema } from "@containers/shared";
+import { updateTag } from "next/cache";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
@@ -7,6 +8,9 @@ export async function listContainers() {
   const { data, error } = await $api("/containers", {
     method: "get",
     output: z.array(containerSchema),
+    next: {
+      tags: ["containers"],
+    },
   });
 
   if (error) {
@@ -30,6 +34,8 @@ export async function removeContainer(input: RemoveContainerInput) {
     { containerId: input.containerId },
     "Mock remove container action triggered.",
   );
+
+  updateTag("containers");
 
   return { data: null, error: null };
 }

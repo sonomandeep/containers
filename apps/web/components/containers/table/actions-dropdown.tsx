@@ -1,12 +1,14 @@
 "use client";
 
 import type { Container } from "@containers/shared";
+import type { RemoveContainerActionFormState } from "@/lib/actions/containers.actions";
 import {
   MoreHorizontalIcon,
   PlayIcon,
   SquareIcon,
   Trash2Icon,
 } from "lucide-react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +17,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  removeContainerAction,
+
+} from "@/lib/actions/containers.actions";
 
 type ContainerActionId = "start" | "stop" | "remove";
 
@@ -25,7 +31,41 @@ interface ContainerActionsDropdownProps {
 export default function ContainerActionsDropdown({
   container,
 }: ContainerActionsDropdownProps) {
-  const { state } = container;
+  const { state: containerState } = container;
+  const initialFormState: RemoveContainerActionFormState = {
+    data: {},
+    error: null,
+  };
+  const [removeState, submitRemoveAction, isRemovePending] = useActionState(
+    removeContainerAction,
+    initialFormState,
+  );
+  const [hasSubmittedRemove, setHasSubmittedRemove] = useState(false);
+
+  useEffect(() => {
+    if (!hasSubmittedRemove || isRemovePending)
+      return;
+
+    if (removeState?.error) {
+      const message
+        = removeState.error.root
+          ?? (typeof removeState.error.containerId === "string"
+            ? removeState.error.containerId
+            : null)
+          ?? "Unable to remove the container.";
+
+      toast.error(message);
+      return;
+    }
+
+    toast.success(`Removed ${container.name} (${container.id.slice(0, 12)}).`);
+  }, [
+    container.id,
+    container.name,
+    hasSubmittedRemove,
+    isRemovePending,
+    removeState,
+  ]);
 
   const actionItems: Array<{
     id: ContainerActionId;
@@ -38,25 +78,38 @@ export default function ContainerActionsDropdown({
       id: "start",
       label: "Start",
       icon: PlayIcon,
-      disabled: state !== "exited",
+      disabled: containerState !== "exited",
     },
     {
       id: "stop",
       label: "Stop",
       icon: SquareIcon,
-      disabled: state !== "running" && state !== "paused",
+      disabled: containerState !== "running" && containerState !== "paused",
     },
     {
       id: "remove",
       label: "Remove",
       icon: Trash2Icon,
       disabled:
-        state === "running" || state === "paused" || state === "restarting",
+          containerState === "running"
+          || containerState === "paused"
+          || containerState === "restarting"
+          || isRemovePending,
       variant: "destructive",
     },
   ];
 
   const handleAction = (action: ContainerActionId, label: string) => {
+    if (action === "remove") {
+      const formData = new FormData();
+      formData.append("containerId", container.id);
+      setHasSubmittedRemove(true);
+      startTransition(() => {
+        submitRemoveAction(formData);
+      });
+      return;
+    }
+
     toast.info(label, {
       description: `${container.name} (${container.id.slice(0, 12)}) ${action} action will be wired soon.`,
     });
