@@ -13,5 +13,6 @@ export default antfu({
     "style/multiline-ternary": "warn",
     "style/arrow-parens": ["warn", "always"],
     "react/no-context-provider": ["off"],
+    "no-console": ["error", { allow: ["warn", "error"] }],
   },
 });
