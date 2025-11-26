@@ -16,3 +16,20 @@ export async function listContainers() {
 
   return { data, error: null };
 }
+
+export const removeContainerInputSchema = z.object({
+  containerId: z
+    .string()
+    .nonempty(),
+});
+
+export type RemoveContainerInput = z.infer<typeof removeContainerInputSchema>;
+
+export async function removeContainer(input: RemoveContainerInput) {
+  logger.info(
+    { containerId: input.containerId },
+    "Mock remove container action triggered.",
+  );
+
+  return { data: null, error: null };
+}
