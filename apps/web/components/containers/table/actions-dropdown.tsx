@@ -8,7 +8,7 @@ import {
   SquareIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useTransition } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +34,45 @@ export default function ContainerActionsDropdown({
   container,
 }: ContainerActionsDropdownProps) {
   const { state: containerState } = container;
-  const removeAction = removeContainerAction.bind(null, initialRemoveFormState);
-  const [isRemovePending, startRemoveTransition] = useTransition();
+  const [removeState, removeAction, isRemovePending] = useActionState(
+    removeContainerAction,
+    initialRemoveFormState,
+  );
+  const [removeTargetId, setRemoveTargetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!removeTargetId) return;
+
+    if (removeTargetId !== container.id) return;
+
+    if (isRemovePending) return;
+
+    if (removeState?.error) {
+      const message =
+        removeState.error.root ??
+        (typeof removeState.error.containerId === "string"
+          ? removeState.error.containerId
+          : null) ??
+        "Unable to remove the container.";
+
+      toast.error(message);
+      setRemoveTargetId(null);
+      return;
+    }
+
+    if (removeState.error === null) {
+      toast.success(
+        `Removed ${container.name} (${container.id.slice(0, 12)}).`,
+      );
+      setRemoveTargetId(null);
+    }
+  }, [
+    removeState,
+    isRemovePending,
+    removeTargetId,
+    container.id,
+    container.name,
+  ]);
 
   const actionItems: Array<{
     id: ContainerActionId;
@@ -61,10 +98,10 @@ export default function ContainerActionsDropdown({
       label: "Remove",
       icon: Trash2Icon,
       disabled:
-          containerState === "running"
-          || containerState === "paused"
-          || containerState === "restarting"
-          || isRemovePending,
+        containerState === "running" ||
+        containerState === "paused" ||
+        containerState === "restarting" ||
+        isRemovePending,
       variant: "destructive",
     },
   ];
@@ -73,30 +110,8 @@ export default function ContainerActionsDropdown({
     if (action === "remove") {
       const formData = new FormData();
       formData.append("containerId", container.id);
-
-      startRemoveTransition(() => {
-        removeAction(formData)
-          .then((state: RemoveContainerActionFormState) => {
-            if (state?.error) {
-              const message
-                = state.error.root
-                  ?? (typeof state.error.containerId === "string"
-                    ? state.error.containerId
-                    : null)
-                  ?? "Unable to remove the container.";
-
-              toast.error(message);
-              return;
-            }
-
-            toast.success(
-              `Removed ${container.name} (${container.id.slice(0, 12)}).`,
-            );
-          })
-          .catch(() => {
-            toast.error("Unable to remove the container.");
-          });
-      });
+      setRemoveTargetId(container.id);
+      removeAction(formData);
 
       return;
     }
