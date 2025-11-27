@@ -8,7 +8,7 @@ import {
   SquareIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,22 +41,27 @@ export default function ContainerActionsDropdown({
   const [removeTargetId, setRemoveTargetId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!removeTargetId) return;
+    if (!removeTargetId)
+      return;
 
-    if (removeTargetId !== container.id) return;
+    if (removeTargetId !== container.id)
+      return;
 
-    if (isRemovePending) return;
+    if (isRemovePending)
+      return;
 
     if (removeState?.error) {
-      const message =
-        removeState.error.root ??
-        (typeof removeState.error.containerId === "string"
-          ? removeState.error.containerId
-          : null) ??
-        "Unable to remove the container.";
+      const message
+        = removeState.error.root
+          ?? (typeof removeState.error.containerId === "string"
+            ? removeState.error.containerId
+            : null)
+          ?? "Unable to remove the container.";
 
       toast.error(message);
-      setRemoveTargetId(null);
+      startTransition(() => {
+        setRemoveTargetId(null);
+      });
       return;
     }
 
@@ -64,7 +69,9 @@ export default function ContainerActionsDropdown({
       toast.success(
         `Removed ${container.name} (${container.id.slice(0, 12)}).`,
       );
-      setRemoveTargetId(null);
+      startTransition(() => {
+        setRemoveTargetId(null);
+      });
     }
   }, [
     removeState,
@@ -98,10 +105,10 @@ export default function ContainerActionsDropdown({
       label: "Remove",
       icon: Trash2Icon,
       disabled:
-        containerState === "running" ||
-        containerState === "paused" ||
-        containerState === "restarting" ||
-        isRemovePending,
+          containerState === "running"
+          || containerState === "paused"
+          || containerState === "restarting"
+          || isRemovePending,
       variant: "destructive",
     },
   ];
