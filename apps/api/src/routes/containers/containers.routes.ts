@@ -56,3 +56,34 @@ export const remove = createRoute({
 });
 
 export type RemoveRoute = typeof remove;
+
+export const stop = createRoute({
+  path: "/containers/{containerId}/stop",
+  method: "post",
+  tags,
+  request: {
+    params: z.object({
+      containerId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("container stopped"),
+      "Container stopped",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Container not found",
+    ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema("Container is not running."),
+      "Container not running",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error",
+    ),
+  },
+});
+
+export type StopRoute = typeof stop;

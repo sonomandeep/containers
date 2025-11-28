@@ -22,11 +22,21 @@ export async function listContainers() {
   return { data, error: null };
 }
 
+const containerIdSchema = z
+  .string()
+  .min(1, { message: "Container id is required." });
+
 export const removeContainerInputSchema = z.object({
-  containerId: z.string().min(1, { message: "Container id is required." }),
+  containerId: containerIdSchema,
 });
 
 export type RemoveContainerInput = z.infer<typeof removeContainerInputSchema>;
+
+export const stopContainerInputSchema = z.object({
+  containerId: containerIdSchema,
+});
+
+export type StopContainerInput = z.infer<typeof stopContainerInputSchema>;
 
 export async function removeContainer(
   input: RemoveContainerInput,
@@ -35,6 +45,25 @@ export async function removeContainer(
 
   const { error } = await $api(path, {
     method: "delete",
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  updateTag("containers");
+
+  return { data: null, error: null };
+}
+
+export async function stopContainer(
+  input: StopContainerInput,
+): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
+  const path = `/containers/${encodeURIComponent(input.containerId)}/stop`;
+
+  const { error } = await $api(path, {
+    method: "post",
   });
 
   if (error) {

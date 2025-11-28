@@ -1,8 +1,8 @@
-import type { ListRoute, RemoveRoute } from "./containers.routes";
+import type { ListRoute, RemoveRoute, StopRoute } from "./containers.routes";
 import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { listContainers } from "@/lib/agent";
-import { removeContainer } from "@/lib/services/containers";
+import { removeContainer, stopContainer } from "@/lib/services/containers";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
@@ -31,6 +31,31 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   return c.json(
     {
       message: "container deleted",
+    },
+    HttpStatusCodes.OK,
+  );
+};
+
+export const stop: AppRouteHandler<StopRoute> = async (c) => {
+  const params = c.req.valid("param");
+
+  const result = await stopContainer({
+    containerId: params.containerId,
+  });
+
+  if (result.error) {
+    c.var.logger.error(result.error);
+    return c.json(
+      {
+        message: result.error.message,
+      },
+      result.error.code,
+    );
+  }
+
+  return c.json(
+    {
+      message: "container stopped",
     },
     HttpStatusCodes.OK,
   );

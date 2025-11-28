@@ -3,11 +3,10 @@
 import { logger } from "@/lib/logger";
 import {
   removeContainer,
+  stopContainer,
 } from "@/lib/services/containers.service";
 
-export async function removeContainerAction(
-  containerId: string,
-) {
+export async function removeContainerAction(containerId: string) {
   const { error } = await removeContainer({ containerId });
 
   if (error) {
@@ -25,7 +24,18 @@ export async function removeContainerAction(
 }
 
 export async function stopContainerAction(containerId: string) {
-  logger.debug({ containerId });
+  const { error } = await stopContainer({ containerId });
+
+  if (error) {
+    logger.error(error, "stopContainerAction");
+
+    return {
+      data: {
+        containerId,
+      },
+      error: "Unexpected error while stopping the container.",
+    };
+  }
 
   return { data: { containerId }, error: null };
 }
