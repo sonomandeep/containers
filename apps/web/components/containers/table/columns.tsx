@@ -25,6 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ContainerActionsDropdown from "./actions-dropdown";
 
 export const columns: ColumnDef<Container>[] = [
   {
@@ -172,5 +173,19 @@ export const columns: ColumnDef<Container>[] = [
       return <div>{format(date * 1000, "eee dd MMM yyyy")}</div>;
     },
     size: 200,
+  },
+  {
+    id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
+    cell: ({ row }) => (
+      <div className="flex justify-end">
+        <ContainerActionsDropdown container={row.original} />
+      </div>
+    ),
+    size: 80,
+    minSize: 64,
+    maxSize: 92,
+    enableSorting: false,
+    enableHiding: false,
   },
 ];
