@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { removeContainerAction } from "@/lib/actions/containers.actions";
+import { removeContainerAction, stopContainerAction } from "@/lib/actions/containers.actions";
 
 interface ContainerActionsDropdownProps {
   container: Container;
@@ -109,7 +109,6 @@ function StartContainerAction({
       label="Start"
       disabled={disabled}
       onSelect={() => {
-        showUnavailableActionToast("Start", "start", container);
         closeDropdown();
       }}
     />
@@ -120,18 +119,33 @@ function StopContainerAction({
   container,
   closeDropdown,
 }: ContainerActionComponentProps) {
+  const [isPending, startTransition] = useTransition();
   const disabled
-    = container.state !== "running" && container.state !== "paused";
+    = (container.state !== "running" && container.state !== "paused") || isPending;
+
+  const handleStop = () => {
+    startTransition(async () => {
+      const { error } = await stopContainerAction(container.id);
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      toast.success(
+        `Stopped ${container.name} (${container.id.slice(0, 12)}).`,
+      );
+
+      closeDropdown();
+    });
+  };
 
   return (
     <ContainerActionItem
       icon={SquareIcon}
       label="Stop"
       disabled={disabled}
-      onSelect={() => {
-        showUnavailableActionToast("Stop", "stop", container);
-        closeDropdown();
-      }}
+      onSelect={handleStop}
     />
   );
 }
@@ -173,14 +187,4 @@ function RemoveContainerAction({
       onSelect={handleRemove}
     />
   );
-}
-
-function showUnavailableActionToast(
-  label: string,
-  action: string,
-  container: Container,
-) {
-  toast.info(label, {
-    description: `${container.name} (${container.id.slice(0, 12)}) ${action} action will be wired soon.`,
-  });
 }

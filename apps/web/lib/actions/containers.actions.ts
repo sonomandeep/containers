@@ -23,3 +23,9 @@ export async function removeContainerAction(
 
   return { data: { containerId }, error: null };
 }
+
+export async function stopContainerAction(containerId: string) {
+  logger.debug({ containerId });
+
+  return { data: { containerId }, error: null };
+}
