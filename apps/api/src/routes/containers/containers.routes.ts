@@ -87,3 +87,34 @@ export const stop = createRoute({
 });
 
 export type StopRoute = typeof stop;
+
+export const start = createRoute({
+  path: "/containers/{containerId}/start",
+  method: "post",
+  tags,
+  request: {
+    params: z.object({
+      containerId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("container started"),
+      "Container started",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Container not found",
+    ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema("Container is already running."),
+      "Container running",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error",
+    ),
+  },
+});
+
+export type StartRoute = typeof start;

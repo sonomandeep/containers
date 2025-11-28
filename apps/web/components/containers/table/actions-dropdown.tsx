@@ -16,7 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { removeContainerAction, stopContainerAction } from "@/lib/actions/containers.actions";
+import {
+  removeContainerAction,
+  startContainerAction,
+  stopContainerAction,
+} from "@/lib/actions/containers.actions";
 
 interface ContainerActionsDropdownProps {
   container: Container;
@@ -85,8 +89,7 @@ function ContainerActionItem({
       variant={variant}
       onSelect={(event) => {
         event.preventDefault();
-        if (disabled)
-          return;
+        if (disabled) return;
 
         onSelect?.();
       }}
@@ -101,16 +104,32 @@ function StartContainerAction({
   container,
   closeDropdown,
 }: ContainerActionComponentProps) {
-  const disabled = container.state !== "exited";
+  const [isPending, startTransition] = useTransition();
+  const disabled = container.state !== "exited" || isPending;
+
+  const handleStart = () => {
+    startTransition(async () => {
+      const { error } = await startContainerAction(container.id);
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      toast.success(
+        `Started ${container.name} (${container.id.slice(0, 12)}).`,
+      );
+
+      closeDropdown();
+    });
+  };
 
   return (
     <ContainerActionItem
       icon={PlayIcon}
       label="Start"
       disabled={disabled}
-      onSelect={() => {
-        closeDropdown();
-      }}
+      onSelect={handleStart}
     />
   );
 }
@@ -120,8 +139,9 @@ function StopContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled
-    = (container.state !== "running" && container.state !== "paused") || isPending;
+  const disabled =
+    (container.state !== "running" && container.state !== "paused") ||
+    isPending;
 
   const handleStop = () => {
     startTransition(async () => {
@@ -155,11 +175,11 @@ function RemoveContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled
-    = container.state === "running"
-      || container.state === "paused"
-      || container.state === "restarting"
-      || isPending;
+  const disabled =
+    container.state === "running" ||
+    container.state === "paused" ||
+    container.state === "restarting" ||
+    isPending;
 
   const handleRemove = () => {
     startTransition(async () => {

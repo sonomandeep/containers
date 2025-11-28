@@ -38,6 +38,12 @@ export const stopContainerInputSchema = z.object({
 
 export type StopContainerInput = z.infer<typeof stopContainerInputSchema>;
 
+export const startContainerInputSchema = z.object({
+  containerId: containerIdSchema,
+});
+
+export type StartContainerInput = z.infer<typeof startContainerInputSchema>;
+
 export async function removeContainer(
   input: RemoveContainerInput,
 ): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
@@ -61,6 +67,25 @@ export async function stopContainer(
   input: StopContainerInput,
 ): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
   const path = `/containers/${encodeURIComponent(input.containerId)}/stop`;
+
+  const { error } = await $api(path, {
+    method: "post",
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  updateTag("containers");
+
+  return { data: null, error: null };
+}
+
+export async function startContainer(
+  input: StartContainerInput,
+): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
+  const path = `/containers/${encodeURIComponent(input.containerId)}/start`;
 
   const { error } = await $api(path, {
     method: "post",
