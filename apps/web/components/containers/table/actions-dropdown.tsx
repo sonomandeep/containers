@@ -89,7 +89,8 @@ function ContainerActionItem({
       variant={variant}
       onSelect={(event) => {
         event.preventDefault();
-        if (disabled) return;
+        if (disabled)
+          return;
 
         onSelect?.();
       }}
@@ -139,9 +140,9 @@ function StopContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled =
-    (container.state !== "running" && container.state !== "paused") ||
-    isPending;
+  const disabled
+    = (container.state !== "running" && container.state !== "paused")
+      || isPending;
 
   const handleStop = () => {
     startTransition(async () => {
@@ -175,11 +176,11 @@ function RemoveContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled =
-    container.state === "running" ||
-    container.state === "paused" ||
-    container.state === "restarting" ||
-    isPending;
+  const disabled
+    = container.state === "running"
+      || container.state === "paused"
+      || container.state === "restarting"
+      || isPending;
 
   const handleRemove = () => {
     startTransition(async () => {
