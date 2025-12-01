@@ -121,23 +121,15 @@ export function LaunchContainer() {
 
           <DialogFooter>
             <div className="flex w-full items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <DialogClose asChild>
-                  <Button size="sm" variant="secondary">
-                    Cancel
-                  </Button>
-                </DialogClose>
-
-                <Button
-                  disabled={isFirstStep}
-                  onClick={handleBack}
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                >
-                  Back
-                </Button>
-              </div>
+              <Button
+                disabled={isFirstStep}
+                onClick={handleBack}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Back
+              </Button>
 
               <Button
                 onClick={isLastStep ? undefined : handleNext}
