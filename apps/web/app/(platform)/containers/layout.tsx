@@ -1,10 +1,9 @@
-import { BoxIcon, CornerDownLeftIcon } from "lucide-react";
+import { BoxIcon } from "lucide-react";
+import { LaunchContainer } from "@/components/containers/launch";
 import PageHeader, {
   PageHeaderActions,
   PageHeaderTitle,
 } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 export default function RootLayout({
   children,
@@ -17,14 +16,7 @@ export default function RootLayout({
         <PageHeaderTitle icon={BoxIcon}>Containers</PageHeaderTitle>
 
         <PageHeaderActions>
-          <Button size="sm">
-            New Container
-            <KbdGroup>
-              <Kbd>
-                <CornerDownLeftIcon />
-              </Kbd>
-            </KbdGroup>
-          </Button>
+          <LaunchContainer />
         </PageHeaderActions>
       </PageHeader>
 
