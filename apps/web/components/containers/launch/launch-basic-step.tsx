@@ -7,7 +7,6 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Field,
-  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
@@ -49,7 +48,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
   }
 
   return (
-    <form className="grid gap-4 text-left" onSubmit={form.handleSubmit(onSubmit)}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <FieldSet>
           <FieldGroup>
@@ -185,46 +184,6 @@ export function LaunchBasicStep({ handleNext }: Props) {
           </Button>
         </Field>
       </FieldGroup>
-
-      {/* <div className="space-y-3"> */}
-      {/*   <div className="flex items-center justify-between"> */}
-      {/*     <Label>Port mappings</Label> */}
-      {/*     <Button */}
-      {/*       onClick={handleAddPort} */}
-      {/*       size="sm" */}
-      {/*       type="button" */}
-      {/*       variant="ghost" */}
-      {/*     > */}
-      {/*       <PlusIcon className="mr-1 h-4 w-4" /> */}
-      {/*       Add */}
-      {/*     </Button> */}
-      {/*   </div> */}
-      {/**/}
-      {/*   <div className="grid gap-3"> */}
-      {/*     {ports.map((port, index) => ( */}
-      {/*       <div */}
-      {/*         className="grid grid-cols-2 gap-2" */}
-      {/*         key={`${port.hostPort}-${port.containerPort}`} */}
-      {/*       > */}
-      {/*         <Input */}
-      {/*           name={`ports[${index}].hostPort`} */}
-      {/*           onChange={(e) => */}
-      {/*             handlePortChange(index, "hostPort", e.target.value)} */}
-      {/*           placeholder="Host port" */}
-      {/*           value={port.hostPort} */}
-      {/*         /> */}
-      {/**/}
-      {/*         <Input */}
-      {/*           name={`ports[${index}].containerPort`} */}
-      {/*           onChange={(e) => */}
-      {/*             handlePortChange(index, "containerPort", e.target.value)} */}
-      {/*           placeholder="Container port" */}
-      {/*           value={port.containerPort} */}
-      {/*         /> */}
-      {/*       </div> */}
-      {/*     ))} */}
-      {/*   </div> */}
-      {/* </div> */}
     </form>
   );
 }

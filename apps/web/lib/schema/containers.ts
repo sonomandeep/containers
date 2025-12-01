@@ -22,3 +22,10 @@ export const launchBasicSchema = z.object({
     .trim()
     .min(1, { message: "Please select a restart policy." }),
 });
+
+export const launchConfigSchema = z.object({
+  cpu: z.string(),
+  memory: z.string(),
+  envs: z.array(z.any()),
+  ports: z.array(z.any()),
+});
