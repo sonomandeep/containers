@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type EnvVar = { key: string; value: string };
+interface EnvVar { key: string; value: string }
 
 export function LaunchConfigStep() {
   const [envVars, setEnvVars] = useState<EnvVar[]>([
@@ -70,8 +70,7 @@ export function LaunchConfigStep() {
               <Input
                 name={`env[${index}].value`}
                 onChange={(e) =>
-                  handleEnvChange(index, "value", e.target.value)
-                }
+                  handleEnvChange(index, "value", e.target.value)}
                 placeholder="Value"
                 value={env.value}
               />

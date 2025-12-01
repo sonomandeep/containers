@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-type PortMapping = { hostPort: string; containerPort: string };
+interface PortMapping { hostPort: string; containerPort: string }
 
 export function LaunchBasicStep() {
   const [ports, setPorts] = useState<PortMapping[]>([
@@ -89,16 +89,14 @@ export function LaunchBasicStep() {
               <Input
                 name={`ports[${index}].hostPort`}
                 onChange={(e) =>
-                  handlePortChange(index, "hostPort", e.target.value)
-                }
+                  handlePortChange(index, "hostPort", e.target.value)}
                 placeholder="Host port"
                 value={port.hostPort}
               />
               <Input
                 name={`ports[${index}].containerPort`}
                 onChange={(e) =>
-                  handlePortChange(index, "containerPort", e.target.value)
-                }
+                  handlePortChange(index, "containerPort", e.target.value)}
                 placeholder="Container port"
                 value={port.containerPort}
               />
