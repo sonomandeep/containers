@@ -1,6 +1,10 @@
 "use client";
 
-export function LaunchSummaryStep() {
+interface Props {
+  handleBack: () => void;
+}
+
+export function LaunchSummaryStep({ handleBack }: Props) {
   return (
     <div className="rounded-md border p-4 text-left">
       <p className="text-sm font-medium">Summary</p>

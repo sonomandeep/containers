@@ -25,7 +25,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { launchBasicSchema } from "@/lib/schema/containers";
 
-export function LaunchBasicStep() {
+interface Props {
+  handleNext: () => void;
+}
+
+export function LaunchBasicStep({ handleNext }: Props) {
   const form = useForm<z.infer<typeof launchBasicSchema>>({
     resolver: zodResolver(launchBasicSchema),
     defaultValues: {
@@ -41,6 +45,7 @@ export function LaunchBasicStep() {
     // Do something with the form values.
     // eslint-disable-next-line no-console
     console.log(data);
+    handleNext();
   }
 
   return (

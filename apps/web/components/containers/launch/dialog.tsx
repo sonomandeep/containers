@@ -1,13 +1,12 @@
 "use client";
 
-import { ArrowLeftIcon, ArrowRight, CornerDownLeftIcon, RocketIcon } from "lucide-react";
+import { CornerDownLeftIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -62,11 +61,11 @@ export function LaunchContainer() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <LaunchBasicStep />;
+        return <LaunchBasicStep handleNext={handleNext} />;
       case 2:
-        return <LaunchConfigStep />;
+        return <LaunchConfigStep handleBack={handleBack} handleNext={handleNext} />;
       case 3:
-        return <LaunchSummaryStep />;
+        return <LaunchSummaryStep handleBack={handleBack} />;
       default:
         return null;
     }

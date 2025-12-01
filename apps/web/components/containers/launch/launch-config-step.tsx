@@ -14,7 +14,12 @@ import {
 
 interface EnvVar { key: string; value: string }
 
-export function LaunchConfigStep() {
+interface Props {
+  handleBack: () => void;
+  handleNext: () => void;
+}
+
+export function LaunchConfigStep({ handleBack, handleNext }: Props) {
   const [envVars, setEnvVars] = useState<EnvVar[]>([
     { key: "NODE_ENV", value: "production" },
   ]);
