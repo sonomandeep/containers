@@ -1,6 +1,6 @@
 "use client";
 
-import { CornerDownLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRight, CornerDownLeftIcon, RocketIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,6 +128,7 @@ export function LaunchContainer() {
                 type="button"
                 variant="outline"
               >
+                <ArrowLeftIcon className="opacity-60 size-3.5" />
                 Back
               </Button>
 
@@ -136,7 +137,19 @@ export function LaunchContainer() {
                 size="sm"
                 type={isLastStep ? "submit" : "button"}
               >
-                {isLastStep ? "Launch" : "Next"}
+                {isLastStep
+                  ? (
+                      <>
+                        Launch
+                        <RocketIcon className="opacity-60 size-3.5" />
+                      </>
+                    )
+                  : (
+                      <>
+                        Next
+                        <ArrowRight className="opacity-60 size-3.5" />
+                      </>
+                    )}
               </Button>
             </div>
           </DialogFooter>
