@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -20,6 +21,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { LaunchBasicStep } from "./launch-basic-step";
+import { LaunchEnvStep } from "./launch-env-step";
 import { LaunchNetworkStep } from "./launch-network-step";
 import { LaunchResourcesStep } from "./launch-resources-step";
 import { LaunchSummaryStep } from "./launch-summary-step";
@@ -27,8 +29,9 @@ import { LaunchSummaryStep } from "./launch-summary-step";
 const steps = [
   { id: 1, label: "Basic" },
   { id: 2, label: "Network" },
-  { id: 3, label: "Resources" },
-  { id: 4, label: "Summary" },
+  { id: 3, label: "Env" },
+  { id: 4, label: "Resources" },
+  { id: 5, label: "Summary" },
 ] as const;
 
 type StepId = (typeof steps)[number]["id"];
@@ -68,8 +71,10 @@ export function LaunchContainer() {
       case 2:
         return <LaunchNetworkStep />;
       case 3:
-        return <LaunchResourcesStep />;
+        return <LaunchEnvStep />;
       case 4:
+        return <LaunchResourcesStep />;
+      case 5:
         return <LaunchSummaryStep />;
       default:
         return null;
@@ -124,15 +129,23 @@ export function LaunchContainer() {
 
           <DialogFooter>
             <div className="flex w-full items-center justify-between gap-2">
-              <Button
-                disabled={isFirstStep}
-                onClick={handleBack}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                Back
-              </Button>
+              <div className="flex items-center gap-2">
+                <DialogClose asChild>
+                  <Button size="sm" variant="secondary">
+                    Cancel
+                  </Button>
+                </DialogClose>
+
+                <Button
+                  disabled={isFirstStep}
+                  onClick={handleBack}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  Back
+                </Button>
+              </div>
 
               <Button
                 onClick={isLastStep ? undefined : handleNext}

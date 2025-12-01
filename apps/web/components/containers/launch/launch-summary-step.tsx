@@ -23,7 +23,13 @@ export function LaunchSummaryStep() {
         </div>
         <div className="flex items-start justify-between gap-4">
           <dt className="text-muted-foreground">Resources</dt>
-          <dd className="font-medium">1.5 vCPU / 512 MB / restart: on-failure</dd>
+          <dd className="font-medium">
+            1.5 vCPU / 512 MB / restart: on-failure
+          </dd>
+        </div>
+        <div className="flex items-start justify-between gap-4">
+          <dt className="text-muted-foreground">Env</dt>
+          <dd className="font-medium">NODE_ENV=production</dd>
         </div>
       </dl>
     </div>
