@@ -118,40 +118,40 @@ export function LaunchContainer() {
             <div className="min-h-[360px]">{renderStepContent()}</div>
           </div>
 
-          <DialogFooter>
-            <div className="flex w-full items-center justify-between gap-2">
-              <Button
-                disabled={isFirstStep}
-                onClick={handleBack}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                <ArrowLeftIcon className="opacity-60 size-3.5" />
-                Back
-              </Button>
-
-              <Button
-                onClick={isLastStep ? undefined : handleNext}
-                size="sm"
-                type={isLastStep ? "submit" : "button"}
-              >
-                {isLastStep
-                  ? (
-                      <>
-                        Launch
-                        <RocketIcon className="opacity-60 size-3.5" />
-                      </>
-                    )
-                  : (
-                      <>
-                        Next
-                        <ArrowRight className="opacity-60 size-3.5" />
-                      </>
-                    )}
-              </Button>
-            </div>
-          </DialogFooter>
+          {/* <DialogFooter> */}
+          {/*   <div className="flex w-full items-center justify-between gap-2"> */}
+          {/*     <Button */}
+          {/*       disabled={isFirstStep} */}
+          {/*       onClick={handleBack} */}
+          {/*       size="sm" */}
+          {/*       type="button" */}
+          {/*       variant="outline" */}
+          {/*     > */}
+          {/*       <ArrowLeftIcon className="opacity-60 size-3.5" /> */}
+          {/*       Back */}
+          {/*     </Button> */}
+          {/**/}
+          {/*     <Button */}
+          {/*       onClick={isLastStep ? undefined : handleNext} */}
+          {/*       size="sm" */}
+          {/*       type={isLastStep ? "submit" : "button"} */}
+          {/*     > */}
+          {/*       {isLastStep */}
+          {/*         ? ( */}
+          {/*             <> */}
+          {/*               Launch */}
+          {/*               <RocketIcon className="opacity-60 size-3.5" /> */}
+          {/*             </> */}
+          {/*           ) */}
+          {/*         : ( */}
+          {/*             <> */}
+          {/*               Next */}
+          {/*               <ArrowRight className="opacity-60 size-3.5" /> */}
+          {/*             </> */}
+          {/*           )} */}
+          {/*     </Button> */}
+          {/*   </div> */}
+          {/* </DialogFooter> */}
         </DialogContent>
       </form>
     </Dialog>

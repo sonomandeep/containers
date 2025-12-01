@@ -1,10 +1,20 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import type z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeftIcon, ArrowRight } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,97 +23,203 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-interface PortMapping { hostPort: string; containerPort: string }
+import { launchBasicSchema } from "@/lib/schema/containers";
 
 export function LaunchBasicStep() {
-  const [ports, setPorts] = useState<PortMapping[]>([
-    { hostPort: "8080", containerPort: "3000" },
-  ]);
+  const form = useForm<z.infer<typeof launchBasicSchema>>({
+    resolver: zodResolver(launchBasicSchema),
+    defaultValues: {
+      name: "",
+      image: "",
+      command: "",
+      network: "bridge",
+      restartPolicy: "no",
+    },
+  });
 
-  const handlePortChange = (
-    index: number,
-    key: keyof PortMapping,
-    value: string,
-  ) => {
-    setPorts((prev) =>
-      prev.map((port, i) => (i === index ? { ...port, [key]: value } : port)),
-    );
-  };
-
-  const handleAddPort = () => {
-    setPorts((prev) => [...prev, { hostPort: "", containerPort: "" }]);
-  };
+  function onSubmit(data: z.infer<typeof launchBasicSchema>) {
+    // Do something with the form values.
+    // eslint-disable-next-line no-console
+    console.log(data);
+  }
 
   return (
-    <div className="grid gap-4 text-left">
-      <div className="grid gap-2">
-        <Label htmlFor="container-name">Name</Label>
-        <Input id="container-name" name="name" placeholder="my-container" />
-      </div>
+    <form className="grid gap-4 text-left" onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup>
+        <FieldSet>
+          <FieldGroup>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
 
-      <div className="grid gap-2">
-        <Label htmlFor="container-image">Image</Label>
-        <Select defaultValue="node">
-          <SelectTrigger id="container-image" className="w-full">
-            <SelectValue placeholder="Select image" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="node">node:20-alpine</SelectItem>
-            <SelectItem value="python">python:3.12-slim</SelectItem>
-            <SelectItem value="nginx">nginx:stable-alpine</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+                  <Input {...field} id={field.name} type="text" placeholder="Backend App" aria-invalid={fieldState.invalid} />
 
-      <div className="grid gap-2">
-        <Label htmlFor="container-command">Command (optional)</Label>
-        <Textarea
-          id="container-command"
-          name="command"
-          placeholder="e.g. npm start"
-          rows={3}
-        />
-      </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label>Port mappings</Label>
-          <Button
-            onClick={handleAddPort}
-            size="sm"
-            type="button"
-            variant="ghost"
-          >
-            <PlusIcon className="mr-1 h-4 w-4" />
-            Add
-          </Button>
-        </div>
+            <Controller
+              name="image"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Image</FieldLabel>
 
-        <div className="grid gap-3">
-          {ports.map((port, index) => (
-            <div
-              className="grid grid-cols-2 gap-2"
-              key={`${index}-${port.hostPort}-${port.containerPort}`}
-            >
-              <Input
-                name={`ports[${index}].hostPort`}
-                onChange={(e) =>
-                  handlePortChange(index, "hostPort", e.target.value)}
-                placeholder="Host port"
-                value={port.hostPort}
+                  <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="image" aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select image" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="node">node:20-alpine</SelectItem>
+                      <SelectItem value="python">python:3.12-slim</SelectItem>
+                      <SelectItem value="nginx">nginx:stable-alpine</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="command"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Command (Optional)</FieldLabel>
+                  <Textarea
+                    {...field}
+                    id={field.name}
+                    placeholder="e.g. npm start"
+                    rows={4}
+                  />
+                  <FieldDescription>
+                    Custom startup command.
+                  </FieldDescription>
+
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <div className="inline-flex gap-2">
+              <Controller
+                name="network"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Network Mode</FieldLabel>
+
+                    <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder="Select mode" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectItem value="bridge">Bridge (default)</SelectItem>
+                        <SelectItem value="host">Host</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
               />
-              <Input
-                name={`ports[${index}].containerPort`}
-                onChange={(e) =>
-                  handlePortChange(index, "containerPort", e.target.value)}
-                placeholder="Container port"
-                value={port.containerPort}
+
+              <Controller
+                name="restartPolicy"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Restart Policy</FieldLabel>
+
+                    <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder="Select restart policy" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="on-failure">On failure</SelectItem>
+                        <SelectItem value="always">Always</SelectItem>
+                        <SelectItem value="unless-stopped">Unless stopped</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
               />
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
+          </FieldGroup>
+        </FieldSet>
+
+        <Field orientation="horizontal" className="w-full inline-flex justify-between">
+          <Button
+            disabled
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <ArrowLeftIcon className="opacity-60 size-3.5" />
+            Back
+          </Button>
+
+          <Button
+            size="sm"
+            type="submit"
+          >
+            Next
+            <ArrowRight className="opacity-60 size-3.5" />
+          </Button>
+        </Field>
+      </FieldGroup>
+
+      {/* <div className="space-y-3"> */}
+      {/*   <div className="flex items-center justify-between"> */}
+      {/*     <Label>Port mappings</Label> */}
+      {/*     <Button */}
+      {/*       onClick={handleAddPort} */}
+      {/*       size="sm" */}
+      {/*       type="button" */}
+      {/*       variant="ghost" */}
+      {/*     > */}
+      {/*       <PlusIcon className="mr-1 h-4 w-4" /> */}
+      {/*       Add */}
+      {/*     </Button> */}
+      {/*   </div> */}
+      {/**/}
+      {/*   <div className="grid gap-3"> */}
+      {/*     {ports.map((port, index) => ( */}
+      {/*       <div */}
+      {/*         className="grid grid-cols-2 gap-2" */}
+      {/*         key={`${port.hostPort}-${port.containerPort}`} */}
+      {/*       > */}
+      {/*         <Input */}
+      {/*           name={`ports[${index}].hostPort`} */}
+      {/*           onChange={(e) => */}
+      {/*             handlePortChange(index, "hostPort", e.target.value)} */}
+      {/*           placeholder="Host port" */}
+      {/*           value={port.hostPort} */}
+      {/*         /> */}
+      {/**/}
+      {/*         <Input */}
+      {/*           name={`ports[${index}].containerPort`} */}
+      {/*           onChange={(e) => */}
+      {/*             handlePortChange(index, "containerPort", e.target.value)} */}
+      {/*           placeholder="Container port" */}
+      {/*           value={port.containerPort} */}
+      {/*         /> */}
+      {/*       </div> */}
+      {/*     ))} */}
+      {/*   </div> */}
+      {/* </div> */}
+    </form>
   );
 }
