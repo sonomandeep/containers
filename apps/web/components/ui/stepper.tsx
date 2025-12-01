@@ -3,23 +3,23 @@
 import { CheckIcon, LoaderCircleIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 import * as React from "react";
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 
 import { cn } from "@/lib/utils";
 
 // Types
-type StepperContextValue = {
+interface StepperContextValue {
   activeStep: number;
   setActiveStep: (step: number) => void;
   orientation: "horizontal" | "vertical";
-};
+}
 
-type StepItemContextValue = {
+interface StepItemContextValue {
   step: number;
   state: StepState;
   isDisabled: boolean;
   isLoading: boolean;
-};
+}
 
 type StepState = "active" | "completed" | "inactive" | "loading";
 
@@ -31,21 +31,21 @@ const StepItemContext = createContext<StepItemContextValue | undefined>(
   undefined,
 );
 
-const useStepper = () => {
-  const context = useContext(StepperContext);
+function useStepper() {
+  const context = React.use(StepperContext);
   if (!context) {
     throw new Error("useStepper must be used within a Stepper");
   }
   return context;
-};
+}
 
-const useStepItem = () => {
-  const context = useContext(StepItemContext);
+function useStepItem() {
+  const context = React.use(StepItemContext);
   if (!context) {
     throw new Error("useStepItem must be used within a StepperItem");
   }
   return context;
-};
+}
 
 // Components
 interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -117,8 +117,8 @@ function StepperItem({
 }: StepperItemProps) {
   const { activeStep } = useStepper();
 
-  const state: StepState =
-    completed || step < activeStep
+  const state: StepState
+    = completed || step < activeStep
       ? "completed"
       : activeStep === step
         ? "active"
@@ -210,29 +210,31 @@ function StepperIndicator({
       data-state={state}
       {...props}
     >
-      {asChild ? (
-        children
-      ) : (
-        <>
-          <span className="transition-all group-data-[state=completed]/step:scale-0 group-data-loading/step:scale-0 group-data-[state=completed]/step:opacity-0 group-data-loading/step:opacity-0 group-data-loading/step:transition-none">
-            {step}
-          </span>
-          <CheckIcon
-            aria-hidden="true"
-            className="absolute scale-0 opacity-0 transition-all group-data-[state=completed]/step:scale-100 group-data-[state=completed]/step:opacity-100"
-            size={16}
-          />
-          {isLoading && (
-            <span className="absolute transition-all">
-              <LoaderCircleIcon
+      {asChild
+        ? (
+            children
+          )
+        : (
+            <>
+              <span className="transition-all group-data-[state=completed]/step:scale-0 group-data-loading/step:scale-0 group-data-[state=completed]/step:opacity-0 group-data-loading/step:opacity-0 group-data-loading/step:transition-none">
+                {step}
+              </span>
+              <CheckIcon
                 aria-hidden="true"
-                className="animate-spin"
-                size={14}
+                className="absolute scale-0 opacity-0 transition-all group-data-[state=completed]/step:scale-100 group-data-[state=completed]/step:opacity-100"
+                size={16}
               />
-            </span>
+              {isLoading && (
+                <span className="absolute transition-all">
+                  <LoaderCircleIcon
+                    aria-hidden="true"
+                    className="animate-spin"
+                    size={14}
+                  />
+                </span>
+              )}
+            </>
           )}
-        </>
-      )}
     </span>
   );
 }

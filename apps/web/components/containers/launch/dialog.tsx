@@ -1,11 +1,10 @@
 "use client";
 
 import { CornerDownLeftIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,20 +12,69 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { Label } from "@/components/ui/label";
 import {
   Stepper,
   StepperIndicator,
   StepperItem,
   StepperTrigger,
 } from "@/components/ui/stepper";
+import { LaunchBasicStep } from "./launch-basic-step";
+import { LaunchNetworkStep } from "./launch-network-step";
+import { LaunchResourcesStep } from "./launch-resources-step";
+import { LaunchSummaryStep } from "./launch-summary-step";
 
-const steps = [1, 2, 3, 4];
+const steps = [
+  { id: 1, label: "Basic" },
+  { id: 2, label: "Network" },
+  { id: 3, label: "Resources" },
+  { id: 4, label: "Summary" },
+] as const;
+
+type StepId = (typeof steps)[number]["id"];
 
 export function LaunchContainer() {
-  const [currentStep, setCurrentStep] = useState(2);
+  const stepIds = useMemo(() => steps.map(({ id }) => id), []);
+  const [currentStep, setCurrentStep] = useState<StepId>(stepIds[0]);
+
+  const handleStepChange = (step: number) => {
+    if (stepIds.includes(step as StepId)) {
+      setCurrentStep(step as StepId);
+    }
+  };
+
+  const currentIndex = stepIds.indexOf(currentStep);
+  const isFirstStep = currentIndex === 0;
+  const isLastStep = currentIndex === stepIds.length - 1;
+  const nextStep = stepIds[currentIndex + 1];
+  const prevStep = stepIds[currentIndex - 1];
+
+  const handleNext = () => {
+    if (!isLastStep && nextStep) {
+      setCurrentStep(nextStep);
+    }
+  };
+
+  const handleBack = () => {
+    if (!isFirstStep && prevStep) {
+      setCurrentStep(prevStep);
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return <LaunchBasicStep />;
+      case 2:
+        return <LaunchNetworkStep />;
+      case 3:
+        return <LaunchResourcesStep />;
+      case 4:
+        return <LaunchSummaryStep />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Dialog>
@@ -51,44 +99,49 @@ export function LaunchContainer() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="w-full space-y-8 text-center">
+          <div className="w-full space-y-6">
             <Stepper
-              className="gap-1"
-              onValueChange={setCurrentStep}
+              className="gap-3"
+              onValueChange={handleStepChange}
               value={currentStep}
             >
               {steps.map((step) => (
-                <StepperItem className="flex-1" key={step} step={step}>
-                  <StepperTrigger
-                    asChild
-                    className="w-full flex-col items-start gap-2"
-                  >
+                <StepperItem className="flex-1" key={step.id} step={step.id}>
+                  <StepperTrigger className="w-full flex-col items-start gap-2">
                     <StepperIndicator asChild className="h-1 w-full bg-border">
-                      <span className="sr-only">{step}</span>
+                      <span className="sr-only">{step.label}</span>
                     </StepperIndicator>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {step.label}
+                    </span>
                   </StepperTrigger>
                 </StepperItem>
               ))}
             </Stepper>
+
+            {renderStepContent()}
           </div>
 
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="name-1">Name</Label>
-              <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="username-1">Username</Label>
-              <Input id="username-1" name="username" defaultValue="@peduarte" />
-            </div>
-          </div>
+          <DialogFooter>
+            <div className="flex w-full items-center justify-between gap-2">
+              <Button
+                disabled={isFirstStep}
+                onClick={handleBack}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Back
+              </Button>
 
-          <DialogFooter className="flex flex-row justify-between items-center">
-            <DialogClose asChild>
-              <Button size="sm" variant="secondary">Cancel</Button>
-            </DialogClose>
-
-            <Button size="sm" type="submit">Next</Button>
+              <Button
+                onClick={isLastStep ? undefined : handleNext}
+                size="sm"
+                type={isLastStep ? "submit" : "button"}
+              >
+                {isLastStep ? "Launch" : "Next"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </form>
