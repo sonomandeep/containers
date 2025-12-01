@@ -21,17 +21,13 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { LaunchBasicStep } from "./launch-basic-step";
-import { LaunchEnvStep } from "./launch-env-step";
-import { LaunchNetworkStep } from "./launch-network-step";
-import { LaunchResourcesStep } from "./launch-resources-step";
+import { LaunchConfigStep } from "./launch-config-step";
 import { LaunchSummaryStep } from "./launch-summary-step";
 
 const steps = [
   { id: 1, label: "Basic" },
-  { id: 2, label: "Network" },
-  { id: 3, label: "Env" },
-  { id: 4, label: "Resources" },
-  { id: 5, label: "Summary" },
+  { id: 2, label: "Config" },
+  { id: 3, label: "Summary" },
 ] as const;
 
 type StepId = (typeof steps)[number]["id"];
@@ -69,12 +65,8 @@ export function LaunchContainer() {
       case 1:
         return <LaunchBasicStep />;
       case 2:
-        return <LaunchNetworkStep />;
+        return <LaunchConfigStep />;
       case 3:
-        return <LaunchEnvStep />;
-      case 4:
-        return <LaunchResourcesStep />;
-      case 5:
         return <LaunchSummaryStep />;
       default:
         return null;
@@ -124,7 +116,7 @@ export function LaunchContainer() {
               ))}
             </Stepper>
 
-            {renderStepContent()}
+            <div className="min-h-[360px]">{renderStepContent()}</div>
           </div>
 
           <DialogFooter>
