@@ -1,12 +1,13 @@
 "use server";
 
-import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 import { logger } from "@/lib/logger";
 import {
+  launchContainer,
   removeContainer,
   startContainer,
   stopContainer,
 } from "@/lib/services/containers.service";
+import type { LaunchContainerInput } from "@/lib/services/containers.service";
 
 export async function removeContainerAction(containerId: string) {
   const { error } = await removeContainer({ containerId });
@@ -59,22 +60,19 @@ export async function startContainerAction(containerId: string) {
   return { data: { containerId }, error: null };
 }
 
-export async function launchContainerAction(input: {
-  name: string;
-  image: string;
-  restartPolicy: string;
-  command?: string;
-  cpu?: string;
-  memory?: string;
-  network?: string;
-  envs: Array<EnvVar>;
-  ports: Array<PortMapping>;
-}) {
+export async function launchContainerAction(input: LaunchContainerInput) {
   logger.info({ input }, "launchContainerPayload");
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
+  const { error } = await launchContainer(input);
+
+  if (error) {
+    logger.error(error, "launchContainerAction");
+
+    return {
+      data: input,
+      error: "Unexpected error while launching the container.",
+    };
+  }
 
   return {
     data: input,
