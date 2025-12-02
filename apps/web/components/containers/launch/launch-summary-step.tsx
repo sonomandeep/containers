@@ -29,7 +29,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           <InfoCardRow label="Command">
             {state.command
               ? (
-                  <Badge variant="outline">{state.command}</Badge>
+                  <Badge variant="outline" className="font-mono">{state.command}</Badge>
                 )
               : (
                   "—"
@@ -73,7 +73,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
               {envs.length > 0
                 ? (
                     envs.map((env) => (
-                      <Badge key={`${env.key}-${env.value}`} variant="outline">
+                      <Badge key={`${env.key}-${env.value}`} variant="outline" className="font-mono">
                         {env.key}
                       </Badge>
                     ))
