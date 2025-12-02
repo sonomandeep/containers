@@ -1,7 +1,10 @@
 "use client";
 
 import { ArrowLeftIcon, RocketIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ContainerPortBadge } from "@/components/ui/container-port-badge";
+import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
@@ -9,59 +12,92 @@ interface Props {
 }
 
 export function LaunchSummaryStep({ handleBack }: Props) {
-  const state = useLaunchContainerStore((state) => state);
+  const state = useLaunchContainerStore((store) => store);
+
+  const ports = state.ports?.length > 0 ? state.ports : [];
+
+  const envs
+    = state.envs?.length > 0
+      ? state.envs
+      : [];
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-md border p-4 text-left">
-        <p className="text-sm font-medium">Summary</p>
-        <p className="text-sm text-muted-foreground">
-          Review your container configuration before launch.
-        </p>
+      <div className="space-y-4">
+        <InfoCard>
+          <InfoCardRow label="Name">{state.name || "—"}</InfoCardRow>
+          <InfoCardRow label="Image">{state.image || "—"}</InfoCardRow>
+          <InfoCardRow label="Command">
+            {state.command
+              ? (
+                  <code className="rounded bg-muted px-2 py-1 text-xs">
+                    {state.command}
+                  </code>
+                )
+              : (
+                  "—"
+                )}
+          </InfoCardRow>
+          <InfoCardRow label="Restart policy">
+            {state.restartPolicy || "—"}
+          </InfoCardRow>
+        </InfoCard>
 
-        <dl className="mt-4 grid gap-3 text-sm">
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Name</dt>
-            <dd className="font-medium">{state.name}</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Image</dt>
-            <dd className="font-medium">{state.image}</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Ports</dt>
-            <dd className="font-medium">8080 → 3000</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Resources</dt>
-            <dd className="font-medium">
-              1.5 vCPU / 512 MB / restart: on-failure
-            </dd>
-          </div>
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Env</dt>
-            <dd className="font-medium">NODE_ENV=production</dd>
-          </div>
-        </dl>
-
+        <InfoCard>
+          <InfoCardRow label="CPU">{state.cpu || "—"}</InfoCardRow>
+          <InfoCardRow label="Memory (MB)">{state.memory || "—"}</InfoCardRow>
+          <InfoCardRow label="Network">{state.network || "—"}</InfoCardRow>
+          <InfoCardRow label="Ports">
+            <div className="flex flex-wrap gap-2">
+              {ports.length > 0
+                ? (
+                    ports.map((port) => (
+                      <ContainerPortBadge
+                        key={`${port.hostPort}-${port.containerPort}`}
+                        port={{
+                          ip: "0.0.0.0",
+                          publicPort: Number(port.hostPort),
+                          privatePort: Number(port.containerPort),
+                          type: "tcp",
+                        }}
+                        showIpLabel={false}
+                      />
+                    ))
+                  )
+                : (
+                    <span className="text-muted-foreground text-xs">No port mappings defined.</span>
+                  )}
+            </div>
+          </InfoCardRow>
+          <InfoCardRow label="Env">
+            <div className="flex flex-wrap gap-2">
+              {envs.length > 0
+                ? envs.map((env) =>
+                    (
+                      <Badge
+                        key={`${env.key}-${env.value}`}
+                        variant="outline"
+                      >
+                        {env.key}
+                      </Badge>
+                    ),
+                  )
+                : (
+                    <span className="text-muted-foreground text-xs">No environment variables defined.</span>
+                  )}
+            </div>
+          </InfoCardRow>
+        </InfoCard>
       </div>
 
       <div className="inline-flex items-center justify-between w-full">
-        <Button
-          size="sm"
-          type="button"
-          variant="outline"
-          onClick={handleBack}
-        >
+        <Button size="sm" type="button" variant="outline" onClick={handleBack}>
           <ArrowLeftIcon className="opacity-60 size-3.5" />
           Back
         </Button>
 
-        <Button
-          size="sm"
-          type="submit"
-        >
-          Luunch
+        <Button size="sm" type="submit">
+          Launch
           <RocketIcon className="opacity-60 size-3.5" />
         </Button>
       </div>
