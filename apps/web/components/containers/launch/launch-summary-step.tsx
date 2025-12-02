@@ -117,7 +117,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
             startTransition(async () => {
               const { error, data } = await launchContainerAction({
                 name: state.name,
-                image: state.image?.id ?? "",
+                image: state.image?.repoTags?.at(0) || state?.image?.id || "",
                 restartPolicy: state.restartPolicy,
                 command: state.command,
                 cpu: state.cpu,
