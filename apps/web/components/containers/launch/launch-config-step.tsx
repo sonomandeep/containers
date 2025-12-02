@@ -2,7 +2,7 @@
 
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, ArrowRight, PlusIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRight, Plus, PlusIcon, XIcon } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@/components/ui/field";
@@ -72,7 +72,19 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
             <FieldSeparator />
 
             <Field>
-              <FieldLabel>Environment Variables</FieldLabel>
+              <div className="inline-flex justify-between items-center">
+                <FieldLabel>Environment Variables</FieldLabel>
+
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  type="button"
+                  onClick={() => envs.append({ key: "", value: "" })}
+                >
+                  <PlusIcon />
+                </Button>
+              </div>
+
               <div className="space-y-2">
                 {envs.fields.map((field, index) => (
                   <div key={field.id} className="space-y-1">
@@ -126,19 +138,22 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                   </div>
                 ))}
               </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={() => envs.append({ key: "", value: "" })}
-              >
-                <PlusIcon className="size-3.5 opacity-60" />
-                Add Variable
-              </Button>
             </Field>
 
             <Field>
-              <FieldLabel>Port Mappings</FieldLabel>
+              <div className="inline-flex justify-between items-center">
+                <FieldLabel>Port Mappings</FieldLabel>
+
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  type="button"
+                  onClick={() => ports.append({ hostPort: "", containerPort: "" })}
+                >
+                  <PlusIcon />
+                </Button>
+              </div>
+
               <div className="space-y-2">
                 {ports.fields.map((field, index) => (
                   <div key={field.id} className="space-y-1">
@@ -192,15 +207,6 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                   </div>
                 ))}
               </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={() => ports.append({ hostPort: "", containerPort: "" })}
-              >
-                <PlusIcon className="size-3.5 opacity-60" />
-                Add mapping
-              </Button>
             </Field>
           </FieldGroup>
         </FieldSet>
