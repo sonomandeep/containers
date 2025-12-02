@@ -10,9 +10,7 @@ interface PullImageInput {
   tag: string;
 }
 
-export async function pullImage(
-  input: PullImageInput
-): Promise<
+export async function pullImage(input: PullImageInput): Promise<
   ServiceResponse<
     Image,
     {
@@ -95,9 +93,7 @@ async function removeImage(imageId: string, force?: boolean) {
   await image.remove(force ? { force: true } : undefined);
 }
 
-export async function removeImages(
-  input: RemoveImagesInput
-): Promise<
+export async function removeImages(input: RemoveImagesInput): Promise<
   ServiceResponse<
     null,
     {
