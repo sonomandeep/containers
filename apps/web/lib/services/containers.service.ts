@@ -155,10 +155,27 @@ export async function startContainer(
 
 export async function launchContainer(
   input: LaunchContainerInput,
-): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
-  logger.info({ input }, "launchContainerServicePayload");
+): Promise<
+  ServiceResponse<{ id: string }, { status: number; statusText: string }>
+> {
+  const { data, error } = await $api("/containers", {
+    method: "post",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
+    output: z.object({
+      message: z.string(),
+      id: z.string(),
+    }),
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
 
   updateTag("containers");
 
-  return { data: null, error: null };
+  return { data: { id: data.id }, error: null };
 }
