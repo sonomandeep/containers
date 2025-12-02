@@ -76,7 +76,8 @@ export const launchConfigSchema = z.object({
     )
     .refine(
       (val) => {
-        if (!val || val === "") return true;
+        if (!val || val === "")
+          return true;
         const cpu = Number.parseFloat(val);
         return cpu > 0 && cpu <= 128;
       },
@@ -89,14 +90,16 @@ export const launchConfigSchema = z.object({
     .or(z.literal(""))
     .refine(
       (val) => {
-        if (!val || val === "") return true;
+        if (!val || val === "")
+          return true;
         return /^\d+$/.test(val);
       },
       { message: "Memory must be a valid number." },
     )
     .refine(
       (val) => {
-        if (!val || val === "") return true;
+        if (!val || val === "")
+          return true;
         const mem = Number.parseInt(val, 10);
         return mem >= 128 && mem <= 524288;
       },

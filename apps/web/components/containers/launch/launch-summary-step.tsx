@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ContainerPortBadge } from "@/components/ui/container-port-badge";
 import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
-import { logLaunchContainerAction } from "@/lib/actions/containers.actions";
+import { Spinner } from "@/components/ui/spinner";
+import { launchContainerAction } from "@/lib/actions/containers.actions";
 import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
@@ -29,13 +30,15 @@ export function LaunchSummaryStep({ handleBack }: Props) {
             {state.image?.repoTags?.[0] || state.image?.id || "—"}
           </InfoCardRow>
           <InfoCardRow label="Command">
-            {state.command ? (
-              <Badge variant="outline" className="font-mono">
-                {state.command}
-              </Badge>
-            ) : (
-              "—"
-            )}
+            {state.command
+              ? (
+                  <Badge variant="outline" className="font-mono">
+                    {state.command}
+                  </Badge>
+                )
+              : (
+                  "—"
+                )}
           </InfoCardRow>
           <InfoCardRow label="Restart policy">
             {state.restartPolicy || "—"}
@@ -48,43 +51,47 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           <InfoCardRow label="Network">{state.network || "—"}</InfoCardRow>
           <InfoCardRow label="Ports">
             <div className="flex flex-wrap gap-2">
-              {ports.length > 0 ? (
-                ports.map((port) => (
-                  <ContainerPortBadge
-                    key={`${port.hostPort}-${port.containerPort}`}
-                    port={{
-                      ip: "0.0.0.0",
-                      publicPort: Number(port.hostPort),
-                      privatePort: Number(port.containerPort),
-                      type: "tcp",
-                    }}
-                    showIpLabel={false}
-                  />
-                ))
-              ) : (
-                <span className="text-muted-foreground text-xs">
-                  No port mappings defined.
-                </span>
-              )}
+              {ports.length > 0
+                ? (
+                    ports.map((port) => (
+                      <ContainerPortBadge
+                        key={`${port.hostPort}-${port.containerPort}`}
+                        port={{
+                          ip: "0.0.0.0",
+                          publicPort: Number(port.hostPort),
+                          privatePort: Number(port.containerPort),
+                          type: "tcp",
+                        }}
+                        showIpLabel={false}
+                      />
+                    ))
+                  )
+                : (
+                    <span className="text-muted-foreground text-xs">
+                      No port mappings defined.
+                    </span>
+                  )}
             </div>
           </InfoCardRow>
           <InfoCardRow label="Env">
             <div className="flex flex-wrap gap-2">
-              {envs.length > 0 ? (
-                envs.map((env) => (
-                  <Badge
-                    key={`${env.key}-${env.value}`}
-                    variant="outline"
-                    className="font-mono"
-                  >
-                    {env.key}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-muted-foreground text-xs">
-                  No environment variables defined.
-                </span>
-              )}
+              {envs.length > 0
+                ? (
+                    envs.map((env) => (
+                      <Badge
+                        key={`${env.key}-${env.value}`}
+                        variant="outline"
+                        className="font-mono"
+                      >
+                        {env.key}
+                      </Badge>
+                    ))
+                  )
+                : (
+                    <span className="text-muted-foreground text-xs">
+                      No environment variables defined.
+                    </span>
+                  )}
             </div>
           </InfoCardRow>
         </InfoCard>
@@ -102,7 +109,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           disabled={isPending}
           onClick={() =>
             startTransition(async () => {
-              await logLaunchContainerAction({
+              await launchContainerAction({
                 name: state.name,
                 image: state.image?.id ?? "",
                 restartPolicy: state.restartPolicy,
@@ -113,11 +120,14 @@ export function LaunchSummaryStep({ handleBack }: Props) {
                 envs: state.envs,
                 ports: state.ports,
               });
-            })
-          }
+            })}
         >
           Launch
-          <RocketIcon className="opacity-60 size-3.5" />
+          {isPending
+            ? (<Spinner />)
+            : (
+                <RocketIcon className="opacity-60 size-3.5" />
+              )}
         </Button>
       </div>
     </div>

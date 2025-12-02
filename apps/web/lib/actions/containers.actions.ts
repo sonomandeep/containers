@@ -59,7 +59,7 @@ export async function startContainerAction(containerId: string) {
   return { data: { containerId }, error: null };
 }
 
-export async function logLaunchContainerAction(input: {
+export async function launchContainerAction(input: {
   name: string;
   image: string;
   restartPolicy: string;
@@ -71,6 +71,10 @@ export async function logLaunchContainerAction(input: {
   ports: Array<PortMapping>;
 }) {
   logger.info({ input }, "launchContainerPayload");
+
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000);
+  });
 
   return {
     data: input,

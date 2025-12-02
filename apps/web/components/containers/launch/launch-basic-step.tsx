@@ -1,5 +1,6 @@
 "use client";
 
+import type { Image } from "@containers/shared/src/schemas/images";
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
@@ -22,7 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { Image } from "@containers/shared/src/schemas/images";
 import { launchBasicSchema } from "@/lib/schema/containers";
 import { useLaunchContainerStore } from "@/lib/store";
 
@@ -73,8 +73,8 @@ export function LaunchBasicStep({ handleNext }: Props) {
   });
 
   function onSubmit(data: z.infer<typeof launchBasicSchema>) {
-    const selected =
-      imageOptions.find((opt) => opt.id === data.imageId) || null;
+    const selected
+      = imageOptions.find((opt) => opt.id === data.imageId) || null;
     setBasicInput({
       name: data.name,
       image: selected,
