@@ -4,6 +4,7 @@ import type z from "zod";
 import { launchContainerSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,25 +30,37 @@ interface Props {
   handleNext: () => void;
 }
 
-const schema = launchContainerSchema.pick({ name: true, image: true, command: true, restartPolicy: true });
+const schema = launchContainerSchema.pick({
+  name: true,
+  image: true,
+  command: true,
+  restartPolicy: true,
+});
 type BasicInput = z.infer<typeof schema>;
 
 export function LaunchBasicStep({ handleNext }: Props) {
   const setBasicInput = useLaunchContainerStore((state) => state.setBasicInput);
+  const name = useLaunchContainerStore((state) => state.name);
+  const image = useLaunchContainerStore((state) => state.image);
+  const restartPolicy = useLaunchContainerStore((state) => state.restartPolicy);
+  const command = useLaunchContainerStore((state) => state.command);
   const images = useImagesStore((state) => state.images);
+  const defaultValues = useMemo(
+    () => ({
+      name: name || "",
+      image: image?.id || "",
+      command: command || "",
+      restartPolicy: restartPolicy || "no",
+    }),
+    [name, image?.id, command, restartPolicy],
+  );
   const form = useForm<BasicInput>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: "",
-      image: "",
-      command: "",
-      restartPolicy: "no",
-    },
+    defaultValues,
   });
 
   function onSubmit(data: BasicInput) {
-    const selected
-      = images.find((opt) => opt.id === data.image) || null;
+    const selected = images.find((opt) => opt.id === data.image) || null;
     setBasicInput({
       name: data.name,
       image: selected,
@@ -104,7 +117,9 @@ export function LaunchBasicStep({ handleNext }: Props) {
                       {images.map((option) => (
                         <SelectItem key={option.id} value={option.id}>
                           <span>{option.repoTags[0] ?? option.id}</span>
-                          <span className="text-muted-foreground">{option.id.replace("sha256:", "").slice(0, 12)}</span>
+                          <span className="text-muted-foreground">
+                            {option.id.replace("sha256:", "").slice(0, 12)}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
