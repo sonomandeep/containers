@@ -8,7 +8,7 @@ import type {
 import type { Schema } from "hono";
 import type pino from "pino";
 
-export interface AppBindings {
+export type AppBindings = {
   Variables: {
     logger: pino.Logger;
   };
@@ -16,7 +16,7 @@ export interface AppBindings {
     incoming: IncomingMessage;
     outgoing: ServerResponse;
   };
-}
+};
 
 export type AppOpenAPI<S extends Schema = Record<string, never>> = OpenAPIHono<
   AppBindings,

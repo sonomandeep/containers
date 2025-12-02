@@ -11,10 +11,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { launchContainerAction } from "@/lib/actions/containers.actions";
 import { useLaunchContainerStore } from "@/lib/store";
 
-interface Props {
+type Props = {
   handleBack: () => void;
   handleClose: () => void;
-}
+};
 
 export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
   const [isPending, startTransition] = useTransition();

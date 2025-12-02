@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/data-table";
 import { columns } from "./columns";
 
-interface ContainersTableProps {
+type ContainersTableProps = {
   data: Array<Container>;
-}
+};
 
 export function ContainersTable({ data }: ContainersTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);

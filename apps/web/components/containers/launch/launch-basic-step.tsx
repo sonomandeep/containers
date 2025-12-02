@@ -26,9 +26,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useImagesStore, useLaunchContainerStore } from "@/lib/store";
 
-interface Props {
+type Props = {
   handleNext: () => void;
-}
+};
 
 const schema = launchContainerSchema.pick({
   name: true,

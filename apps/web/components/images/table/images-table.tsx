@@ -15,9 +15,9 @@ import {
 import { columns } from "./columns";
 import RemoveImagesDialog from "./remove-images.dialog";
 
-interface ImagesTableProps {
+type ImagesTableProps = {
   data: Array<Image>;
-}
+};
 
 export function ImagesTable({ data }: ImagesTableProps) {
   return (

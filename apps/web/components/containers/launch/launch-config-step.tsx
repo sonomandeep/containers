@@ -33,10 +33,10 @@ import {
 } from "@/components/ui/select";
 import { useLaunchContainerStore } from "@/lib/store";
 
-interface Props {
+type Props = {
   handleBack: () => void;
   handleNext: () => void;
-}
+};
 
 const schema = launchContainerSchema.pick({
   cpu: true,

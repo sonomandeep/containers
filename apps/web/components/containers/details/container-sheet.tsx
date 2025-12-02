@@ -23,11 +23,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContainerSheetInfo } from "./container-sheet-info";
 import { ContainerSheetMetrics } from "./container-sheet-metrics";
 
-interface Props {
+type Props = {
   container: Container;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 export function ContainerSheet({ container, open, onOpenChange }: Props) {
   const createdAt = container.created * 1000;

@@ -12,7 +12,6 @@
         "noNamespaceImport": "off"
       },
       "style": {
-        "useConsistentTypeDefinitions": "off",
         "useConsistentArrayType": {
           "level": "warn",
           "options": {

@@ -15,10 +15,10 @@ import { ContainerPortBadge } from "@/components/ui/container-port-badge";
 import { ContainerStateBadge } from "@/components/ui/container-state-badge";
 import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 
-interface Props {
+type Props = {
   container: Container;
   createdLabel: string;
-}
+};
 
 export function ContainerSheetInfo({ container, createdLabel }: Props) {
   return (

@@ -4,11 +4,11 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "../utils";
 
-interface PullImageInput {
+type PullImageInput = {
   registry: string;
   name: string;
   tag: string;
-}
+};
 
 export async function pullImage(input: PullImageInput): Promise<
   ServiceResponse<
@@ -72,10 +72,10 @@ export async function pullImage(input: PullImageInput): Promise<
   }
 }
 
-interface RemoveImagesInput {
+type RemoveImagesInput = {
   images: Array<string>;
   force?: boolean;
-}
+};
 
 async function removeImage(imageId: string, force?: boolean) {
   if (force) {

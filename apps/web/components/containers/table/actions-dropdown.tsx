@@ -22,9 +22,9 @@ import {
   stopContainerAction,
 } from "@/lib/actions/containers.actions";
 
-interface ContainerActionsDropdownProps {
+type ContainerActionsDropdownProps = {
   container: Container;
-}
+};
 
 export default function ContainerActionsDropdown({
   container,
@@ -62,18 +62,18 @@ export default function ContainerActionsDropdown({
   );
 }
 
-interface ContainerActionComponentProps {
+type ContainerActionComponentProps = {
   container: Container;
   closeDropdown: () => void;
-}
+};
 
-interface ContainerActionItemProps {
+type ContainerActionItemProps = {
   icon: typeof PlayIcon;
   label: string;
   disabled?: boolean;
   variant?: "default" | "destructive";
   onSelect?: () => void;
-}
+};
 
 function ContainerActionItem({
   icon: Icon,

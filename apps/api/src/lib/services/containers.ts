@@ -4,50 +4,50 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "@/lib/utils";
 
-interface LaunchContainerError {
+type LaunchContainerError = {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-}
+};
 
-interface RemoveContainerInput {
+type RemoveContainerInput = {
   containerId: string;
   force?: boolean;
-}
+};
 
-interface RemoveContainerError {
+type RemoveContainerError = {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-}
+};
 
-interface StopContainerInput {
+type StopContainerInput = {
   containerId: string;
-}
+};
 
-interface StopContainerError {
+type StopContainerError = {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-}
+};
 
-interface StartContainerInput {
+type StartContainerInput = {
   containerId: string;
-}
+};
 
-interface StartContainerError {
+type StartContainerError = {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-}
+};
 
 export async function removeContainer(
   input: RemoveContainerInput

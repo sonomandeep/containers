@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/chart";
 import { cn, formatBytes } from "@/lib/utils";
 
-interface Props {
+type Props = {
   metrics?: Container["metrics"];
-}
+};
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: temp
 export function ContainerSheetMetrics({ metrics }: Props) {
@@ -396,7 +396,7 @@ export function ContainerSheetMetrics({ metrics }: Props) {
   );
 }
 
-interface MetricCardProps {
+type MetricCardProps = {
   title: string;
   value: ReactNode;
   icon: LucideIcon;
@@ -404,7 +404,7 @@ interface MetricCardProps {
   isAvailable: boolean;
   unavailableMessage?: string;
   children: ReactNode;
-}
+};
 
 function MetricCard({
   title,
