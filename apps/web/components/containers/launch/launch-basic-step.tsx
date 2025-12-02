@@ -1,11 +1,11 @@
 "use client";
 
-import type z from "zod";
 import { launchContainerSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
+import type z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -52,7 +52,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
       command: command || "",
       restartPolicy: restartPolicy || "no",
     }),
-    [name, image?.id, command, restartPolicy],
+    [name, image?.id, command, restartPolicy]
   );
   const form = useForm<BasicInput>({
     resolver: zodResolver(schema),
@@ -76,18 +76,18 @@ export function LaunchBasicStep({ handleNext }: Props) {
         <FieldSet>
           <FieldGroup>
             <Controller
-              name="name"
               control={form.control}
+              name="name"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Name</FieldLabel>
 
                   <Input
                     {...field}
-                    id={field.name}
-                    type="text"
-                    placeholder="Backend App"
                     aria-invalid={fieldState.invalid}
+                    id={field.name}
+                    placeholder="Backend App"
+                    type="text"
                   />
 
                   {fieldState.invalid && (
@@ -98,18 +98,18 @@ export function LaunchBasicStep({ handleNext }: Props) {
             />
 
             <Controller
-              name="image"
               control={form.control}
+              name="image"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Image</FieldLabel>
 
                   <Select
                     name={field.name}
-                    value={field.value}
                     onValueChange={field.onChange}
+                    value={field.value}
                   >
-                    <SelectTrigger id="image" aria-invalid={fieldState.invalid}>
+                    <SelectTrigger aria-invalid={fieldState.invalid} id="image">
                       <SelectValue placeholder="Select image" />
                     </SelectTrigger>
 
@@ -133,20 +133,20 @@ export function LaunchBasicStep({ handleNext }: Props) {
             />
 
             <Controller
-              name="restartPolicy"
               control={form.control}
+              name="restartPolicy"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Restart Policy</FieldLabel>
 
                   <Select
-                    name={field.name}
                     defaultValue={field.value}
+                    name={field.name}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger
-                      id={field.name}
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
                     >
                       <SelectValue placeholder="Select restart policy" />
                     </SelectTrigger>
@@ -169,8 +169,8 @@ export function LaunchBasicStep({ handleNext }: Props) {
             />
 
             <Controller
-              name="command"
               control={form.control}
+              name="command"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -194,17 +194,17 @@ export function LaunchBasicStep({ handleNext }: Props) {
         </FieldSet>
 
         <Field
+          className="inline-flex w-full justify-between"
           orientation="horizontal"
-          className="w-full inline-flex justify-between"
         >
           <Button disabled size="sm" type="button" variant="outline">
-            <ArrowLeftIcon className="opacity-60 size-3.5" />
+            <ArrowLeftIcon className="size-3.5 opacity-60" />
             Back
           </Button>
 
           <Button size="sm" type="submit">
             Next
-            <ArrowRightIcon className="opacity-60 size-3.5" />
+            <ArrowRightIcon className="size-3.5 opacity-60" />
           </Button>
         </Field>
       </FieldGroup>

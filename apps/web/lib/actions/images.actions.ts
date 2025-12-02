@@ -1,10 +1,10 @@
 "use server";
 
+import { logger } from "@/lib/logger";
 import type {
   PullImageInput,
   RemoveImagesInput,
 } from "@/lib/services/images.service";
-import { logger } from "@/lib/logger";
 import {
   pullImage,
   pullImageInputSchema,
@@ -20,7 +20,7 @@ export interface PullImageActionFormState {
 
 export async function pullImageAction(
   _prevState: PullImageActionFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<PullImageActionFormState> {
   const input = validateFormData(pullImageInputSchema, formData);
   if (!input.ok) {
@@ -54,7 +54,7 @@ export interface RemoveImagesActionFormState {
 
 export async function removeImagesAction(
   _prevState: RemoveImagesActionFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<RemoveImagesActionFormState> {
   const input = validateFormData(removeImagesInputSchema, formData);
   if (!input.ok) {

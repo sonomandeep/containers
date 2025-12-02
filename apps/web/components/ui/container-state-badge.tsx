@@ -1,13 +1,8 @@
 "use client";
 
 import type { ContainerState } from "@containers/shared";
+import { PauseIcon, PlayIcon, RefreshCcwIcon, SquareIcon } from "lucide-react";
 import type { ComponentProps, ComponentType } from "react";
-import {
-  PauseIcon,
-  PlayIcon,
-  RefreshCcwIcon,
-  SquareIcon,
-} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +50,7 @@ export function ContainerStateBadge({
 
   if (!config) {
     return (
-      <Badge variant="outline" className={className}>
+      <Badge className={className} variant="outline">
         {state}
       </Badge>
     );
@@ -64,7 +59,7 @@ export function ContainerStateBadge({
   const Icon = config.icon;
 
   return (
-    <Badge variant={config.variant} className={cn("gap-1.5", className)}>
+    <Badge className={cn("gap-1.5", className)} variant={config.variant}>
       {showIcon && Icon ? <Icon className="size-3.5" /> : null}
       {config.label}
     </Badge>

@@ -32,16 +32,16 @@ export const columns: ColumnDef<Container>[] = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        aria-label="Select all"
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
+        aria-label="Select row"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
       />
     ),
     enableSorting: false,
@@ -52,14 +52,12 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "id",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <HashIcon className="size-3.5" />
-          ID
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <HashIcon className="size-3.5" />
+        ID
+      </div>
+    ),
     cell: ({ row }) => {
       const id = row.getValue<string>("id");
 
@@ -75,27 +73,23 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "name",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <BoxIcon className="size-3.5" />
-          Name
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <BoxIcon className="size-3.5" />
+        Name
+      </div>
+    ),
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
     size: 200,
   },
   {
     accessorKey: "image",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <Layers2Icon className="size-3.5" />
-          Image
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <Layers2Icon className="size-3.5" />
+        Image
+      </div>
+    ),
     cell: ({ row }) => (
       <Link href={`/images/${row.getValue("image")}`}>
         <Badge variant="secondary">
@@ -108,20 +102,18 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "ports",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <NetworkIcon className="size-3.5" />
-          Ports
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <NetworkIcon className="size-3.5" />
+        Ports
+      </div>
+    ),
     cell: ({ row }) => {
       const ports = row.getValue<Array<ContainerPort>>("ports");
 
       if (ports.length === 0) {
         return (
-          <Badge variant="outline" className="font-mono">
+          <Badge className="font-mono" variant="outline">
             -
           </Badge>
         );
@@ -142,14 +134,12 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "state",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <ActivityIcon className="size-3.5" />
-          Status
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <ActivityIcon className="size-3.5" />
+        Status
+      </div>
+    ),
     cell: ({ row }) => {
       const state = row.getValue<ContainerState>("state");
 
@@ -159,14 +149,12 @@ export const columns: ColumnDef<Container>[] = [
   },
   {
     accessorKey: "created",
-    header: () => {
-      return (
-        <div className="inline-flex items-center gap-2">
-          <CalendarIcon className="size-3.5" />
-          Created
-        </div>
-      );
-    },
+    header: () => (
+      <div className="inline-flex items-center gap-2">
+        <CalendarIcon className="size-3.5" />
+        Created
+      </div>
+    ),
     cell: ({ row }) => {
       const date = row.getValue<number>("created");
 

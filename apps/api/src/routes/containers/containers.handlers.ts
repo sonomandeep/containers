@@ -1,11 +1,3 @@
-import type {
-  LaunchRoute,
-  ListRoute,
-  RemoveRoute,
-  StartRoute,
-  StopRoute,
-} from "./containers.routes";
-import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { listContainers } from "@/lib/agent";
 import {
@@ -14,6 +6,14 @@ import {
   startContainer,
   stopContainer,
 } from "@/lib/services/containers";
+import type { AppRouteHandler } from "@/lib/types";
+import type {
+  LaunchRoute,
+  ListRoute,
+  RemoveRoute,
+  StartRoute,
+  StopRoute,
+} from "./containers.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
@@ -35,7 +35,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
       {
         message: result.error.message,
       },
-      result.error.code,
+      result.error.code
     );
   }
 
@@ -43,7 +43,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
     {
       message: "container deleted",
     },
-    HttpStatusCodes.OK,
+    HttpStatusCodes.OK
   );
 };
 
@@ -60,7 +60,7 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
       {
         message: result.error.message,
       },
-      result.error.code,
+      result.error.code
     );
   }
 
@@ -68,7 +68,7 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
     {
       message: "container stopped",
     },
-    HttpStatusCodes.OK,
+    HttpStatusCodes.OK
   );
 };
 
@@ -85,7 +85,7 @@ export const start: AppRouteHandler<StartRoute> = async (c) => {
       {
         message: result.error.message,
       },
-      result.error.code,
+      result.error.code
     );
   }
 
@@ -93,7 +93,7 @@ export const start: AppRouteHandler<StartRoute> = async (c) => {
     {
       message: "container started",
     },
-    HttpStatusCodes.OK,
+    HttpStatusCodes.OK
   );
 };
 
@@ -108,7 +108,7 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
       {
         message: result.error.message,
       },
-      result.error.code,
+      result.error.code
     );
   }
 
@@ -117,6 +117,6 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
       message: "container launched",
       id: result.data.id,
     },
-    HttpStatusCodes.OK,
+    HttpStatusCodes.OK
   );
 };

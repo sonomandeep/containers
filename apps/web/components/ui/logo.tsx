@@ -12,20 +12,20 @@ export default function Logo({ size }: Props) {
   return (
     <>
       <Image
-        src="/logo-light.svg"
         alt="ACME Inc. logo"
-        width={size}
-        height={size}
         className="block dark:hidden"
+        height={size}
         priority
+        src="/logo-light.svg"
+        width={size}
       />
       <Image
-        src="/logo-dark.svg"
         alt="ACME Inc. logo"
-        width={size}
-        height={size}
         className="hidden dark:block"
+        height={size}
         priority
+        src="/logo-dark.svg"
+        width={size}
       />
     </>
   );

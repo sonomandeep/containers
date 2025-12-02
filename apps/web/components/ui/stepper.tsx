@@ -25,10 +25,10 @@ type StepState = "active" | "completed" | "inactive" | "loading";
 
 // Contexts
 const StepperContext = createContext<StepperContextValue | undefined>(
-  undefined,
+  undefined
 );
 const StepItemContext = createContext<StepItemContextValue | undefined>(
-  undefined,
+  undefined
 );
 
 function useStepper() {
@@ -72,7 +72,7 @@ function Stepper({
       }
       onValueChange?.(step);
     },
-    [value, onValueChange],
+    [value, onValueChange]
   );
 
   const currentStep = value ?? activeStep;
@@ -88,7 +88,7 @@ function Stepper({
       <div
         className={cn(
           "group/stepper inline-flex data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col",
-          className,
+          className
         )}
         data-orientation={orientation}
         data-slot="stepper"
@@ -117,8 +117,8 @@ function StepperItem({
 }: StepperItemProps) {
   const { activeStep } = useStepper();
 
-  const state: StepState
-    = completed || step < activeStep
+  const state: StepState =
+    completed || step < activeStep
       ? "completed"
       : activeStep === step
         ? "active"
@@ -133,7 +133,7 @@ function StepperItem({
       <div
         className={cn(
           "group/step flex items-center group-data-[orientation=horizontal]/stepper:flex-row group-data-[orientation=vertical]/stepper:flex-col",
-          className,
+          className
         )}
         data-slot="stepper-item"
         data-state={state}
@@ -174,7 +174,7 @@ function StepperTrigger({
     <button
       className={cn(
         "inline-flex items-center gap-3 rounded-full outline-none focus-visible:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
-        className,
+        className
       )}
       data-slot="stepper-trigger"
       disabled={isDisabled}
@@ -204,37 +204,35 @@ function StepperIndicator({
     <span
       className={cn(
         "relative flex size-6 shrink-0 items-center justify-center rounded-full bg-muted font-medium text-muted-foreground text-xs data-[state=active]:bg-primary data-[state=completed]:bg-primary data-[state=active]:text-primary-foreground data-[state=completed]:text-primary-foreground",
-        className,
+        className
       )}
       data-slot="stepper-indicator"
       data-state={state}
       {...props}
     >
-      {asChild
-        ? (
-            children
-          )
-        : (
-            <>
-              <span className="transition-all group-data-[state=completed]/step:scale-0 group-data-loading/step:scale-0 group-data-[state=completed]/step:opacity-0 group-data-loading/step:opacity-0 group-data-loading/step:transition-none">
-                {step}
-              </span>
-              <CheckIcon
+      {asChild ? (
+        children
+      ) : (
+        <>
+          <span className="transition-all group-data-[state=completed]/step:scale-0 group-data-loading/step:scale-0 group-data-[state=completed]/step:opacity-0 group-data-loading/step:opacity-0 group-data-loading/step:transition-none">
+            {step}
+          </span>
+          <CheckIcon
+            aria-hidden="true"
+            className="absolute scale-0 opacity-0 transition-all group-data-[state=completed]/step:scale-100 group-data-[state=completed]/step:opacity-100"
+            size={16}
+          />
+          {isLoading && (
+            <span className="absolute transition-all">
+              <LoaderCircleIcon
                 aria-hidden="true"
-                className="absolute scale-0 opacity-0 transition-all group-data-[state=completed]/step:scale-100 group-data-[state=completed]/step:opacity-100"
-                size={16}
+                className="animate-spin"
+                size={14}
               />
-              {isLoading && (
-                <span className="absolute transition-all">
-                  <LoaderCircleIcon
-                    aria-hidden="true"
-                    className="animate-spin"
-                    size={14}
-                  />
-                </span>
-              )}
-            </>
+            </span>
           )}
+        </>
+      )}
     </span>
   );
 }
@@ -276,7 +274,7 @@ function StepperSeparator({
     <div
       className={cn(
         "m-0.5 bg-muted group-data-[orientation=horizontal]/stepper:h-0.5 group-data-[orientation=vertical]/stepper:h-12 group-data-[orientation=horizontal]/stepper:w-full group-data-[orientation=vertical]/stepper:w-0.5 group-data-[orientation=horizontal]/stepper:flex-1 group-data-[state=completed]/step:bg-primary",
-        className,
+        className
       )}
       data-slot="stepper-separator"
       {...props}

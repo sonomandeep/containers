@@ -1,10 +1,10 @@
-import type { Schema } from "hono";
-import type { AppBindings, AppOpenAPI } from "./types";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { Schema } from "hono";
 import { requestId } from "hono/request-id";
 import { notFound, onError } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 import pinoLogger from "@/lib/middlewares/logger";
+import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({

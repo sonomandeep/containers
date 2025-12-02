@@ -9,9 +9,9 @@ function portSchema(fieldName: string) {
     .refine(
       (value) => {
         const port = Number.parseInt(value, 10);
-        return port >= 1 && port <= 65535;
+        return port >= 1 && port <= 65_535;
       },
-      { message: `${fieldName} port must be 1-65535.` },
+      { message: `${fieldName} port must be 1-65535.` }
     );
 }
 
@@ -48,9 +48,12 @@ const imageSchema = z
   .string()
   .trim()
   .min(1, { message: "Image is required." })
-  .regex(/^[a-z0-9]+([._-][a-z0-9]+)*(\/[a-z0-9]+([._-][a-z0-9]+)*)*(:[\w.-]+)?$/, {
-    message: "Invalid image format.",
-  });
+  .regex(
+    /^[a-z0-9]+([._-][a-z0-9]+)*(\/[a-z0-9]+([._-][a-z0-9]+)*)*(:[\w.-]+)?$/,
+    {
+      message: "Invalid image format.",
+    }
+  );
 
 const cpuSchema = z
   .string()
@@ -58,12 +61,11 @@ const cpuSchema = z
   .optional()
   .refine(
     (value) => {
-      if (!value || value === "")
-        return true;
+      if (!value || value === "") return true;
       const cpu = Number.parseFloat(value);
       return !Number.isNaN(cpu) && cpu > 0 && cpu <= 128;
     },
-    { message: "CPU must be 0.1-128." },
+    { message: "CPU must be 0.1-128." }
   );
 
 const memorySchema = z
@@ -72,12 +74,11 @@ const memorySchema = z
   .optional()
   .refine(
     (value) => {
-      if (!value || value === "")
-        return true;
+      if (!value || value === "") return true;
       const num = Number.parseInt(value, 10);
       return /^\d+$/.test(value) && !Number.isNaN(num) && num > 0;
     },
-    { message: "Memory must be a positive number (in MB)." },
+    { message: "Memory must be a positive number (in MB)." }
   );
 
 const restartPolicySchema = z
@@ -85,7 +86,7 @@ const restartPolicySchema = z
   .refine(
     (val): val is "no" | "always" | "on-failure" | "unless-stopped" =>
       ["no", "always", "on-failure", "unless-stopped"].includes(val),
-    { message: "Invalid restart policy." },
+    { message: "Invalid restart policy." }
   );
 
 export const launchContainerSchema = z
@@ -102,35 +103,32 @@ export const launchContainerSchema = z
       .optional()
       .refine(
         (value) => {
-          if (!value || value === "")
-            return true;
+          if (!value || value === "") return true;
           return /^[a-z0-9][\w.-]*$/i.test(value);
         },
-        { message: "Invalid network name." },
+        { message: "Invalid network name." }
       ),
     envs: z
       .array(envVarSchema)
       .optional()
       .refine(
         (envs) => {
-          if (!envs || envs.length === 0)
-            return true;
+          if (!envs || envs.length === 0) return true;
           const keys = envs.map((e) => e.key);
           return new Set(keys).size === keys.length;
         },
-        { message: "Duplicate environment variable names." },
+        { message: "Duplicate environment variable names." }
       ),
     ports: z
       .array(portMappingSchema)
       .optional()
       .refine(
         (ports) => {
-          if (!ports || ports.length === 0)
-            return true;
+          if (!ports || ports.length === 0) return true;
           const hostPorts = ports.map((p) => p.hostPort);
           return new Set(hostPorts).size === hostPorts.length;
         },
-        { message: "Duplicate host ports." },
+        { message: "Duplicate host ports." }
       ),
   })
   .refine(
@@ -143,7 +141,7 @@ export const launchContainerSchema = z
     {
       message: "Port mapping not supported with host network.",
       path: ["network"],
-    },
+    }
   );
 
 export type LaunchContainerInput = z.infer<typeof launchContainerSchema>;

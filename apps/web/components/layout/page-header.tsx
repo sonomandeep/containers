@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ButtonProps } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,8 +17,8 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        "w-full flex flex-wrap items-center justify-between gap-3 px-1",
-        className,
+        "flex w-full flex-wrap items-center justify-between gap-3 px-1",
+        className
       )}
       {...props}
     >
@@ -45,12 +45,10 @@ export function PageHeaderTitle({
       {Icon ? <Icon className="size-4 opacity-80" /> : null}
 
       <div className="flex flex-col leading-tight">
-        <h1 className="text-base font-medium">{children}</h1>
-        {description
-          ? (
-              <p className="text-xs text-muted-foreground">{description}</p>
-            )
-          : null}
+        <h1 className="font-medium text-base">{children}</h1>
+        {description ? (
+          <p className="text-muted-foreground text-xs">{description}</p>
+        ) : null}
       </div>
     </div>
   );
@@ -87,9 +85,9 @@ export function PageHeaderAction({
 }: PageHeaderActionProps) {
   return (
     <Button
+      className={cn("gap-1.5", className)}
       size="sm"
       variant="outline"
-      className={cn("gap-1.5", className)}
       {...props}
     >
       {Icon ? <Icon className="size-3.5 opacity-80" /> : null}

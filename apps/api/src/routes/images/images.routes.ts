@@ -14,7 +14,7 @@ export const list = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.array(imageSchema),
-      "The list of images",
+      "The list of images"
     ),
   },
 });
@@ -24,24 +24,21 @@ export const pull = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(z.object({
-      registry: z.string(),
-      name: z.string(),
-      tag: z.string(),
-    }), "The image to be pulled"),
+    body: jsonContentRequired(
+      z.object({
+        registry: z.string(),
+        name: z.string(),
+        tag: z.string(),
+      }),
+      "The image to be pulled"
+    ),
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      imageSchema,
-      "The pulled image",
-    ),
-    [HttpStatusCodes.NOT_FOUND]: jsonContent(
-      notFoundSchema,
-      "Image not found",
-    ),
+    [HttpStatusCodes.OK]: jsonContent(imageSchema, "The pulled image"),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Image not found"),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });
@@ -51,25 +48,28 @@ export const remove = createRoute({
   method: "post",
   tags,
   request: {
-    body: jsonContentRequired(z.object(
-      {
+    body: jsonContentRequired(
+      z.object({
         images: z.array(z.string()),
         force: z.boolean().optional().default(false),
-      },
-    ), "Array of images to delete"),
+      }),
+      "Array of images to delete"
+    ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createMessageObjectSchema("images deleted"),
-      "Images deleted",
+      "Images deleted"
     ),
     [HttpStatusCodes.CONFLICT]: jsonContent(
-      createMessageObjectSchema("Cannot delete images with existing containers. Stop them or retry with force delete."),
-      "Images still referenced by containers",
+      createMessageObjectSchema(
+        "Cannot delete images with existing containers. Stop them or retry with force delete."
+      ),
+      "Images still referenced by containers"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });

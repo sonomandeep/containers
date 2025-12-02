@@ -6,7 +6,6 @@ import type {
   RowSelectionState,
   Table as TableInstance,
 } from "@tanstack/react-table";
-import type { MouseEvent, ReactNode } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -14,6 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDownIcon, FunnelIcon } from "lucide-react";
+import type { MouseEvent, ReactNode } from "react";
 import { createContext, use, useState } from "react";
 import {
   Pagination,
@@ -48,9 +48,9 @@ interface DataTableContextValue<TData> {
 
 const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
 
-type DataTableRenderable<TData>
-  = | ReactNode
-    | ((context: DataTableContextValue<TData>) => ReactNode);
+type DataTableRenderable<TData> =
+  | ReactNode
+  | ((context: DataTableContextValue<TData>) => ReactNode);
 
 function DefaultHeaderActions() {
   return (
@@ -64,7 +64,7 @@ function DefaultHeaderActions() {
 function renderSlot<TData>(
   slot: DataTableRenderable<TData> | undefined,
   context: DataTableContextValue<TData>,
-  fallback?: ReactNode,
+  fallback?: ReactNode
 ) {
   if (slot === undefined) {
     return fallback ?? null;
@@ -117,7 +117,7 @@ export function DataTable<TData, TValue>({
         columnsLength: columns.length,
       }}
     >
-      <div className={cn("flex flex-col overflow-hidden h-full", className)}>
+      <div className={cn("flex h-full flex-col overflow-hidden", className)}>
         {children}
       </div>
     </DataTableContext.Provider>
@@ -139,14 +139,14 @@ export function DataTableHeader<TData>({
 
   if (children) {
     return (
-      <div className="w-full border-b border-secondary px-2 pb-2">
+      <div className="w-full border-secondary border-b px-2 pb-2">
         {renderSlot(children, context)}
       </div>
     );
   }
 
   return (
-    <div className="w-full inline-flex items-center px-2 pb-2 justify-between border-b border-secondary">
+    <div className="inline-flex w-full items-center justify-between border-secondary border-b px-2 pb-2">
       {title ? typeof title === "string" ? <h2>{title}</h2> : title : <span />}
 
       <div className="inline-flex items-center gap-2">
@@ -167,12 +167,12 @@ export function DataTableTable<TData>({
 }: DataTableTableProps<TData>) {
   const { table, columnsLength } = useDataTableContext<TData>();
   const rows = table.getRowModel().rows;
-  const interactiveSelector
-    = "a, button, input, textarea, select, label, [role='button'], [data-row-click-ignore]";
+  const interactiveSelector =
+    "a, button, input, textarea, select, label, [role='button'], [data-row-click-ignore]";
 
   const getRowClickHandler = (row: Row<TData>) => {
     if (!onRowClick) {
-      return undefined;
+      return;
     }
 
     return (event: MouseEvent<HTMLTableRowElement>) => {
@@ -183,8 +183,8 @@ export function DataTableTable<TData>({
       const target = event.target;
 
       if (
-        target instanceof Element
-        && target.closest(interactiveSelector) !== null
+        target instanceof Element &&
+        target.closest(interactiveSelector) !== null
       ) {
         return;
       }
@@ -198,18 +198,18 @@ export function DataTableTable<TData>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="hover:bg-transparent">
+            <TableRow className="hover:bg-transparent" key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead
+                  className={cn(header.id === "select" && "p-0! text-center")}
                   key={header.id}
-                  className={cn(header.id === "select" && "text-center p-0!")}
                   style={{ width: header.getSize() }}
                 >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                 </TableHead>
               ))}
@@ -218,36 +218,34 @@ export function DataTableTable<TData>({
         </TableHeader>
 
         <TableBody>
-          {rows?.length
-            ? (
-                rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    onClick={getRowClickHandler(row)}
-                    className={cn(onRowClick && "cursor-pointer")}
+          {rows?.length ? (
+            rows.map((row) => (
+              <TableRow
+                className={cn(onRowClick && "cursor-pointer")}
+                data-state={row.getIsSelected() && "selected"}
+                key={row.id}
+                onClick={getRowClickHandler(row)}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    className={cn(
+                      cell.column.id === "select" && "p-0! text-center"
+                    )}
+                    key={cell.id}
+                    style={{ width: cell.column.getSize() }}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          cell.column.id === "select" && "text-center p-0!",
-                        )}
-                        style={{ width: cell.column.getSize() }}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              )
-            : (
-                <TableRow>
-                  <TableCell colSpan={columnsLength} className="h-24 text-center">
-                    {emptyMessage}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
-                </TableRow>
-              )}
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell className="h-24 text-center" colSpan={columnsLength}>
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
@@ -267,7 +265,7 @@ export function DataTableFooter<TData>({
 
   if (children) {
     return (
-      <div className="px-2 pt-2 border-t border-secondary">
+      <div className="border-secondary border-t px-2 pt-2">
         {renderSlot(children, context)}
       </div>
     );
@@ -296,7 +294,7 @@ function DefaultFooter<TData>({
   const visiblePages = getVisiblePages(pageCount, pageIndex);
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-2 pt-2 border-t border-secondary sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 border-secondary border-t px-2 pt-2 sm:grid-cols-3">
       <div>
         <p className="text-muted-foreground">
           Results:
@@ -311,9 +309,7 @@ function DefaultFooter<TData>({
             {end}
             &nbsp;
           </span>
-          of
-          {" "}
-          {totalRows}
+          of {totalRows}
         </p>
       </div>
 
@@ -322,8 +318,8 @@ function DefaultFooter<TData>({
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href="#"
                 aria-disabled={!table.getCanPreviousPage()}
+                href="#"
                 onClick={(event) => {
                   event.preventDefault();
                   if (table.getCanPreviousPage()) {
@@ -336,13 +332,13 @@ function DefaultFooter<TData>({
             {visiblePages.map((page) => (
               <PaginationItem key={page}>
                 <PaginationLink
-                  size="icon-sm"
                   href="#"
                   isActive={page === pageIndex}
                   onClick={(event) => {
                     event.preventDefault();
                     table.setPageIndex(page);
                   }}
+                  size="icon-sm"
                 >
                   {page + 1}
                 </PaginationLink>
@@ -351,8 +347,8 @@ function DefaultFooter<TData>({
 
             <PaginationItem>
               <PaginationNext
-                href="#"
                 aria-disabled={!table.getCanNextPage()}
+                href="#"
                 onClick={(event) => {
                   event.preventDefault();
                   if (table.getCanNextPage()) {
@@ -367,8 +363,8 @@ function DefaultFooter<TData>({
 
       <div className="flex justify-end">
         <Select
-          value={String(pageSize)}
           onValueChange={(value) => table.setPageSize(Number(value))}
+          value={String(pageSize)}
         >
           <SelectTrigger className="w-[180px]" size="sm">
             <SelectValue placeholder="Items per page" />
@@ -378,9 +374,7 @@ function DefaultFooter<TData>({
             <SelectGroup>
               {pageSizeOptions.map((option) => (
                 <SelectItem key={option} value={String(option)}>
-                  {option}
-                  {" "}
-                  per Page
+                  {option} per Page
                 </SelectItem>
               ))}
             </SelectGroup>
@@ -394,7 +388,7 @@ function DefaultFooter<TData>({
 function getVisiblePages(
   pageCount: number,
   currentPage: number,
-  windowSize = 3,
+  windowSize = 3
 ) {
   if (pageCount <= windowSize) {
     return Array.from({ length: pageCount }, (_, index) => index);

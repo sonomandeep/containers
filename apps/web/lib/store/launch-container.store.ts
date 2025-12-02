@@ -1,6 +1,6 @@
 import type { Image } from "@containers/shared/src/schemas/images";
-import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 import { create } from "zustand";
+import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 
 interface LaunchContainerStore {
   name: string;

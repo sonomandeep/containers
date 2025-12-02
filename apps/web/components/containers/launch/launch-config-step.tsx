@@ -1,6 +1,5 @@
 "use client";
 
-import type z from "zod";
 import { launchContainerSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import type z from "zod";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader } from "@/components/ui/empty";
 import {
@@ -50,7 +50,7 @@ type ConfigInput = z.infer<typeof schema>;
 
 export function LaunchConfigStep({ handleBack, handleNext }: Props) {
   const setConfigInput = useLaunchContainerStore(
-    (state) => state.setConfigInput,
+    (state) => state.setConfigInput
   );
   const cpu = useLaunchContainerStore((state) => state.cpu);
   const memory = useLaunchContainerStore((state) => state.memory);
@@ -65,7 +65,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
       envs: envsDefault?.length ? envsDefault : [],
       ports: portsDefault?.length ? portsDefault : [],
     }),
-    [cpu, memory, network, envsDefault, portsDefault],
+    [cpu, memory, network, envsDefault, portsDefault]
   );
   const form = useForm<ConfigInput>({
     resolver: zodResolver(schema),
@@ -90,20 +90,20 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
       <FieldGroup>
         <FieldSet>
           <FieldGroup>
-            <div className="w-full inline-flex gap-2">
+            <div className="inline-flex w-full gap-2">
               <Controller
-                name="cpu"
                 control={form.control}
+                name="cpu"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>CPU (vCPU)</FieldLabel>
 
                     <Input
                       {...field}
-                      id={field.name}
-                      type="number"
-                      placeholder="2"
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
+                      placeholder="2"
+                      type="number"
                     />
 
                     {fieldState.invalid && (
@@ -114,18 +114,18 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
               />
 
               <Controller
-                name="memory"
                 control={form.control}
+                name="memory"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Memory (in mb)</FieldLabel>
 
                     <Input
                       {...field}
-                      id={field.name}
-                      type="number"
-                      placeholder="2048"
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
+                      placeholder="2048"
+                      type="number"
                     />
 
                     {fieldState.invalid && (
@@ -137,20 +137,20 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
             </div>
 
             <Controller
-              name="network"
               control={form.control}
+              name="network"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Network Mode</FieldLabel>
 
                   <Select
-                    name={field.name}
                     defaultValue={field.value}
+                    name={field.name}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger
-                      id={field.name}
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
                     >
                       <SelectValue placeholder="Select mode" />
                     </SelectTrigger>
@@ -172,185 +172,182 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
             <FieldSeparator />
 
             <Field>
-              <div className="inline-flex justify-between items-center">
+              <div className="inline-flex items-center justify-between">
                 <FieldLabel>Environment Variables</FieldLabel>
 
                 <Button
-                  variant="ghost"
+                  onClick={() => envs.append({ key: "", value: "" })}
                   size="icon-xs"
                   type="button"
-                  onClick={() => envs.append({ key: "", value: "" })}
+                  variant="ghost"
                 >
                   <PlusIcon />
                 </Button>
               </div>
 
               <div className="space-y-2">
-                {envs.fields.length > 0
-                  ? (
-                      envs.fields.map((field, index) => (
-                        <div key={field.id} className="flex gap-2">
-                          <Controller
-                            name={`envs.${index}.key`}
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <Input
-                                  {...field}
-                                  placeholder="Key"
-                                  className="font-mono"
-                                  aria-invalid={fieldState.invalid}
-                                />
+                {envs.fields.length > 0 ? (
+                  envs.fields.map((field, index) => (
+                    <div className="flex gap-2" key={field.id}>
+                      <Controller
+                        control={form.control}
+                        name={`envs.${index}.key`}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              className="font-mono"
+                              placeholder="Key"
+                            />
 
-                                {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                                )}
-                              </Field>
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
                             )}
-                          />
+                          </Field>
+                        )}
+                      />
 
-                          <Controller
-                            name={`envs.${index}.value`}
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <Input
-                                  {...field}
-                                  placeholder="Value"
-                                  className="font-mono"
-                                  aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                                )}
-                              </Field>
+                      <Controller
+                        control={form.control}
+                        name={`envs.${index}.value`}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              className="font-mono"
+                              placeholder="Value"
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
                             )}
-                          />
+                          </Field>
+                        )}
+                      />
 
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => envs.remove(index)}
-                          >
-                            <XIcon className="size-3.5 opacity-60" />
-                          </Button>
-                        </div>
-                      ))
-                    )
-                  : (
-                      <Empty className="h-9 p-0! flex items-center border border-dashed">
-                        <EmptyHeader>
-                          <EmptyDescription className="flex flex-row items-center justify-center gap-2">
-                            <ListPlusIcon className="size-3.5 opacity-60" />
-                            No environment variables defined.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
+                      <Button
+                        onClick={() => envs.remove(index)}
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <XIcon className="size-3.5 opacity-60" />
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <Empty className="flex h-9 items-center border border-dashed p-0!">
+                    <EmptyHeader>
+                      <EmptyDescription className="flex flex-row items-center justify-center gap-2">
+                        <ListPlusIcon className="size-3.5 opacity-60" />
+                        No environment variables defined.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                )}
               </div>
             </Field>
 
             <Field>
-              <div className="inline-flex justify-between items-center">
+              <div className="inline-flex items-center justify-between">
                 <FieldLabel>Port Mappings</FieldLabel>
 
                 <Button
-                  variant="ghost"
+                  onClick={() =>
+                    ports.append({ hostPort: "", containerPort: "" })
+                  }
                   size="icon-xs"
                   type="button"
-                  onClick={() =>
-                    ports.append({ hostPort: "", containerPort: "" })}
+                  variant="ghost"
                 >
                   <PlusIcon />
                 </Button>
               </div>
 
               <div className="space-y-2">
-                {ports.fields.length > 0
-                  ? (
-                      ports.fields.map((field, index) => (
-                        <div key={field.id} className="flex gap-2">
-                          <Controller
-                            name={`ports.${index}.hostPort`}
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <Input
-                                  {...field}
-                                  placeholder="Host"
-                                  className="font-mono"
-                                  aria-invalid={fieldState.invalid}
-                                />
+                {ports.fields.length > 0 ? (
+                  ports.fields.map((field, index) => (
+                    <div className="flex gap-2" key={field.id}>
+                      <Controller
+                        control={form.control}
+                        name={`ports.${index}.hostPort`}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              className="font-mono"
+                              placeholder="Host"
+                            />
 
-                                {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                                )}
-                              </Field>
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
                             )}
-                          />
+                          </Field>
+                        )}
+                      />
 
-                          <Controller
-                            name={`ports.${index}.containerPort`}
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                              <Field>
-                                <Input
-                                  {...field}
-                                  placeholder="Container"
-                                  className="font-mono"
-                                  aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                  <FieldError errors={[fieldState.error]} />
-                                )}
-                              </Field>
+                      <Controller
+                        control={form.control}
+                        name={`ports.${index}.containerPort`}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              className="font-mono"
+                              placeholder="Container"
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
                             )}
-                          />
+                          </Field>
+                        )}
+                      />
 
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => ports.remove(index)}
-                          >
-                            <XIcon className="size-3.5 opacity-60" />
-                          </Button>
-                        </div>
-                      ))
-                    )
-                  : (
-                      <Empty className="h-9 p-0! flex items-center border border-dashed">
-                        <EmptyHeader>
-                          <EmptyDescription className="flex flex-row items-center justify-center gap-2">
-                            <NetworkIcon className="size-3.5 opacity-60" />
-                            No port mappings defined.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
+                      <Button
+                        onClick={() => ports.remove(index)}
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <XIcon className="size-3.5 opacity-60" />
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <Empty className="flex h-9 items-center border border-dashed p-0!">
+                    <EmptyHeader>
+                      <EmptyDescription className="flex flex-row items-center justify-center gap-2">
+                        <NetworkIcon className="size-3.5 opacity-60" />
+                        No port mappings defined.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                )}
               </div>
             </Field>
           </FieldGroup>
         </FieldSet>
 
         <Field
+          className="inline-flex w-full justify-between"
           orientation="horizontal"
-          className="w-full inline-flex justify-between"
         >
           <Button
+            onClick={handleBack}
             size="sm"
             type="button"
             variant="outline"
-            onClick={handleBack}
           >
-            <ArrowLeftIcon className="opacity-60 size-3.5" />
+            <ArrowLeftIcon className="size-3.5 opacity-60" />
             Back
           </Button>
 
           <Button size="sm" type="submit">
             Next
-            <ArrowRightIcon className="opacity-60 size-3.5" />
+            <ArrowRightIcon className="size-3.5 opacity-60" />
           </Button>
         </Field>
       </FieldGroup>

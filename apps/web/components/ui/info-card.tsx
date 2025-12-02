@@ -19,11 +19,11 @@ export function InfoCard({
   return (
     <Card
       className={cn(
-        "shadow-none border border-secondary bg-neutral-50 dark:bg-neutral-900/50 p-3 rounded-lg",
-        className,
+        "rounded-lg border border-secondary bg-neutral-50 p-3 shadow-none dark:bg-neutral-900/50",
+        className
       )}
     >
-      <CardContent className={cn("px-0 flex flex-col gap-4", contentClassName)}>
+      <CardContent className={cn("flex flex-col gap-4 px-0", contentClassName)}>
         {children}
       </CardContent>
     </Card>
@@ -40,14 +40,12 @@ export function InfoCardRow({ icon, label, children }: InfoCardRowProps) {
   const Icon = icon;
   return (
     <div className="grid grid-cols-[128px_1fr] gap-3">
-      <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="inline-flex items-center gap-2 text-muted-foreground text-sm">
         {Icon ? <Icon className="size-3.5 opacity-60" /> : null}
         <span>{label}</span>
       </div>
 
-      <div className="text-sm text-foreground [&>*]:text-sm">
-        {children}
-      </div>
+      <div className="text-foreground text-sm [&>*]:text-sm">{children}</div>
     </div>
   );
 }

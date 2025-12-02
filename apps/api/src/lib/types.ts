@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type {
   OpenAPIHono,
   RouteConfig,
@@ -5,7 +6,6 @@ import type {
   z,
 } from "@hono/zod-openapi";
 import type { Schema } from "hono";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import type pino from "pino";
 
 export interface AppBindings {

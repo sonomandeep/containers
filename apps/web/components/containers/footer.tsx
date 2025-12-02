@@ -17,12 +17,11 @@ import {
 
 export default function Footer() {
   return (
-    <div className="grid grid-cols-3 px-2 pt-2 border-t border-secondary">
+    <div className="grid grid-cols-3 border-secondary border-t px-2 pt-2">
       <div>
         <p className="text-muted-foreground">
           Results:
-          <span className="text-foreground">&nbsp;1&nbsp;</span>
-          -
+          <span className="text-foreground">&nbsp;1&nbsp;</span>-
           <span className="text-foreground">&nbsp;10&nbsp;</span>
           of 22
         </p>
@@ -36,19 +35,19 @@ export default function Footer() {
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationLink size="icon-sm" href="#">
+              <PaginationLink href="#" size="icon-sm">
                 1
               </PaginationLink>
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationLink size="icon-sm" href="#" isActive>
+              <PaginationLink href="#" isActive size="icon-sm">
                 2
               </PaginationLink>
             </PaginationItem>
 
             <PaginationItem>
-              <PaginationLink size="icon-sm" href="#">
+              <PaginationLink href="#" size="icon-sm">
                 3
               </PaginationLink>
             </PaginationItem>

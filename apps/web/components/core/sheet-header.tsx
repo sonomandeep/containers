@@ -1,9 +1,9 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ButtonProps } from "@/components/ui/button";
-import { ChevronLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   SheetClose,
@@ -22,8 +22,8 @@ export function SheetHeaderToolbar({
   return (
     <div
       className={cn(
-        "flex h-[53px] items-center justify-between border-b border-secondary px-4",
-        className,
+        "flex h-[53px] items-center justify-between border-secondary border-b px-4",
+        className
       )}
       {...props}
     >
@@ -44,9 +44,9 @@ export function SheetHeaderBackButton({
   return (
     <SheetClose asChild>
       <Button
+        className={cn("shrink-0", className)}
         size="icon-xs"
         variant="ghost"
-        className={cn("shrink-0", className)}
         {...props}
       >
         {Icon ? <Icon className="size-3.5 opacity-60" /> : null}
@@ -70,12 +70,12 @@ export function SheetHeaderBadge({
     <div
       className={cn(
         "inline-flex h-6 items-center gap-1.5 rounded-md bg-neutral-100 px-2",
-        className,
+        className
       )}
       {...props}
     >
       {Icon ? <Icon className="size-3.5 opacity-60" /> : null}
-      <SheetTitle className="text-sm text-muted-foreground font-normal">
+      <SheetTitle className="font-normal text-muted-foreground text-sm">
         {children}
       </SheetTitle>
     </div>
@@ -90,8 +90,8 @@ export function SheetHeaderContent({
   return (
     <SheetHeaderPrimitive
       className={cn(
-        "flex-row items-center gap-4 border-b border-secondary",
-        className,
+        "flex-row items-center gap-4 border-secondary border-b",
+        className
       )}
       {...props}
     >
@@ -105,7 +105,7 @@ export function SheetHeaderIcon({ children, className, ...props }: DivProps) {
     <div
       className={cn(
         "flex size-10 items-center justify-center rounded-md bg-secondary",
-        className,
+        className
       )}
       {...props}
     >

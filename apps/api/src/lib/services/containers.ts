@@ -50,7 +50,7 @@ interface StartContainerError {
 }
 
 export async function removeContainer(
-  input: RemoveContainerInput,
+  input: RemoveContainerInput
 ): Promise<ServiceResponse<null, RemoveContainerError>> {
   try {
     const container = docker.getContainer(input.containerId);
@@ -95,7 +95,7 @@ export async function removeContainer(
 }
 
 export async function stopContainer(
-  input: StopContainerInput,
+  input: StopContainerInput
 ): Promise<ServiceResponse<null, StopContainerError>> {
   try {
     const container = docker.getContainer(input.containerId);
@@ -142,7 +142,7 @@ export async function stopContainer(
 }
 
 export async function startContainer(
-  input: StartContainerInput,
+  input: StartContainerInput
 ): Promise<ServiceResponse<null, StartContainerError>> {
   try {
     const container = docker.getContainer(input.containerId);
@@ -189,7 +189,7 @@ export async function startContainer(
 }
 
 export async function launchContainer(
-  input: LaunchContainerInput,
+  input: LaunchContainerInput
 ): Promise<ServiceResponse<{ id: string }, LaunchContainerError>> {
   try {
     const { ExposedPorts, PortBindings } = normalizePorts(input.ports);
@@ -249,22 +249,22 @@ export async function launchContainer(
 
 function parseCommand(command?: string): string[] | undefined {
   if (!command?.trim()) {
-    return undefined;
+    return;
   }
 
   const parts = command.match(/(?:[^\s"]|"[^"]*")+/g);
   if (!parts) {
-    return undefined;
+    return;
   }
 
   return parts.map((part) => part.replace(/^"(.*)"$/, "$1"));
 }
 
 function normalizeEnvs(
-  envs?: Array<{ key: string; value: string }>,
+  envs?: Array<{ key: string; value: string }>
 ): Array<string> | undefined {
   if (!envs?.length) {
-    return undefined;
+    return;
   }
 
   return envs
@@ -274,12 +274,12 @@ function normalizeEnvs(
 
 function normalizeCpu(cpu?: string): number | undefined {
   if (!cpu) {
-    return undefined;
+    return;
   }
 
   const numericCpu = Number.parseFloat(cpu);
   if (!Number.isFinite(numericCpu) || numericCpu <= 0) {
-    return undefined;
+    return;
   }
 
   return Math.round(numericCpu * 1_000_000_000);
@@ -287,19 +287,19 @@ function normalizeCpu(cpu?: string): number | undefined {
 
 function normalizeMemory(memory?: string): number | undefined {
   if (!memory) {
-    return undefined;
+    return;
   }
 
   const memoryMb = Number.parseInt(memory, 10);
   if (!Number.isFinite(memoryMb) || memoryMb <= 0) {
-    return undefined;
+    return;
   }
 
   return memoryMb * 1024 * 1024;
 }
 
 function normalizePorts(
-  ports?: Array<{ hostPort: string; containerPort: string }>,
+  ports?: Array<{ hostPort: string; containerPort: string }>
 ): {
   ExposedPorts?: Record<string, object>;
   PortBindings?: Record<string, Array<{ HostPort: string }>>;
@@ -315,7 +315,7 @@ function normalizePorts(
     const containerPort = mapping.containerPort?.trim();
     const hostPort = mapping.hostPort?.trim();
 
-    if (!containerPort || !hostPort) {
+    if (!(containerPort && hostPort)) {
       continue;
     }
 

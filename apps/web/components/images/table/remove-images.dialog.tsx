@@ -2,14 +2,38 @@
 
 import type { Image } from "@containers/shared";
 import { CornerDownLeftIcon, Trash2Icon } from "lucide-react";
-import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { ContainersState } from "@/components/images/containers-state";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDataTableContext } from "@/components/ui/data-table";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@/components/ui/field";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
 import {
   Item,
   ItemActions,
@@ -44,11 +68,9 @@ export default function RemoveImagesDialog({ images }: Props) {
   const { table } = useDataTableContext<Image>();
 
   useEffect(() => {
-    if (!hasSubmitted)
-      return;
+    if (!hasSubmitted) return;
 
-    if (isPending)
-      return;
+    if (isPending) return;
 
     if (state?.error?.root) {
       toast.error(state.error.root || "Unable to delete the selected images.");
@@ -56,12 +78,12 @@ export default function RemoveImagesDialog({ images }: Props) {
     }
 
     if (
-      state.error === null
-      && Array.isArray(state.data?.images)
-      && state.data.images.length > 0
+      state.error === null &&
+      Array.isArray(state.data?.images) &&
+      state.data.images.length > 0
     ) {
       toast.success(
-        `Deleted ${state.data.images.length} Docker ${state.data.images.length === 1 ? "image" : "images"}.`,
+        `Deleted ${state.data.images.length} Docker ${state.data.images.length === 1 ? "image" : "images"}.`
       );
 
       startTransition(() => {
@@ -72,12 +94,12 @@ export default function RemoveImagesDialog({ images }: Props) {
   }, [state, isPending, hasSubmitted, table]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild className={cn(images.length === 0 && "hidden")}>
         <Button
+          aria-label={`Delete ${totalImages} selected images`}
           size="icon-sm"
           variant="destructive-ghost"
-          aria-label={`Delete ${totalImages} selected images`}
         >
           <Trash2Icon className="size-3.5" />
         </Button>
@@ -95,13 +117,16 @@ export default function RemoveImagesDialog({ images }: Props) {
           onSubmit={() => setHasSubmitted(true)}
         >
           {images.map((image) => (
-            <input key={image.id} type="hidden" name="images" value={image.id} />
+            <input
+              key={image.id}
+              name="images"
+              type="hidden"
+              value={image.id}
+            />
           ))}
 
           <DialogHeader>
-            <DialogTitle>
-              {`Remove ${totalImages} ${entityLabel}?`}
-            </DialogTitle>
+            <DialogTitle>{`Remove ${totalImages} ${entityLabel}?`}</DialogTitle>
             <DialogDescription>
               {`You are about to permanently remove ${totalImages} Docker ${entityLabel}. This action cannot be undone.`}
             </DialogDescription>
@@ -110,15 +135,15 @@ export default function RemoveImagesDialog({ images }: Props) {
           <div className="grid grid-cols-2 gap-2">
             {images.map((image) => (
               <Item
+                className="flex-nowrap p-2"
                 key={image.id}
                 variant="outline"
-                className="p-2 flex-nowrap"
               >
                 <ItemContent>
                   <ItemTitle>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="overflow-hidden text-ellipsis w-full max-w-32">
+                        <span className="w-full max-w-32 overflow-hidden text-ellipsis">
                           {image.repoTags.at(0) || "none"}
                         </span>
                       </TooltipTrigger>
@@ -138,16 +163,15 @@ export default function RemoveImagesDialog({ images }: Props) {
           </div>
 
           <FieldGroup>
-
             <FieldSeparator />
 
             <FieldSet>
               <FieldLabel htmlFor="force-delete">
-                <Field orientation="horizontal" className="p-3!">
+                <Field className="p-3!" orientation="horizontal">
                   <Checkbox
+                    aria-label="Force delete selected images"
                     id="force-delete"
                     name="force"
-                    aria-label="Force delete selected images"
                   />
 
                   <FieldContent>
@@ -156,7 +180,6 @@ export default function RemoveImagesDialog({ images }: Props) {
                       Docker stops and removes containers using these images.
                     </FieldDescription>
                   </FieldContent>
-
                 </Field>
               </FieldLabel>
             </FieldSet>
@@ -164,7 +187,7 @@ export default function RemoveImagesDialog({ images }: Props) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" size="sm" type="button">
+              <Button size="sm" type="button" variant="secondary">
                 Cancel
                 <KbdGroup>
                   <Kbd>ESC</Kbd>
@@ -173,24 +196,22 @@ export default function RemoveImagesDialog({ images }: Props) {
             </DialogClose>
 
             <Button
+              disabled={isPending}
               ref={confirmButtonRef}
               size="sm"
-              variant="destructive"
               type="submit"
-              disabled={isPending}
+              variant="destructive"
             >
               {`Delete ${entityLabel}`}
-              {isPending
-                ? (
-                    <Spinner />
-                  )
-                : (
-                    <KbdGroup>
-                      <Kbd>
-                        <CornerDownLeftIcon />
-                      </Kbd>
-                    </KbdGroup>
-                  )}
+              {isPending ? (
+                <Spinner />
+              ) : (
+                <KbdGroup>
+                  <Kbd>
+                    <CornerDownLeftIcon />
+                  </Kbd>
+                </KbdGroup>
+              )}
             </Button>
           </DialogFooter>
         </form>

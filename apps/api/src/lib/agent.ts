@@ -16,8 +16,8 @@ export async function listContainers(): Promise<Array<Container>> {
     containers.map((container) =>
       container.State === "running"
         ? collectContainerMetrics(container.Id)
-        : Promise.resolve<ContainerMetrics | undefined>(undefined),
-    ),
+        : Promise.resolve<ContainerMetrics | undefined>(undefined)
+    )
   );
 
   return containers.map((container, index) => ({
@@ -94,7 +94,7 @@ function normalizeContainerState(state: string | undefined): ContainerState {
 }
 
 async function collectContainerMetrics(
-  containerId: string,
+  containerId: string
 ): Promise<ContainerMetrics | undefined> {
   try {
     const stats = await docker.getContainer(containerId).stats({
@@ -106,9 +106,9 @@ async function collectContainerMetrics(
     console.error(
       "Failed to collect metrics for container",
       containerId,
-      error,
+      error
     );
-    return undefined;
+    return;
   }
 }
 
@@ -188,7 +188,7 @@ function aggregateBlockIo(stats: Docker.Stats): {
 } {
   const entries = stats.blkio_stats?.io_service_bytes_recursive;
 
-  if (!entries || !Array.isArray(entries)) {
+  if (!(entries && Array.isArray(entries))) {
     return { readBytes: null, writeBytes: null };
   }
 

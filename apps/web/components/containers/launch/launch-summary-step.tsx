@@ -58,7 +58,7 @@ export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
         <InfoCard>
           <InfoCardRow label="Name">{state.name || "—"}</InfoCardRow>
           <InfoCardRow label="Image">
-            <div className="inline-flex gap-2 items-baseline">
+            <div className="inline-flex items-baseline gap-2">
               <span>{state?.image?.repoTags[0] ?? state.image?.id}</span>
               <span className="text-muted-foreground">
                 {state?.image?.id.replace("sha256:", "").slice(0, 12)}
@@ -66,15 +66,13 @@ export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
             </div>
           </InfoCardRow>
           <InfoCardRow label="Command">
-            {state.command
-              ? (
-                  <Badge variant="outline" className="font-mono">
-                    {state.command}
-                  </Badge>
-                )
-              : (
-                  "—"
-                )}
+            {state.command ? (
+              <Badge className="font-mono" variant="outline">
+                {state.command}
+              </Badge>
+            ) : (
+              "—"
+            )}
           </InfoCardRow>
           <InfoCardRow label="Restart policy">
             {state.restartPolicy || "—"}
@@ -87,73 +85,67 @@ export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
           <InfoCardRow label="Network">{state.network || "—"}</InfoCardRow>
           <InfoCardRow label="Ports">
             <div className="flex flex-wrap gap-2">
-              {ports.length > 0
-                ? (
-                    ports.map((port) => (
-                      <ContainerPortBadge
-                        key={`${port.hostPort}-${port.containerPort}`}
-                        port={{
-                          ip: "0.0.0.0",
-                          publicPort: Number(port.hostPort),
-                          privatePort: Number(port.containerPort),
-                          type: "tcp",
-                        }}
-                        showIpLabel={false}
-                      />
-                    ))
-                  )
-                : (
-                    <span className="text-muted-foreground text-xs">
-                      No port mappings defined.
-                    </span>
-                  )}
+              {ports.length > 0 ? (
+                ports.map((port) => (
+                  <ContainerPortBadge
+                    key={`${port.hostPort}-${port.containerPort}`}
+                    port={{
+                      ip: "0.0.0.0",
+                      publicPort: Number(port.hostPort),
+                      privatePort: Number(port.containerPort),
+                      type: "tcp",
+                    }}
+                    showIpLabel={false}
+                  />
+                ))
+              ) : (
+                <span className="text-muted-foreground text-xs">
+                  No port mappings defined.
+                </span>
+              )}
             </div>
           </InfoCardRow>
           <InfoCardRow label="Env">
             <div className="flex flex-wrap gap-2">
-              {envs.length > 0
-                ? (
-                    envs.map((env) => (
-                      <Badge
-                        key={`${env.key}-${env.value}`}
-                        variant="outline"
-                        className="font-mono"
-                      >
-                        {env.key}
-                      </Badge>
-                    ))
-                  )
-                : (
-                    <span className="text-muted-foreground text-xs">
-                      No environment variables defined.
-                    </span>
-                  )}
+              {envs.length > 0 ? (
+                envs.map((env) => (
+                  <Badge
+                    className="font-mono"
+                    key={`${env.key}-${env.value}`}
+                    variant="outline"
+                  >
+                    {env.key}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-muted-foreground text-xs">
+                  No environment variables defined.
+                </span>
+              )}
             </div>
           </InfoCardRow>
         </InfoCard>
       </div>
 
-      <div className="inline-flex items-center justify-between w-full">
-        <Button size="sm" type="button" variant="outline" onClick={handleBack}>
-          <ArrowLeftIcon className="opacity-60 size-3.5" />
+      <div className="inline-flex w-full items-center justify-between">
+        <Button onClick={handleBack} size="sm" type="button" variant="outline">
+          <ArrowLeftIcon className="size-3.5 opacity-60" />
           Back
         </Button>
 
         <Button
+          disabled={isPending}
+          onClick={handleSubmit}
+          ref={launchButtonRef}
           size="sm"
           type="button"
-          disabled={isPending}
-          ref={launchButtonRef}
-          onClick={handleSubmit}
         >
           Launch
-          {isPending
-            ? (
-                <Spinner />
-              )
-            : (
-                <RocketIcon className="opacity-60 size-3.5" />
-              )}
+          {isPending ? (
+            <Spinner />
+          ) : (
+            <RocketIcon className="size-3.5 opacity-60" />
+          )}
         </Button>
       </div>
     </div>

@@ -14,7 +14,7 @@ export const list = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.array(containerSchema),
-      "The list of container",
+      "The list of container"
     ),
   },
 });
@@ -28,7 +28,7 @@ export const launch = createRoute({
   request: {
     body: jsonContentRequired(
       launchContainerSchema,
-      "Container launch options",
+      "Container launch options"
     ),
   },
   responses: {
@@ -37,18 +37,18 @@ export const launch = createRoute({
         message: z.string(),
         id: z.string(),
       }),
-      "Container launched",
+      "Container launched"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Image not found"),
     [HttpStatusCodes.CONFLICT]: jsonContent(
       createMessageObjectSchema(
-        "A container with the same name already exists.",
+        "A container with the same name already exists."
       ),
-      "Container conflict",
+      "Container conflict"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });
@@ -70,21 +70,21 @@ export const remove = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createMessageObjectSchema("container deleted"),
-      "Container deleted",
+      "Container deleted"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Container not found",
+      "Container not found"
     ),
     [HttpStatusCodes.CONFLICT]: jsonContent(
       createMessageObjectSchema(
-        "Cannot delete a running container. Stop it and retry or force the removal.",
+        "Cannot delete a running container. Stop it and retry or force the removal."
       ),
-      "Container running",
+      "Container running"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });
@@ -103,19 +103,19 @@ export const stop = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createMessageObjectSchema("container stopped"),
-      "Container stopped",
+      "Container stopped"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Container not found",
+      "Container not found"
     ),
     [HttpStatusCodes.CONFLICT]: jsonContent(
       createMessageObjectSchema("Container is not running."),
-      "Container not running",
+      "Container not running"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });
@@ -134,19 +134,19 @@ export const start = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       createMessageObjectSchema("container started"),
-      "Container started",
+      "Container started"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Container not found",
+      "Container not found"
     ),
     [HttpStatusCodes.CONFLICT]: jsonContent(
       createMessageObjectSchema("Container is already running."),
-      "Container running",
+      "Container running"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,
-      "Internal server error",
+      "Internal server error"
     ),
   },
 });

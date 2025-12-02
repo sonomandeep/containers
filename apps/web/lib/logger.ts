@@ -12,6 +12,6 @@ export const logger = isDev
         colorize: true,
         translateTime: "HH:MM:ss",
         ignore: "pid,hostname",
-      }),
+      })
     )
   : pino({ level: isDev ? "debug" : "info" });

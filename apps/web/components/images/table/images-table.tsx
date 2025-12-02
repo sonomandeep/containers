@@ -23,8 +23,8 @@ export function ImagesTable({ data }: ImagesTableProps) {
   return (
     <DataTable columns={columns} data={data}>
       <DataTableHeader
-        title={<ImagesTableHeaderTitle />}
         actions={<ImagesTableHeaderActions />}
+        title={<ImagesTableHeaderTitle />}
       />
       <DataTableTable />
       <DataTableFooter />
@@ -41,7 +41,7 @@ function ImagesTableHeaderTitle() {
       <h2>All Images</h2>
 
       {selectedCount > 0 && (
-        <Badge variant="outline" className="px-2 text-xs font-mono">
+        <Badge className="px-2 font-mono text-xs" variant="outline">
           {`${selectedCount} selected`}
         </Badge>
       )}
@@ -57,10 +57,10 @@ function ImagesTableHeaderActions() {
     <>
       <RemoveImagesDialog images={selectedRows.map((row) => row.original)} />
 
-      <Button variant="ghost" size="icon-sm" aria-label="Filter images">
+      <Button aria-label="Filter images" size="icon-sm" variant="ghost">
         <FunnelIcon className="size-3.5 opacity-60" />
       </Button>
-      <Button variant="ghost" size="icon-sm" aria-label="Sort images">
+      <Button aria-label="Sort images" size="icon-sm" variant="ghost">
         <ArrowUpDownIcon className="size-3.5 opacity-60" />
       </Button>
     </>

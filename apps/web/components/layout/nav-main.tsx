@@ -32,10 +32,11 @@ export function NavMain({ items }: Props) {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <Link
-                href={item.url}
                 className={cn(
-                  pathname === item.url && "bg-sidebar-accent text-sidebar-accent-foreground",
+                  pathname === item.url &&
+                    "bg-sidebar-accent text-sidebar-accent-foreground"
                 )}
+                href={item.url}
               >
                 <item.icon />
                 <span>{item.name}</span>
