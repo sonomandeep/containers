@@ -87,7 +87,15 @@ export function LaunchContainer() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        setOpen(value);
+        if (!value) {
+          handleClose();
+        }
+      }}
+    >
       <form>
         <DialogTrigger asChild>
           <Button size="sm" onClick={() => setOpen(true)}>
