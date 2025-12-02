@@ -4,6 +4,26 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "@/lib/utils";
 
+interface LaunchContainerInput {
+  name: string;
+  image: string;
+  restartPolicy: string;
+  command?: string;
+  cpu?: string;
+  memory?: string;
+  network?: string;
+  envs?: Array<{ key: string; value: string }>;
+  ports?: Array<{ hostPort: string; containerPort: string }>;
+}
+
+interface LaunchContainerError {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.CONFLICT
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+}
+
 interface RemoveContainerInput {
   containerId: string;
   force?: boolean;
@@ -178,4 +198,151 @@ export async function startContainer(
       },
     };
   }
+}
+
+export async function launchContainer(
+  input: LaunchContainerInput,
+): Promise<ServiceResponse<{ id: string }, LaunchContainerError>> {
+  try {
+    const { ExposedPorts, PortBindings } = normalizePorts(input.ports);
+    const container = await docker.createContainer({
+      name: input.name,
+      Image: input.image,
+      Cmd: parseCommand(input.command),
+      Env: normalizeEnvs(input.envs),
+      HostConfig: {
+        RestartPolicy: { Name: input.restartPolicy },
+        NanoCPUs: normalizeCpu(input.cpu),
+        Memory: normalizeMemory(input.memory),
+        NetworkMode: input.network ?? undefined,
+        PortBindings,
+      },
+      ExposedPorts,
+    });
+
+    await container.start();
+
+    return {
+      data: { id: container.id },
+      error: null,
+    };
+  } catch (error) {
+    if (isDockerodeError(error)) {
+      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
+        return {
+          data: null,
+          error: {
+            message: HttpStatusPhrases.NOT_FOUND,
+            code: HttpStatusCodes.NOT_FOUND,
+          },
+        };
+      }
+
+      if (error.statusCode === HttpStatusCodes.CONFLICT) {
+        return {
+          data: null,
+          error: {
+            message: "A container with the same name already exists.",
+            code: HttpStatusCodes.CONFLICT,
+          },
+        };
+      }
+    }
+
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+function parseCommand(command?: string): string[] | undefined {
+  if (!command?.trim()) {
+    return undefined;
+  }
+
+  const parts = command.match(/(?:[^\s"]+|"[^"]*")+/g);
+  if (!parts) {
+    return undefined;
+  }
+
+  return parts.map((part) => part.replace(/^"(.*)"$/, "$1"));
+}
+
+function normalizeEnvs(
+  envs?: Array<{ key: string; value: string }>,
+): Array<string> | undefined {
+  if (!envs?.length) {
+    return undefined;
+  }
+
+  return envs
+    .filter((env) => env.key.trim() && env.value.trim())
+    .map((env) => `${env.key}=${env.value}`);
+}
+
+function normalizeCpu(cpu?: string): number | undefined {
+  if (!cpu) {
+    return undefined;
+  }
+
+  const numericCpu = Number.parseFloat(cpu);
+  if (!Number.isFinite(numericCpu) || numericCpu <= 0) {
+    return undefined;
+  }
+
+  return Math.round(numericCpu * 1_000_000_000);
+}
+
+function normalizeMemory(memory?: string): number | undefined {
+  if (!memory) {
+    return undefined;
+  }
+
+  const memoryMb = Number.parseInt(memory, 10);
+  if (!Number.isFinite(memoryMb) || memoryMb <= 0) {
+    return undefined;
+  }
+
+  return memoryMb * 1024 * 1024;
+}
+
+function normalizePorts(
+  ports?: Array<{ hostPort: string; containerPort: string }>,
+): {
+  ExposedPorts?: Record<string, {}>;
+  PortBindings?: Record<string, Array<{ HostPort: string }>>;
+} {
+  if (!ports?.length) {
+    return {};
+  }
+
+  const exposedPorts: Record<string, {}> = {};
+  const portBindings: Record<string, Array<{ HostPort: string }>> = {};
+
+  for (const mapping of ports) {
+    const containerPort = mapping.containerPort?.trim();
+    const hostPort = mapping.hostPort?.trim();
+
+    if (!containerPort || !hostPort) {
+      continue;
+    }
+
+    const portKey = `${containerPort}/tcp`;
+    exposedPorts[portKey] = {};
+
+    if (!portBindings[portKey]) {
+      portBindings[portKey] = [];
+    }
+
+    portBindings[portKey].push({ HostPort: hostPort });
+  }
+
+  return {
+    ExposedPorts: Object.keys(exposedPorts).length ? exposedPorts : undefined,
+    PortBindings: Object.keys(portBindings).length ? portBindings : undefined,
+  };
 }

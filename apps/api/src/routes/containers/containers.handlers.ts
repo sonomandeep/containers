@@ -1,5 +1,6 @@
 import type {
   ListRoute,
+  LaunchRoute,
   RemoveRoute,
   StartRoute,
   StopRoute,
@@ -8,6 +9,7 @@ import type { AppRouteHandler } from "@/lib/types";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { listContainers } from "@/lib/agent";
 import {
+  launchContainer,
   removeContainer,
   startContainer,
   stopContainer,
@@ -90,6 +92,30 @@ export const start: AppRouteHandler<StartRoute> = async (c) => {
   return c.json(
     {
       message: "container started",
+    },
+    HttpStatusCodes.OK,
+  );
+};
+
+export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
+  const input = c.req.valid("json");
+
+  const result = await launchContainer(input);
+
+  if (result.error || result.data === null) {
+    c.var.logger.error(result.error);
+    return c.json(
+      {
+        message: result.error.message,
+      },
+      result.error.code,
+    );
+  }
+
+  return c.json(
+    {
+      message: "container launched",
+      id: result.data.id,
     },
     HttpStatusCodes.OK,
   );
