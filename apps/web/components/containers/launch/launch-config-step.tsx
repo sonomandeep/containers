@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { launchConfigSchema } from "@/lib/schema/containers";
+import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
   handleBack: () => void;
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export function LaunchConfigStep({ handleBack, handleNext }: Props) {
+  const setConfigInput = useLaunchContainerStore((state) => state.setConfigInput);
   const form = useForm<z.infer<typeof launchConfigSchema>>({
     resolver: zodResolver(launchConfigSchema),
     defaultValues: {
@@ -41,9 +43,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
   const ports = useFieldArray({ control: form.control, name: "ports" });
 
   function onSubmit(data: z.infer<typeof launchConfigSchema>) {
-    // Do something with the form values.
-    // eslint-disable-next-line no-console
-    console.log(data);
+    setConfigInput({ cpu: data.cpu, memory: data.memory, network: data.memory, envs: data.envs, ports: data.ports });
     handleNext();
   }
 
