@@ -17,6 +17,7 @@ import {
   StepperIndicator,
   StepperItem,
 } from "@/components/ui/stepper";
+import { useLaunchContainerStore } from "@/lib/store";
 import { LaunchBasicStep } from "./launch-basic-step";
 import { LaunchConfigStep } from "./launch-config-step";
 import { LaunchSummaryStep } from "./launch-summary-step";
@@ -32,6 +33,8 @@ type StepId = (typeof steps)[number]["id"];
 export function LaunchContainer() {
   const stepIds = useMemo(() => steps.map(({ id }) => id), []);
   const [currentStep, setCurrentStep] = useState<StepId>(stepIds[0]);
+  const [open, setOpen] = useState(false);
+  const resetStore = useLaunchContainerStore((state) => state.reset);
 
   const handleStepChange = (step: number) => {
     if (stepIds.includes(step as StepId)) {
@@ -57,24 +60,37 @@ export function LaunchContainer() {
     }
   };
 
+  const handleClose = () => {
+    setOpen(false);
+    setCurrentStep(stepIds[0]);
+    resetStore();
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return <LaunchBasicStep handleNext={handleNext} />;
       case 2:
-        return <LaunchConfigStep handleBack={handleBack} handleNext={handleNext} />;
+        return (
+          <LaunchConfigStep handleBack={handleBack} handleNext={handleNext} />
+        );
       case 3:
-        return <LaunchSummaryStep handleBack={handleBack} />;
+        return (
+          <LaunchSummaryStep
+            handleBack={handleBack}
+            handleClose={handleClose}
+          />
+        );
       default:
         return null;
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
       <form>
         <DialogTrigger asChild>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setOpen(true)}>
             New Container
             <KbdGroup>
               <Kbd>

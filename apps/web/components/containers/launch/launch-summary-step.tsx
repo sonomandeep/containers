@@ -13,14 +13,39 @@ import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
   handleBack: () => void;
+  handleClose: () => void;
 }
 
-export function LaunchSummaryStep({ handleBack }: Props) {
+export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
   const [isPending, startTransition] = useTransition();
   const state = useLaunchContainerStore((store) => store);
 
   const ports = state.ports?.length > 0 ? state.ports : [];
   const envs = state.envs?.length > 0 ? state.envs : [];
+
+  const handleSubmit = () => {
+    startTransition(async () => {
+      const { error, data } = await launchContainerAction({
+        name: state.name,
+        image: state.image?.repoTags?.at(0) || state?.image?.id || "",
+        restartPolicy: state.restartPolicy,
+        command: state.command,
+        cpu: state.cpu,
+        memory: state.memory,
+        network: state.network,
+        envs: state.envs,
+        ports: state.ports,
+      });
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      toast.success(`Launched ${data?.name ?? "container"}.`);
+      handleClose();
+    });
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -113,27 +138,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           size="sm"
           type="button"
           disabled={isPending}
-          onClick={() =>
-            startTransition(async () => {
-              const { error, data } = await launchContainerAction({
-                name: state.name,
-                image: state.image?.repoTags?.at(0) || state?.image?.id || "",
-                restartPolicy: state.restartPolicy,
-                command: state.command,
-                cpu: state.cpu,
-                memory: state.memory,
-                network: state.network,
-                envs: state.envs,
-                ports: state.ports,
-              });
-
-              if (error) {
-                toast.error(error);
-                return;
-              }
-
-              toast.success(`Launched ${data?.name ?? "container"}.`);
-            })}
+          onClick={handleSubmit}
         >
           Launch
           {isPending

@@ -25,6 +25,7 @@ interface LaunchContainerStore {
     envs: Array<EnvVar>;
     ports: Array<PortMapping>;
   }) => void;
+  reset: () => void;
 }
 
 const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({
@@ -51,6 +52,18 @@ const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({
       network: input.network,
       envs: input.envs,
       ports: input.ports,
+    }),
+  reset: () =>
+    set({
+      name: "",
+      image: null,
+      restartPolicy: "",
+      command: "",
+      cpu: "",
+      memory: "",
+      network: "",
+      envs: [],
+      ports: [],
     }),
 }));
 
