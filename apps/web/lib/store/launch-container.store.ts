@@ -1,7 +1,5 @@
+import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 import { create } from "zustand";
-
-interface Env { key: string; value: string }
-interface Port { hostPort: string; containerPort: string }
 
 interface LaunchContainerStore {
   name: string;
@@ -12,9 +10,9 @@ interface LaunchContainerStore {
   cpu: string;
   memory: string;
   network: string;
-  envs: Array<Env>;
-  ports: Array<Port>;
-  setConfigInput: (input: { cpu: string; memory: string; network: string; envs: Array<Env>; ports: Array<Port> }) => void;
+  envs: Array<EnvVar>;
+  ports: Array<PortMapping>;
+  setConfigInput: (input: { cpu: string; memory: string; network: string; envs: Array<EnvVar>; ports: Array<PortMapping> }) => void;
 }
 
 const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({

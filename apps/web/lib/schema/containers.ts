@@ -27,6 +27,8 @@ const envVarSchema = z.object({
     .min(1, { message: "Value is required." }),
 });
 
+export type EnvVar = z.infer<typeof envVarSchema>;
+
 const portSchema = z.object({
   hostPort: z
     .string({ message: "Host port must be a string." })
@@ -47,6 +49,8 @@ const portSchema = z.object({
       return port >= 1 && port <= 65535;
     }, { message: "Container port must be between 1 and 65535." }),
 });
+
+export type PortMapping = z.infer<typeof portSchema>;
 
 export const launchConfigSchema = z.object({
   cpu: z

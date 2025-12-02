@@ -1,5 +1,6 @@
 "use server";
 
+import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 import { logger } from "@/lib/logger";
 import {
   removeContainer,
@@ -56,4 +57,23 @@ export async function startContainerAction(containerId: string) {
   }
 
   return { data: { containerId }, error: null };
+}
+
+export async function logLaunchContainerAction(input: {
+  name: string;
+  image: string;
+  restartPolicy: string;
+  command?: string;
+  cpu?: string;
+  memory?: string;
+  network?: string;
+  envs: Array<EnvVar>;
+  ports: Array<PortMapping>;
+}) {
+  logger.info({ input }, "launchContainerPayload");
+
+  return {
+    data: input,
+    error: null,
+  };
 }

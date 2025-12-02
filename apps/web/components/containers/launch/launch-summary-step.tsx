@@ -1,10 +1,12 @@
 "use client";
 
 import { ArrowLeftIcon, RocketIcon } from "lucide-react";
+import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ContainerPortBadge } from "@/components/ui/container-port-badge";
 import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
+import { logLaunchContainerAction } from "@/lib/actions/containers.actions";
 import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
@@ -12,14 +14,11 @@ interface Props {
 }
 
 export function LaunchSummaryStep({ handleBack }: Props) {
+  const [isPending, startTransition] = useTransition();
   const state = useLaunchContainerStore((store) => store);
 
   const ports = state.ports?.length > 0 ? state.ports : [];
-
-  const envs
-    = state.envs?.length > 0
-      ? state.envs
-      : [];
+  const envs = state.envs?.length > 0 ? state.envs : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,9 +29,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           <InfoCardRow label="Command">
             {state.command
               ? (
-                  <Badge variant="outline">
-                    {state.command}
-                  </Badge>
+                  <Badge variant="outline">{state.command}</Badge>
                 )
               : (
                   "—"
@@ -65,25 +62,26 @@ export function LaunchSummaryStep({ handleBack }: Props) {
                     ))
                   )
                 : (
-                    <span className="text-muted-foreground text-xs">No port mappings defined.</span>
+                    <span className="text-muted-foreground text-xs">
+                      No port mappings defined.
+                    </span>
                   )}
             </div>
           </InfoCardRow>
           <InfoCardRow label="Env">
             <div className="flex flex-wrap gap-2">
               {envs.length > 0
-                ? envs.map((env) =>
-                    (
-                      <Badge
-                        key={`${env.key}-${env.value}`}
-                        variant="outline"
-                      >
+                ? (
+                    envs.map((env) => (
+                      <Badge key={`${env.key}-${env.value}`} variant="outline">
                         {env.key}
                       </Badge>
-                    ),
+                    ))
                   )
                 : (
-                    <span className="text-muted-foreground text-xs">No environment variables defined.</span>
+                    <span className="text-muted-foreground text-xs">
+                      No environment variables defined.
+                    </span>
                   )}
             </div>
           </InfoCardRow>
@@ -96,7 +94,25 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           Back
         </Button>
 
-        <Button size="sm" type="submit">
+        <Button
+          size="sm"
+          type="button"
+          disabled={isPending}
+          onClick={() =>
+            startTransition(async () => {
+              await logLaunchContainerAction({
+                name: state.name,
+                image: state.image,
+                restartPolicy: state.restartPolicy,
+                command: state.command,
+                cpu: state.cpu,
+                memory: state.memory,
+                network: state.network,
+                envs: state.envs,
+                ports: state.ports,
+              });
+            })}
+        >
           Launch
           <RocketIcon className="opacity-60 size-3.5" />
         </Button>
