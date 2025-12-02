@@ -13,10 +13,10 @@ import {
 } from "@/lib/services/images.service";
 import { validateFormData } from "@/lib/utils";
 
-export interface PullImageActionFormState {
+export type PullImageActionFormState = {
   data: Partial<PullImageInput>;
-  error: Partial<PullImageInput> & { root?: string };
-}
+  error: (Partial<PullImageInput> & { root?: string }) | null;
+};
 
 export async function pullImageAction(
   _prevState: PullImageActionFormState,
@@ -47,10 +47,10 @@ export async function pullImageAction(
   return { data: input.data, error: null };
 }
 
-export interface RemoveImagesActionFormState {
+export type RemoveImagesActionFormState = {
   data: Partial<RemoveImagesInput>;
-  error: Partial<RemoveImagesInput> & { root?: string };
-}
+  error: (Partial<RemoveImagesInput> & { root?: string }) | null;
+};
 
 export async function removeImagesAction(
   _prevState: RemoveImagesActionFormState,

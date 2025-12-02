@@ -187,8 +187,8 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
               <div className="space-y-2">
                 {envs.fields.length > 0 ? (
-                  envs.fields.map((field, index) => (
-                    <div className="flex gap-2" key={field.id}>
+                  envs.fields.map((current, index) => (
+                    <div className="flex gap-2" key={current.id}>
                       <Controller
                         control={form.control}
                         name={`envs.${index}.key`}
@@ -267,8 +267,8 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
               <div className="space-y-2">
                 {ports.fields.length > 0 ? (
-                  ports.fields.map((field, index) => (
-                    <div className="flex gap-2" key={field.id}>
+                  ports.fields.map((current, index) => (
+                    <div className="flex gap-2" key={current.id}>
                       <Controller
                         control={form.control}
                         name={`ports.${index}.hostPort`}

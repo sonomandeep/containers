@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-interface Props {
+type Props = {
   items: Array<{
     name: string;
     url: string;
     icon: LucideIcon;
   }>;
-}
+};
 
 export function NavMain({ items }: Props) {
   const pathname = usePathname();

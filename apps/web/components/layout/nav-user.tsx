@@ -26,13 +26,13 @@ import {
 } from "@/components/ui/sidebar";
 import ThemeToggle from "./theme-toggle";
 
-interface Props {
+type Props = {
   user: {
     name: string;
     email: string;
     avatar: string;
   };
-}
+};
 
 export default function NavUser({ user }: Props) {
   const { isMobile } = useSidebar();

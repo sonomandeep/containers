@@ -1,11 +1,13 @@
 import { z } from "zod";
 
+const numberRegEx = /^\d+$/;
+
 function portSchema(fieldName: string) {
   return z
     .string()
     .trim()
     .min(1, { message: `${fieldName} port is required.` })
-    .regex(/^\d+$/, { message: `${fieldName} port must be a number.` })
+    .regex(numberRegEx, { message: `${fieldName} port must be a number.` })
     .refine(
       (value) => {
         const port = Number.parseInt(value, 10);
@@ -61,7 +63,10 @@ const cpuSchema = z
   .optional()
   .refine(
     (value) => {
-      if (!value || value === "") return true;
+      if (!value || value === "") {
+        return true;
+      }
+
       const cpu = Number.parseFloat(value);
       return !Number.isNaN(cpu) && cpu > 0 && cpu <= 128;
     },
@@ -74,9 +79,12 @@ const memorySchema = z
   .optional()
   .refine(
     (value) => {
-      if (!value || value === "") return true;
+      if (!value || value === "") {
+        return true;
+      }
+
       const num = Number.parseInt(value, 10);
-      return /^\d+$/.test(value) && !Number.isNaN(num) && num > 0;
+      return numberRegEx.test(value) && !Number.isNaN(num) && num > 0;
     },
     { message: "Memory must be a positive number (in MB)." }
   );
@@ -88,6 +96,8 @@ const restartPolicySchema = z
       ["no", "always", "on-failure", "unless-stopped"].includes(val),
     { message: "Invalid restart policy." }
   );
+
+const networkRegEx = /^[a-z0-9][\w.-]*$/i;
 
 export const launchContainerSchema = z
   .object({
@@ -103,8 +113,11 @@ export const launchContainerSchema = z
       .optional()
       .refine(
         (value) => {
-          if (!value || value === "") return true;
-          return /^[a-z0-9][\w.-]*$/i.test(value);
+          if (!value || value === "") {
+            return true;
+          }
+
+          return networkRegEx.test(value);
         },
         { message: "Invalid network name." }
       ),
@@ -113,7 +126,10 @@ export const launchContainerSchema = z
       .optional()
       .refine(
         (envs) => {
-          if (!envs || envs.length === 0) return true;
+          if (!envs || envs.length === 0) {
+            return true;
+          }
+
           const keys = envs.map((e) => e.key);
           return new Set(keys).size === keys.length;
         },
@@ -124,7 +140,10 @@ export const launchContainerSchema = z
       .optional()
       .refine(
         (ports) => {
-          if (!ports || ports.length === 0) return true;
+          if (!ports || ports.length === 0) {
+            return true;
+          }
+
           const hostPorts = ports.map((p) => p.hostPort);
           return new Set(hostPorts).size === hostPorts.length;
         },

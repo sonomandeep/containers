@@ -50,9 +50,9 @@ import {
 import { removeImagesAction } from "@/lib/actions/images.actions";
 import { cn } from "@/lib/utils";
 
-interface Props {
+type Props = {
   images: Array<Image>;
-}
+};
 
 export default function RemoveImagesDialog({ images }: Props) {
   const totalImages = images.length;
@@ -68,9 +68,13 @@ export default function RemoveImagesDialog({ images }: Props) {
   const { table } = useDataTableContext<Image>();
 
   useEffect(() => {
-    if (!hasSubmitted) return;
+    if (!hasSubmitted) {
+      return;
+    }
 
-    if (isPending) return;
+    if (isPending) {
+      return;
+    }
 
     if (state?.error?.root) {
       toast.error(state.error.root || "Unable to delete the selected images.");

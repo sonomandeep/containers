@@ -13,7 +13,7 @@ import {
 import { columns } from "./columns";
 
 interface ContainersTableProps {
-  data: Container[];
+  data: Array<Container>;
 }
 
 export function ContainersTable({ data }: ContainersTableProps) {

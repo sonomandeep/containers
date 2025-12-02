@@ -38,12 +38,17 @@ import { pullImageAction } from "@/lib/actions/images.actions";
 import type { Registry } from "@/lib/constants/registries";
 import REGISTRIES from "@/lib/constants/registries";
 
-const DEFAULT_REGISTRY = REGISTRIES.at(0)!;
+const DEFAULT_REGISTRY = REGISTRIES.at(0);
 
 function getRegistryByHost(host?: string | null): Registry {
-  return (
-    REGISTRIES.find((current) => current.host === host) ?? DEFAULT_REGISTRY
-  );
+  const registry =
+    REGISTRIES.find((current) => current.host === host) ?? DEFAULT_REGISTRY;
+
+  if (!registry) {
+    throw new Error("Registry not found.");
+  }
+
+  return registry;
 }
 
 export function PullImageDialog() {
@@ -67,9 +72,13 @@ export function PullImageDialog() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!hasSubmitted) return;
+    if (!hasSubmitted) {
+      return;
+    }
 
-    if (isPending) return;
+    if (isPending) {
+      return;
+    }
 
     if (state?.error?.root) {
       toast.error(state.error.root || "An unexpected error occurred.");
@@ -85,7 +94,9 @@ export function PullImageDialog() {
     const trimmedName = imageName.trim();
     const trimmedTag = tag.trim();
 
-    if (!trimmedName) return null;
+    if (!trimmedName) {
+      return null;
+    }
 
     return `${registry.host}/${trimmedName}${trimmedTag ? `:${trimmedTag}` : ""}`;
   })();

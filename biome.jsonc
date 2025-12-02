@@ -1,4 +1,30 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/next"]
+  "extends": ["ultracite/core", "ultracite/next"],
+  "files": {
+    "includes": ["**/*", "!**/components/ui"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "performance": {
+        "noBarrelFile": "off",
+        "noNamespaceImport": "off"
+      },
+      "style": {
+        "useConsistentTypeDefinitions": "off",
+        "useConsistentArrayType": {
+          "level": "warn",
+          "options": {
+            "syntax": "generic"
+          }
+        }
+      },
+      "nursery": {
+        "noLeakedRender": {
+          "level": "off"
+        }
+      }
+    }
+  }
 }

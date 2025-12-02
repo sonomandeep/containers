@@ -1,8 +1,8 @@
-export interface Registry {
+export type Registry = {
   id: number;
   label: string;
   host: string;
-}
+};
 
 const REGISTRIES: Array<Registry> = [
   {

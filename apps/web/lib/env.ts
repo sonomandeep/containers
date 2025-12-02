@@ -1,5 +1,4 @@
 import { config } from "dotenv";
-import type { ZodError } from "zod";
 import { z } from "zod";
 
 config();
@@ -11,18 +10,12 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-// eslint-disable-next-line import/no-mutable-exports
-let env: Env;
+const result = envSchema.safeParse(process.env);
 
-try {
-  // eslint-disable-next-line node/prefer-global/process
-  env = envSchema.parse(process.env);
-} catch (e) {
-  const error = e as ZodError;
+if (!result.success) {
   console.error("Invalid Env");
-  console.error((z.treeifyError(error) as any).properties);
-  // eslint-disable-next-line node/prefer-global/process
+  console.error(z.treeifyError(result.error).properties);
   process.exit(1);
 }
 
-export default env;
+export default result.data;

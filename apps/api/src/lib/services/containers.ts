@@ -247,7 +247,9 @@ export async function launchContainer(
   }
 }
 
-function parseCommand(command?: string): string[] | undefined {
+const commandRegEx = /^"(.*)"$/;
+
+function parseCommand(command?: string): Array<string> | undefined {
   if (!command?.trim()) {
     return;
   }
@@ -257,7 +259,7 @@ function parseCommand(command?: string): string[] | undefined {
     return;
   }
 
-  return parts.map((part) => part.replace(/^"(.*)"$/, "$1"));
+  return parts.map((part) => part.replace(commandRegEx, "$1"));
 }
 
 function normalizeEnvs(

@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import ContainerActionsDropdown from "./actions-dropdown";
 
-export const columns: ColumnDef<Container>[] = [
+export const columns: Array<ColumnDef<Container>> = [
   {
     id: "select",
     header: ({ table }) => (

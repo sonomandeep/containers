@@ -57,7 +57,7 @@ export function ContainerSheetInfo({ container, createdLabel }: Props) {
   );
 }
 
-function renderPorts(ports: ContainerPort[]) {
+function renderPorts(ports: Array<ContainerPort>) {
   if (!ports.length) {
     return (
       <Badge className="font-mono" variant="outline">

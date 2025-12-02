@@ -27,8 +27,11 @@ export async function pullImage(input: PullImageInput): Promise<
     );
     await new Promise((resolve, reject) => {
       docker.modem.followProgress(stream, (err, res) => {
-        if (err) reject(err);
-        else resolve(res);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
       });
     });
 

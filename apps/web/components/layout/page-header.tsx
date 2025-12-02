@@ -1,8 +1,8 @@
+import type { VariantProps } from "class-variance-authority";
 import type { LucideIcon } from "lucide-react";
 import { PlusIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import type { ButtonProps } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps extends React.ComponentProps<"header"> {
@@ -27,12 +27,12 @@ export default function PageHeader({
   );
 }
 
-interface PageHeaderTitleProps {
+type PageHeaderTitleProps = {
   icon?: LucideIcon;
   children: ReactNode;
   description?: ReactNode;
   className?: string;
-}
+};
 
 export function PageHeaderTitle({
   icon: Icon,
@@ -73,9 +73,12 @@ export function PageHeaderActions({
   );
 }
 
-interface PageHeaderActionProps extends ButtonProps {
+type PageHeaderActionProps = {
   icon?: LucideIcon | null;
-}
+} & React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  };
 
 export function PageHeaderAction({
   icon: Icon = PlusIcon,

@@ -6,11 +6,11 @@ import { useTheme } from "next-themes";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 
-interface ThemeToggleItem {
+type ThemeToggleItem = {
   value: string;
   label: string;
   icon: LucideIcon;
-}
+};
 
 const items: Array<ThemeToggleItem> = [
   {

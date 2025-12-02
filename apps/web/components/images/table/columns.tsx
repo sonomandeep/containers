@@ -27,7 +27,7 @@ const EMPTY_CONTAINERS_STATE: Image["containers"] = {
   exited: 0,
 };
 
-export const columns: ColumnDef<Image>[] = [
+export const columns: Array<ColumnDef<Image>> = [
   {
     id: "select",
     header: ({ table }) => (

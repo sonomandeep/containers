@@ -88,7 +88,9 @@ function ContainerActionItem({
       disabled={disabled}
       onSelect={(event) => {
         event.preventDefault();
-        if (disabled) return;
+        if (disabled) {
+          return;
+        }
 
         onSelect?.();
       }}
