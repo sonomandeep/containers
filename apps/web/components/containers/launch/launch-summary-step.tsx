@@ -2,6 +2,7 @@
 
 import { ArrowLeftIcon, RocketIcon } from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ContainerPortBadge } from "@/components/ui/container-port-badge";
@@ -29,7 +30,9 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           <InfoCardRow label="Image">
             <div className="inline-flex gap-2 items-baseline">
               <span>{state?.image?.repoTags[0] ?? state.image?.id}</span>
-              <span className="text-muted-foreground">{state?.image?.id.replace("sha256:", "").slice(0, 12)}</span>
+              <span className="text-muted-foreground">
+                {state?.image?.id.replace("sha256:", "").slice(0, 12)}
+              </span>
             </div>
           </InfoCardRow>
           <InfoCardRow label="Command">
@@ -112,7 +115,7 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           disabled={isPending}
           onClick={() =>
             startTransition(async () => {
-              await launchContainerAction({
+              const { error, data } = await launchContainerAction({
                 name: state.name,
                 image: state.image?.id ?? "",
                 restartPolicy: state.restartPolicy,
@@ -123,11 +126,20 @@ export function LaunchSummaryStep({ handleBack }: Props) {
                 envs: state.envs,
                 ports: state.ports,
               });
+
+              if (error) {
+                toast.error(error);
+                return;
+              }
+
+              toast.success(`Launched ${data?.name ?? "container"}.`);
             })}
         >
           Launch
           {isPending
-            ? (<Spinner />)
+            ? (
+                <Spinner />
+              )
             : (
                 <RocketIcon className="opacity-60 size-3.5" />
               )}

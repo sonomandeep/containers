@@ -1,5 +1,6 @@
 "use server";
 
+import type { LaunchContainerInput } from "@/lib/services/containers.service";
 import { logger } from "@/lib/logger";
 import {
   launchContainer,
@@ -7,7 +8,6 @@ import {
   startContainer,
   stopContainer,
 } from "@/lib/services/containers.service";
-import type { LaunchContainerInput } from "@/lib/services/containers.service";
 
 export async function removeContainerAction(containerId: string) {
   const { error } = await removeContainer({ containerId });
@@ -61,21 +61,37 @@ export async function startContainerAction(containerId: string) {
 }
 
 export async function launchContainerAction(input: LaunchContainerInput) {
-  logger.info({ input }, "launchContainerPayload");
+  logger.debug({ input }, "launchContainerPayload");
 
-  const { error } = await launchContainer(input);
+  const { data, error } = await launchContainer(input);
 
   if (error) {
     logger.error(error, "launchContainerAction");
 
+    let message: string;
+    switch (error.status) {
+      case 404:
+        message = "Image not found.";
+        break;
+      case 409:
+        message = "A container with the same name already exists.";
+        break;
+      default:
+        message = "Unexpected error while launching the container.";
+        break;
+    }
+
     return {
       data: input,
-      error: "Unexpected error while launching the container.",
+      error: message,
     };
   }
 
   return {
-    data: input,
+    data: {
+      ...input,
+      id: data?.id,
+    },
     error: null,
   };
 }
