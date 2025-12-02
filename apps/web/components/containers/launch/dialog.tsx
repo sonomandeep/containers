@@ -16,7 +16,6 @@ import {
   Stepper,
   StepperIndicator,
   StepperItem,
-  StepperTrigger,
 } from "@/components/ui/stepper";
 import { LaunchBasicStep } from "./launch-basic-step";
 import { LaunchConfigStep } from "./launch-config-step";
@@ -102,55 +101,20 @@ export function LaunchContainer() {
             >
               {steps.map((step) => (
                 <StepperItem className="flex-1" key={step.id} step={step.id}>
-                  <StepperTrigger className="w-full flex-col items-start gap-2">
+                  <div className="w-full flex-col items-start gap-2">
                     <StepperIndicator asChild className="h-1 w-full bg-border">
                       <span className="sr-only">{step.label}</span>
                     </StepperIndicator>
                     <span className="text-xs font-medium text-muted-foreground">
                       {step.label}
                     </span>
-                  </StepperTrigger>
+                  </div>
                 </StepperItem>
               ))}
             </Stepper>
 
             <div className="min-h-[360px]">{renderStepContent()}</div>
           </div>
-
-          {/* <DialogFooter> */}
-          {/*   <div className="flex w-full items-center justify-between gap-2"> */}
-          {/*     <Button */}
-          {/*       disabled={isFirstStep} */}
-          {/*       onClick={handleBack} */}
-          {/*       size="sm" */}
-          {/*       type="button" */}
-          {/*       variant="outline" */}
-          {/*     > */}
-          {/*       <ArrowLeftIcon className="opacity-60 size-3.5" /> */}
-          {/*       Back */}
-          {/*     </Button> */}
-          {/**/}
-          {/*     <Button */}
-          {/*       onClick={isLastStep ? undefined : handleNext} */}
-          {/*       size="sm" */}
-          {/*       type={isLastStep ? "submit" : "button"} */}
-          {/*     > */}
-          {/*       {isLastStep */}
-          {/*         ? ( */}
-          {/*             <> */}
-          {/*               Launch */}
-          {/*               <RocketIcon className="opacity-60 size-3.5" /> */}
-          {/*             </> */}
-          {/*           ) */}
-          {/*         : ( */}
-          {/*             <> */}
-          {/*               Next */}
-          {/*               <ArrowRight className="opacity-60 size-3.5" /> */}
-          {/*             </> */}
-          {/*           )} */}
-          {/*     </Button> */}
-          {/*   </div> */}
-          {/* </DialogFooter> */}
         </DialogContent>
       </form>
     </Dialog>

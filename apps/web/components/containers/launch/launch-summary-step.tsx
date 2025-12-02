@@ -30,9 +30,9 @@ export function LaunchSummaryStep({ handleBack }: Props) {
           <InfoCardRow label="Command">
             {state.command
               ? (
-                  <code className="rounded bg-muted px-2 py-1 text-xs">
+                  <Badge variant="outline">
                     {state.command}
-                  </code>
+                  </Badge>
                 )
               : (
                   "—"
