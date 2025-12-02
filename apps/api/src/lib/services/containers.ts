@@ -200,7 +200,7 @@ export async function launchContainer(
       Env: normalizeEnvs(input.envs),
       HostConfig: {
         RestartPolicy: { Name: input.restartPolicy },
-        NanoCPUs: normalizeCpu(input.cpu),
+        NanoCpus: normalizeCpu(input.cpu),
         Memory: normalizeMemory(input.memory),
         NetworkMode: input.network ?? undefined,
         PortBindings,
@@ -252,7 +252,7 @@ function parseCommand(command?: string): string[] | undefined {
     return undefined;
   }
 
-  const parts = command.match(/(?:[^\s"]+|"[^"]*")+/g);
+  const parts = command.match(/(?:[^\s"]|"[^"]*")+/g);
   if (!parts) {
     return undefined;
   }
@@ -301,14 +301,14 @@ function normalizeMemory(memory?: string): number | undefined {
 function normalizePorts(
   ports?: Array<{ hostPort: string; containerPort: string }>,
 ): {
-  ExposedPorts?: Record<string, {}>;
+  ExposedPorts?: Record<string, object>;
   PortBindings?: Record<string, Array<{ HostPort: string }>>;
 } {
   if (!ports?.length) {
     return {};
   }
 
-  const exposedPorts: Record<string, {}> = {};
+  const exposedPorts: Record<string, object> = {};
   const portBindings: Record<string, Array<{ HostPort: string }>> = {};
 
   for (const mapping of ports) {

@@ -11,8 +11,8 @@ import {
   PlusIcon,
   XIcon,
 } from "lucide-react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useMemo } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader } from "@/components/ui/empty";
 import {
@@ -186,66 +186,68 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
               </div>
 
               <div className="space-y-2">
-                {envs.fields.length > 0 ? (
-                  envs.fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Controller
-                        name={`envs.${index}.key`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Key"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
+                {envs.fields.length > 0
+                  ? (
+                      envs.fields.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <Controller
+                            name={`envs.${index}.key`}
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <Input
+                                  {...field}
+                                  placeholder="Key"
+                                  className="font-mono"
+                                  aria-invalid={fieldState.invalid}
+                                />
 
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
+                                {fieldState.invalid && (
+                                  <FieldError errors={[fieldState.error]} />
+                                )}
+                              </Field>
                             )}
-                          </Field>
-                        )}
-                      />
+                          />
 
-                      <Controller
-                        name={`envs.${index}.value`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Value"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
+                          <Controller
+                            name={`envs.${index}.value`}
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <Input
+                                  {...field}
+                                  placeholder="Value"
+                                  className="font-mono"
+                                  aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                  <FieldError errors={[fieldState.error]} />
+                                )}
+                              </Field>
                             )}
-                          </Field>
-                        )}
-                      />
+                          />
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => envs.remove(index)}
-                      >
-                        <XIcon className="size-3.5 opacity-60" />
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <Empty className="h-9 p-0! flex items-center border border-dashed">
-                    <EmptyHeader>
-                      <EmptyDescription className="flex flex-row items-center justify-center gap-2">
-                        <ListPlusIcon className="size-3.5 opacity-60" />
-                        No environment variables defined.
-                      </EmptyDescription>
-                    </EmptyHeader>
-                  </Empty>
-                )}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => envs.remove(index)}
+                          >
+                            <XIcon className="size-3.5 opacity-60" />
+                          </Button>
+                        </div>
+                      ))
+                    )
+                  : (
+                      <Empty className="h-9 p-0! flex items-center border border-dashed">
+                        <EmptyHeader>
+                          <EmptyDescription className="flex flex-row items-center justify-center gap-2">
+                            <ListPlusIcon className="size-3.5 opacity-60" />
+                            No environment variables defined.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    )}
               </div>
             </Field>
 
@@ -258,74 +260,75 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                   size="icon-xs"
                   type="button"
                   onClick={() =>
-                    ports.append({ hostPort: "", containerPort: "" })
-                  }
+                    ports.append({ hostPort: "", containerPort: "" })}
                 >
                   <PlusIcon />
                 </Button>
               </div>
 
               <div className="space-y-2">
-                {ports.fields.length > 0 ? (
-                  ports.fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Controller
-                        name={`ports.${index}.hostPort`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Host"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
+                {ports.fields.length > 0
+                  ? (
+                      ports.fields.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <Controller
+                            name={`ports.${index}.hostPort`}
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <Input
+                                  {...field}
+                                  placeholder="Host"
+                                  className="font-mono"
+                                  aria-invalid={fieldState.invalid}
+                                />
 
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
+                                {fieldState.invalid && (
+                                  <FieldError errors={[fieldState.error]} />
+                                )}
+                              </Field>
                             )}
-                          </Field>
-                        )}
-                      />
+                          />
 
-                      <Controller
-                        name={`ports.${index}.containerPort`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Container"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
+                          <Controller
+                            name={`ports.${index}.containerPort`}
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                              <Field>
+                                <Input
+                                  {...field}
+                                  placeholder="Container"
+                                  className="font-mono"
+                                  aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                  <FieldError errors={[fieldState.error]} />
+                                )}
+                              </Field>
                             )}
-                          </Field>
-                        )}
-                      />
+                          />
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => ports.remove(index)}
-                      >
-                        <XIcon className="size-3.5 opacity-60" />
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <Empty className="h-9 p-0! flex items-center border border-dashed">
-                    <EmptyHeader>
-                      <EmptyDescription className="flex flex-row items-center justify-center gap-2">
-                        <NetworkIcon className="size-3.5 opacity-60" />
-                        No port mappings defined.
-                      </EmptyDescription>
-                    </EmptyHeader>
-                  </Empty>
-                )}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => ports.remove(index)}
+                          >
+                            <XIcon className="size-3.5 opacity-60" />
+                          </Button>
+                        </div>
+                      ))
+                    )
+                  : (
+                      <Empty className="h-9 p-0! flex items-center border border-dashed">
+                        <EmptyHeader>
+                          <EmptyDescription className="flex flex-row items-center justify-center gap-2">
+                            <NetworkIcon className="size-3.5 opacity-60" />
+                            No port mappings defined.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    )}
               </div>
             </Field>
           </FieldGroup>
