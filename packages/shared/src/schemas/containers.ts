@@ -5,6 +5,7 @@ export const containerStateSchema = z.enum([
   "paused",
   "exited",
   "restarting",
+  "created",
 ]);
 
 export type ContainerState = z.infer<typeof containerStateSchema>;
