@@ -1,4 +1,4 @@
-import { containerSchema } from "@containers/shared";
+import { containerSchema, launchContainerSchema } from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
@@ -21,33 +21,13 @@ export const list = createRoute({
 
 export type ListRoute = typeof list;
 
-const envVarSchema = z.object({
-  key: z.string().min(1),
-  value: z.string().min(1),
-});
-
-const portMappingSchema = z.object({
-  hostPort: z.string().min(1),
-  containerPort: z.string().min(1),
-});
-
 export const launch = createRoute({
   path: "/containers",
   method: "post",
   tags,
   request: {
     body: jsonContentRequired(
-      z.object({
-        name: z.string().min(1),
-        image: z.string().min(1),
-        restartPolicy: z.string().min(1),
-        command: z.string().optional(),
-        cpu: z.string().optional(),
-        memory: z.string().optional(),
-        network: z.string().optional(),
-        envs: z.array(envVarSchema).optional().default([]),
-        ports: z.array(portMappingSchema).optional().default([]),
-      }),
+      launchContainerSchema,
       "Container launch options",
     ),
   },

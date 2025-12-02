@@ -1,20 +1,8 @@
-import type { ServiceResponse } from "@containers/shared";
+import type { LaunchContainerInput, ServiceResponse } from "@containers/shared";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "@/lib/utils";
-
-interface LaunchContainerInput {
-  name: string;
-  image: string;
-  restartPolicy: string;
-  command?: string;
-  cpu?: string;
-  memory?: string;
-  network?: string;
-  envs?: Array<{ key: string; value: string }>;
-  ports?: Array<{ hostPort: string; containerPort: string }>;
-}
 
 interface LaunchContainerError {
   message: string;
