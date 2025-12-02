@@ -1,8 +1,8 @@
+import type { EnvVar, PortMapping } from "@containers/shared";
 import type { Image } from "@containers/shared/src/schemas/images";
-import type { EnvVar, PortMapping } from "@/lib/schema/containers";
 import { create } from "zustand";
 
-interface LaunchContainerStore {
+type LaunchContainerStore = {
   name: string;
   image: Image | null;
   restartPolicy: string;
@@ -26,9 +26,9 @@ interface LaunchContainerStore {
     ports: Array<PortMapping>;
   }) => void;
   reset: () => void;
-}
+};
 
-const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({
+export const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({
   name: "",
   image: null,
   restartPolicy: "",
@@ -66,5 +66,3 @@ const useLaunchContainerStore = create<LaunchContainerStore>((set) => ({
       ports: [],
     }),
 }));
-
-export default useLaunchContainerStore;

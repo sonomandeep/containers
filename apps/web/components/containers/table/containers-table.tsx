@@ -12,14 +12,14 @@ import {
 } from "@/components/ui/data-table";
 import { columns } from "./columns";
 
-interface ContainersTableProps {
-  data: Container[];
-}
+type ContainersTableProps = {
+  data: Array<Container>;
+};
 
 export function ContainersTable({ data }: ContainersTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(
-    null,
+    null
   );
 
   const handleRowClick = (row: Row<Container>) => {
@@ -46,8 +46,8 @@ export function ContainersTable({ data }: ContainersTableProps) {
       {selectedContainer !== null && (
         <ContainerSheet
           container={selectedContainer}
-          open={isSheetOpen}
           onOpenChange={handleOpenChange}
+          open={isSheetOpen}
         />
       )}
     </>

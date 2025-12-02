@@ -12,13 +12,11 @@ const router = createRouter().openapi(
     responses: {
       [HttpStatusCodes.OK]: jsonContent(
         createMessageObjectSchema("Hello world!"),
-        "Containers API Index",
+        "Containers API Index"
       ),
     },
   }),
-  (c) => {
-    return c.json({ message: "Hello world!" }, HttpStatusCodes.OK);
-  },
+  (c) => c.json({ message: "Hello world!" }, HttpStatusCodes.OK)
 );
 
 export default router;

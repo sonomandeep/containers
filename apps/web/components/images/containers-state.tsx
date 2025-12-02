@@ -36,7 +36,7 @@ export function ContainersState({ state }: { state: Image["containers"] }) {
 
   if (!items.length) {
     return (
-      <Badge variant="outline" className="font-mono text-muted-foreground">
+      <Badge className="font-mono text-muted-foreground" variant="outline">
         0
       </Badge>
     );
@@ -47,10 +47,10 @@ export function ContainersState({ state }: { state: Image["containers"] }) {
       {items.map(({ key, count, label, dotClass }) => (
         <Tooltip key={key}>
           <TooltipTrigger asChild>
-            <Badge variant="outline" className="gap-1.5">
+            <Badge className="gap-1.5" variant="outline">
               <span
-                className={`size-1.5 rounded-full ${dotClass}`}
                 aria-hidden="true"
+                className={`size-1.5 rounded-full ${dotClass}`}
               />
               <span className="font-mono">{count}</span>
               <span className="sr-only">{label}</span>
@@ -58,7 +58,7 @@ export function ContainersState({ state }: { state: Image["containers"] }) {
           </TooltipTrigger>
 
           <TooltipContent>
-            <span className="text-xs font-medium">{label}</span>
+            <span className="font-medium text-xs">{label}</span>
           </TooltipContent>
         </Tooltip>
       ))}

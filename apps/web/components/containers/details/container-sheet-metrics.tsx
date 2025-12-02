@@ -2,13 +2,13 @@
 
 import type { Container } from "@containers/shared";
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
 import {
   ArrowDownUpIcon,
   GaugeIcon,
   HardDriveIcon,
   MemoryStickIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -25,10 +25,11 @@ import {
 } from "@/components/ui/chart";
 import { cn, formatBytes } from "@/lib/utils";
 
-interface Props {
+type Props = {
   metrics?: Container["metrics"];
-}
+};
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: temp
 export function ContainerSheetMetrics({ metrics }: Props) {
   const isMetricValue = (value: number | null | undefined): value is number =>
     typeof value === "number" && Number.isFinite(value);
@@ -42,42 +43,43 @@ export function ContainerSheetMetrics({ metrics }: Props) {
   const memoryUsageValue = metrics?.memoryUsage ?? null;
   const memoryLimitValue = metrics?.memoryLimit ?? null;
   const hasMemoryUsage = isMetricValue(memoryUsageValue);
-  const hasMemoryLimit
-    = hasMemoryUsage && isMetricValue(memoryLimitValue) && memoryLimitValue > 0;
+  const hasMemoryLimit =
+    hasMemoryUsage && isMetricValue(memoryLimitValue) && memoryLimitValue > 0;
   const memoryLabel = (() => {
-    if (!hasMemoryUsage)
+    if (!hasMemoryUsage) {
       return "-";
+    }
 
-    const usage = formatBytes(memoryUsageValue!);
+    const usage = formatBytes(memoryUsageValue);
 
     if (!hasMemoryLimit) {
       return usage;
     }
 
-    return `${usage} / ${formatBytes(memoryLimitValue!)}`;
+    return `${usage} / ${formatBytes(memoryLimitValue)}`;
   })();
 
   const networkRxValue = metrics?.networkRx ?? null;
   const networkTxValue = metrics?.networkTx ?? null;
   const hasNetworkRx = isMetricValue(networkRxValue);
   const hasNetworkTx = isMetricValue(networkTxValue);
-  const inboundLabel = hasNetworkRx ? formatBytes(networkRxValue!) : "-";
-  const outboundLabel = hasNetworkTx ? formatBytes(networkTxValue!) : "-";
+  const inboundLabel = hasNetworkRx ? formatBytes(networkRxValue) : "-";
+  const outboundLabel = hasNetworkTx ? formatBytes(networkTxValue) : "-";
 
   const diskReadValue = metrics?.diskRead ?? null;
   const diskWriteValue = metrics?.diskWrite ?? null;
   const hasDiskRead = isMetricValue(diskReadValue);
   const hasDiskWrite = isMetricValue(diskWriteValue);
-  const diskReadLabel = hasDiskRead ? formatBytes(diskReadValue!) : "-";
-  const diskWriteLabel = hasDiskWrite ? formatBytes(diskWriteValue!) : "-";
+  const diskReadLabel = hasDiskRead ? formatBytes(diskReadValue) : "-";
+  const diskWriteLabel = hasDiskWrite ? formatBytes(diskWriteValue) : "-";
 
-  const hasAnyMetricValues
-    = hasCpuData
-      || hasMemoryUsage
-      || hasNetworkRx
-      || hasNetworkTx
-      || hasDiskRead
-      || hasDiskWrite;
+  const hasAnyMetricValues =
+    hasCpuData ||
+    hasMemoryUsage ||
+    hasNetworkRx ||
+    hasNetworkTx ||
+    hasDiskRead ||
+    hasDiskWrite;
 
   const cpuChartConfig = {
     usage: {
@@ -121,8 +123,8 @@ export function ContainerSheetMetrics({ metrics }: Props) {
   const networkChartData = [
     {
       label: "Network",
-      inbound: hasNetworkRx ? bytesToMegabytes(networkRxValue!) : 0,
-      outbound: hasNetworkTx ? bytesToMegabytes(networkTxValue!) : 0,
+      inbound: hasNetworkRx ? bytesToMegabytes(networkRxValue) : 0,
+      outbound: hasNetworkTx ? bytesToMegabytes(networkTxValue) : 0,
     },
   ];
 
@@ -139,277 +141,262 @@ export function ContainerSheetMetrics({ metrics }: Props) {
   const diskChartData = [
     {
       label: "Disk",
-      read: hasDiskRead ? bytesToMegabytes(diskReadValue!) : 0,
-      write: hasDiskWrite ? bytesToMegabytes(diskWriteValue!) : 0,
+      read: hasDiskRead ? bytesToMegabytes(diskReadValue) : 0,
+      write: hasDiskWrite ? bytesToMegabytes(diskWriteValue) : 0,
     },
   ];
 
   return (
-    <div className="p-4 space-y-4">
-      {hasAnyMetricValues
-        ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              <MetricCard
-                title="CPU"
-                value={cpuLabel}
-                icon={GaugeIcon}
-                isAvailable={hasCpuData}
-                unavailableMessage="CPU metrics unavailable"
+    <div className="space-y-4 p-4">
+      {hasAnyMetricValues ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <MetricCard
+            icon={GaugeIcon}
+            isAvailable={hasCpuData}
+            title="CPU"
+            unavailableMessage="CPU metrics unavailable"
+            value={cpuLabel}
+          >
+            <div className="relative flex justify-center">
+              <ChartContainer
+                className="aspect-square w-full max-w-[180px]"
+                config={cpuChartConfig}
               >
-                <div className="relative flex justify-center">
-                  <ChartContainer
-                    config={cpuChartConfig}
-                    className="aspect-square w-full max-w-[180px]"
+                <RadialBarChart
+                  data={cpuChartData}
+                  endAngle={-270}
+                  innerRadius={60}
+                  outerRadius={80}
+                  startAngle={90}
+                >
+                  <PolarAngleAxis
+                    dataKey="value"
+                    domain={[0, 100]}
+                    tick={false}
+                    type="number"
+                  />
+                  <RadialBar
+                    background
+                    cornerRadius={999}
+                    dataKey="value"
+                    fill="var(--color-usage)"
+                  />
+                </RadialBarChart>
+              </ChartContainer>
+
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="font-semibold text-2xl">
+                  {hasCpuData ? cpuValue.toFixed(0) : 0}%
+                </span>
+              </div>
+            </div>
+          </MetricCard>
+
+          <MetricCard
+            icon={MemoryStickIcon}
+            isAvailable={hasMemoryUsage}
+            title="Memory"
+            unavailableMessage="Memory metrics unavailable"
+            value={memoryLabel}
+            valueClassName="font-mono"
+          >
+            {hasMemoryLimit ? (
+              <div className="relative flex justify-center">
+                <ChartContainer
+                  className="aspect-square w-full max-w-[180px]"
+                  config={memoryChartConfig}
+                >
+                  <RadialBarChart
+                    data={memoryChartData}
+                    endAngle={-270}
+                    innerRadius={60}
+                    outerRadius={80}
+                    startAngle={90}
                   >
-                    <RadialBarChart
-                      data={cpuChartData}
-                      innerRadius={60}
-                      outerRadius={80}
-                      startAngle={90}
-                      endAngle={-270}
-                    >
-                      <PolarAngleAxis
-                        type="number"
-                        domain={[0, 100]}
-                        dataKey="value"
-                        tick={false}
-                      />
-                      <RadialBar
-                        dataKey="value"
-                        cornerRadius={999}
-                        fill="var(--color-usage)"
-                        background
-                      />
-                    </RadialBarChart>
-                  </ChartContainer>
+                    <PolarAngleAxis
+                      dataKey="value"
+                      domain={[0, 100]}
+                      tick={false}
+                      type="number"
+                    />
+                    <RadialBar
+                      background
+                      cornerRadius={999}
+                      dataKey="value"
+                      fill="var(--color-used)"
+                    />
+                  </RadialBarChart>
+                </ChartContainer>
 
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-semibold">
-                      {hasCpuData ? cpuValue!.toFixed(0) : 0}
-                      %
-                    </span>
-                  </div>
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="font-semibold text-2xl">
+                    {memoryUsagePercent?.toFixed(0) ?? 0}%
+                  </span>
                 </div>
-              </MetricCard>
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Memory limit not reported
+              </p>
+            )}
+          </MetricCard>
 
-              <MetricCard
-                title="Memory"
-                value={memoryLabel}
-                icon={MemoryStickIcon}
-                valueClassName="font-mono"
-                isAvailable={hasMemoryUsage}
-                unavailableMessage="Memory metrics unavailable"
-              >
-                {hasMemoryLimit
-                  ? (
-                      <div className="relative flex justify-center">
-                        <ChartContainer
-                          config={memoryChartConfig}
-                          className="aspect-square w-full max-w-[180px]"
-                        >
-                          <RadialBarChart
-                            data={memoryChartData}
-                            innerRadius={60}
-                            outerRadius={80}
-                            startAngle={90}
-                            endAngle={-270}
-                          >
-                            <PolarAngleAxis
-                              type="number"
-                              domain={[0, 100]}
-                              dataKey="value"
-                              tick={false}
-                            />
-                            <RadialBar
-                              dataKey="value"
-                              cornerRadius={999}
-                              fill="var(--color-used)"
-                              background
-                            />
-                          </RadialBarChart>
-                        </ChartContainer>
-
-                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                          <span className="text-2xl font-semibold">
-                            {memoryUsagePercent?.toFixed(0) ?? 0}
-                            %
+          <MetricCard
+            icon={ArrowDownUpIcon}
+            isAvailable={hasNetworkRx || hasNetworkTx}
+            title="Network I/O"
+            unavailableMessage="Network metrics unavailable"
+            value={
+              hasNetworkRx || hasNetworkTx
+                ? `${inboundLabel} ↓ / ${outboundLabel} ↑`
+                : "-"
+            }
+            valueClassName="font-mono"
+          >
+            <ChartContainer className="h-40 w-full" config={networkChartConfig}>
+              <BarChart barSize={28} data={networkChartData}>
+                <CartesianGrid
+                  className="stroke-border/60"
+                  strokeDasharray="4 4"
+                  vertical={false}
+                />
+                <XAxis
+                  axisLine={false}
+                  dataKey="label"
+                  tick={{ fill: "currentColor" }}
+                  tickLine={false}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(_, name) => (
+                        <div className="flex w-full items-center justify-between gap-4">
+                          <span>
+                            {name === "inbound" ? "Inbound" : "Outbound"}
+                          </span>
+                          <span className="font-mono text-foreground">
+                            {name === "inbound" ? inboundLabel : outboundLabel}
                           </span>
                         </div>
-                      </div>
-                    )
-                  : (
-                      <p className="text-sm text-muted-foreground">
-                        Memory limit not reported
-                      </p>
-                    )}
-              </MetricCard>
+                      )}
+                      hideLabel
+                    />
+                  }
+                  cursor={false}
+                />
+                <Bar
+                  dataKey="inbound"
+                  fill="var(--color-inbound)"
+                  name="inbound"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="outbound"
+                  fill="var(--color-outbound)"
+                  name="outbound"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
 
-              <MetricCard
-                title="Network I/O"
-                value={
-                  hasNetworkRx || hasNetworkTx
-                    ? `${inboundLabel} ↓ / ${outboundLabel} ↑`
-                    : "-"
-                }
-                icon={ArrowDownUpIcon}
-                valueClassName="font-mono"
-                isAvailable={hasNetworkRx || hasNetworkTx}
-                unavailableMessage="Network metrics unavailable"
-              >
-                <>
-                  <ChartContainer
-                    config={networkChartConfig}
-                    className="h-40 w-full"
-                  >
-                    <BarChart data={networkChartData} barSize={28}>
-                      <CartesianGrid
-                        vertical={false}
-                        strokeDasharray="4 4"
-                        className="stroke-border/60"
-                      />
-                      <XAxis
-                        dataKey="label"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: "currentColor" }}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={(
-                          <ChartTooltipContent
-                            hideLabel
-                            formatter={(_, name) => (
-                              <div className="flex w-full items-center justify-between gap-4">
-                                <span>
-                                  {name === "inbound" ? "Inbound" : "Outbound"}
-                                </span>
-                                <span className="font-mono text-foreground">
-                                  {name === "inbound"
-                                    ? inboundLabel
-                                    : outboundLabel}
-                                </span>
-                              </div>
-                            )}
-                          />
-                        )}
-                      />
-                      <Bar
-                        dataKey="inbound"
-                        name="inbound"
-                        fill="var(--color-inbound)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="outbound"
-                        name="outbound"
-                        fill="var(--color-outbound)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ChartContainer>
-
-                  <div className="grid gap-1 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between">
-                      <span>Inbound</span>
-                      <span className="font-mono text-foreground">
-                        {inboundLabel}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Outbound</span>
-                      <span className="font-mono text-foreground">
-                        {outboundLabel}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              </MetricCard>
-
-              <MetricCard
-                title="Disk I/O"
-                value={
-                  hasDiskRead || hasDiskWrite
-                    ? `${diskReadLabel} ↓ / ${diskWriteLabel} ↑`
-                    : "-"
-                }
-                icon={HardDriveIcon}
-                valueClassName="font-mono"
-                isAvailable={hasDiskRead || hasDiskWrite}
-                unavailableMessage="Disk metrics unavailable"
-              >
-                <>
-                  <ChartContainer config={diskChartConfig} className="h-40 w-full">
-                    <BarChart data={diskChartData} barSize={28}>
-                      <CartesianGrid
-                        vertical={false}
-                        strokeDasharray="4 4"
-                        className="stroke-border/60"
-                      />
-                      <XAxis
-                        dataKey="label"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: "currentColor" }}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={(
-                          <ChartTooltipContent
-                            hideLabel
-                            formatter={(_, name) => (
-                              <div className="flex w-full items-center justify-between gap-4">
-                                <span>{name === "read" ? "Read" : "Write"}</span>
-                                <span className="font-mono text-foreground">
-                                  {name === "read" ? diskReadLabel : diskWriteLabel}
-                                </span>
-                              </div>
-                            )}
-                          />
-                        )}
-                      />
-                      <Bar
-                        dataKey="read"
-                        name="read"
-                        fill="var(--color-read)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="write"
-                        name="write"
-                        fill="var(--color-write)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ChartContainer>
-
-                  <div className="grid gap-1 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between">
-                      <span>Read</span>
-                      <span className="font-mono text-foreground">
-                        {diskReadLabel}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Write</span>
-                      <span className="font-mono text-foreground">
-                        {diskWriteLabel}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              </MetricCard>
+            <div className="grid gap-1 text-muted-foreground text-xs">
+              <div className="flex items-center justify-between">
+                <span>Inbound</span>
+                <span className="font-mono text-foreground">
+                  {inboundLabel}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Outbound</span>
+                <span className="font-mono text-foreground">
+                  {outboundLabel}
+                </span>
+              </div>
             </div>
-          )
-        : (
-            <p className="text-sm text-muted-foreground">
-              Runtime metrics are not available for this container.
-            </p>
-          )}
+          </MetricCard>
+
+          <MetricCard
+            icon={HardDriveIcon}
+            isAvailable={hasDiskRead || hasDiskWrite}
+            title="Disk I/O"
+            unavailableMessage="Disk metrics unavailable"
+            value={
+              hasDiskRead || hasDiskWrite
+                ? `${diskReadLabel} ↓ / ${diskWriteLabel} ↑`
+                : "-"
+            }
+            valueClassName="font-mono"
+          >
+            <ChartContainer className="h-40 w-full" config={diskChartConfig}>
+              <BarChart barSize={28} data={diskChartData}>
+                <CartesianGrid
+                  className="stroke-border/60"
+                  strokeDasharray="4 4"
+                  vertical={false}
+                />
+                <XAxis
+                  axisLine={false}
+                  dataKey="label"
+                  tick={{ fill: "currentColor" }}
+                  tickLine={false}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(_, name) => (
+                        <div className="flex w-full items-center justify-between gap-4">
+                          <span>{name === "read" ? "Read" : "Write"}</span>
+                          <span className="font-mono text-foreground">
+                            {name === "read" ? diskReadLabel : diskWriteLabel}
+                          </span>
+                        </div>
+                      )}
+                      hideLabel
+                    />
+                  }
+                  cursor={false}
+                />
+                <Bar
+                  dataKey="read"
+                  fill="var(--color-read)"
+                  name="read"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="write"
+                  fill="var(--color-write)"
+                  name="write"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
+
+            <div className="grid gap-1 text-muted-foreground text-xs">
+              <div className="flex items-center justify-between">
+                <span>Read</span>
+                <span className="font-mono text-foreground">
+                  {diskReadLabel}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Write</span>
+                <span className="font-mono text-foreground">
+                  {diskWriteLabel}
+                </span>
+              </div>
+            </div>
+          </MetricCard>
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          Runtime metrics are not available for this container.
+        </p>
+      )}
     </div>
   );
 }
 
-interface MetricCardProps {
+type MetricCardProps = {
   title: string;
   value: ReactNode;
   icon: LucideIcon;
@@ -417,7 +404,7 @@ interface MetricCardProps {
   isAvailable: boolean;
   unavailableMessage?: string;
   children: ReactNode;
-}
+};
 
 function MetricCard({
   title,
@@ -429,14 +416,14 @@ function MetricCard({
   children,
 }: MetricCardProps) {
   return (
-    <div className="rounded-lg bg-secondary/40 p-4 space-y-4">
+    <div className="space-y-4 rounded-lg bg-secondary/40 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">{title}</p>
+          <p className="text-muted-foreground text-sm">{title}</p>
           <p
             className={cn(
-              "text-base font-semibold leading-tight",
-              valueClassName,
+              "font-semibold text-base leading-tight",
+              valueClassName
             )}
           >
             {value}
@@ -445,15 +432,13 @@ function MetricCard({
         <Icon className="size-4 text-muted-foreground" />
       </div>
 
-      {isAvailable
-        ? (
-            children
-          )
-        : (
-            <p className="text-sm text-muted-foreground">
-              {unavailableMessage ?? `${title} metrics unavailable`}
-            </p>
-          )}
+      {isAvailable ? (
+        children
+      ) : (
+        <p className="text-muted-foreground text-sm">
+          {unavailableMessage ?? `${title} metrics unavailable`}
+        </p>
+      )}
     </div>
   );
 }

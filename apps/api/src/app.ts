@@ -10,9 +10,9 @@ const routes = [index, containers, images] as const;
 
 configureOpenAPI(app);
 
-routes.forEach((route) => {
+for (const route of routes) {
   app.route("/", route);
-});
+}
 
 export type AppType = (typeof routes)[number];
 

@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type {
   OpenAPIHono,
   RouteConfig,
@@ -5,10 +6,9 @@ import type {
   z,
 } from "@hono/zod-openapi";
 import type { Schema } from "hono";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import type pino from "pino";
 
-export interface AppBindings {
+export type AppBindings = {
   Variables: {
     logger: pino.Logger;
   };
@@ -16,10 +16,12 @@ export interface AppBindings {
     incoming: IncomingMessage;
     outgoing: ServerResponse;
   };
-}
+};
 
-// eslint-disable-next-line ts/no-empty-object-type
-export type AppOpenAPI<S extends Schema = {}> = OpenAPIHono<AppBindings, S>;
+export type AppOpenAPI<S extends Schema = Record<string, never>> = OpenAPIHono<
+  AppBindings,
+  S
+>;
 
 export type AppRouteHandler<R extends RouteConfig> = RouteHandler<
   R,

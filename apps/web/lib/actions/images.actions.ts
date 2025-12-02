@@ -1,10 +1,10 @@
 "use server";
 
+import { logger } from "@/lib/logger";
 import type {
   PullImageInput,
   RemoveImagesInput,
 } from "@/lib/services/images.service";
-import { logger } from "@/lib/logger";
 import {
   pullImage,
   pullImageInputSchema,
@@ -13,14 +13,14 @@ import {
 } from "@/lib/services/images.service";
 import { validateFormData } from "@/lib/utils";
 
-export interface PullImageActionFormState {
+export type PullImageActionFormState = {
   data: Partial<PullImageInput>;
-  error: Partial<PullImageInput> & { root?: string };
-}
+  error: (Partial<PullImageInput> & { root?: string }) | null;
+};
 
 export async function pullImageAction(
   _prevState: PullImageActionFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<PullImageActionFormState> {
   const input = validateFormData(pullImageInputSchema, formData);
   if (!input.ok) {
@@ -47,14 +47,14 @@ export async function pullImageAction(
   return { data: input.data, error: null };
 }
 
-export interface RemoveImagesActionFormState {
+export type RemoveImagesActionFormState = {
   data: Partial<RemoveImagesInput>;
-  error: Partial<RemoveImagesInput> & { root?: string };
-}
+  error: (Partial<RemoveImagesInput> & { root?: string }) | null;
+};
 
 export async function removeImagesAction(
   _prevState: RemoveImagesActionFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<RemoveImagesActionFormState> {
   const input = validateFormData(removeImagesInputSchema, formData);
   if (!input.ok) {

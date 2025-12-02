@@ -88,17 +88,17 @@ export function LaunchContainer() {
 
   return (
     <Dialog
-      open={open}
       onOpenChange={(value) => {
         setOpen(value);
         if (!value) {
           handleClose();
         }
       }}
+      open={open}
     >
       <form>
         <DialogTrigger asChild>
-          <Button size="sm" onClick={() => setOpen(true)}>
+          <Button onClick={() => setOpen(true)} size="sm">
             New Container
             <KbdGroup>
               <Kbd>
@@ -129,7 +129,7 @@ export function LaunchContainer() {
                     <StepperIndicator asChild className="h-1 w-full bg-border">
                       <span className="sr-only">{step.label}</span>
                     </StepperIndicator>
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="font-medium text-muted-foreground text-xs">
                       {step.label}
                     </span>
                   </div>

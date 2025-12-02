@@ -33,7 +33,7 @@ export const pullImageInputSchema = z.object({
     .max(128, { message: "Image name is too long." })
     .regex(
       /^[a-z0-9]+(?:[._-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._-][a-z0-9]+)*)*$/,
-      { message: "Image name contains invalid characters." },
+      { message: "Image name contains invalid characters." }
     ),
   tag: z
     .string()
@@ -48,7 +48,7 @@ export const pullImageInputSchema = z.object({
 export type PullImageInput = z.infer<typeof pullImageInputSchema>;
 
 export async function pullImage(
-  input: PullImageInput,
+  input: PullImageInput
 ): Promise<ServiceResponse<Image, { status: number; statusText: string }>> {
   const { data, error } = await $api("/images", {
     method: "post",
@@ -74,12 +74,7 @@ export async function pullImage(
 }
 
 const formBooleanSchema = z
-  .union([
-    z.literal("true"),
-    z.literal("false"),
-    z.literal("on"),
-    z.boolean(),
-  ])
+  .union([z.literal("true"), z.literal("false"), z.literal("on"), z.boolean()])
   .optional()
   .transform((value) => {
     if (typeof value === "boolean") {
@@ -99,8 +94,8 @@ const imageIdSchema = z
   .max(128, { message: "Image id is too long." });
 
 export const removeImagesInputSchema = z.object({
-  images: z
-    .preprocess((value) => {
+  images: z.preprocess(
+    (value) => {
       if (Array.isArray(value)) {
         return value;
       }
@@ -110,13 +105,19 @@ export const removeImagesInputSchema = z.object({
       }
 
       return value;
-    }, z.array(imageIdSchema).min(1, { message: "Please select at least one image to remove." })),
+    },
+    z
+      .array(imageIdSchema)
+      .min(1, { message: "Please select at least one image to remove." })
+  ),
   force: formBooleanSchema,
 });
 
 export type RemoveImagesInput = z.infer<typeof removeImagesInputSchema>;
 
-export async function removeImages(input: RemoveImagesInput): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
+export async function removeImages(
+  input: RemoveImagesInput
+): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
   const { error } = await $api("/images/remove", {
     method: "post",
     body: JSON.stringify(input),

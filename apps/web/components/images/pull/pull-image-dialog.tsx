@@ -1,6 +1,5 @@
 "use client";
 
-import type { Registry } from "@/lib/constants/registries";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
@@ -36,12 +35,20 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { pullImageAction } from "@/lib/actions/images.actions";
+import type { Registry } from "@/lib/constants/registries";
 import REGISTRIES from "@/lib/constants/registries";
 
-const DEFAULT_REGISTRY = REGISTRIES.at(0)!;
+const DEFAULT_REGISTRY = REGISTRIES.at(0);
 
 function getRegistryByHost(host?: string | null): Registry {
-  return REGISTRIES.find((current) => current.host === host) ?? DEFAULT_REGISTRY;
+  const registry =
+    REGISTRIES.find((current) => current.host === host) ?? DEFAULT_REGISTRY;
+
+  if (!registry) {
+    throw new Error("Registry not found.");
+  }
+
+  return registry;
 }
 
 export function PullImageDialog() {
@@ -54,22 +61,24 @@ export function PullImageDialog() {
     error: null,
   });
   const [registry, setRegistry] = useState<Registry>(() =>
-    getRegistryByHost(state.data.registry as string | undefined),
+    getRegistryByHost(state.data.registry as string | undefined)
   );
   const [imageName, setImageName] = useState(
-    typeof state.data.name === "string" ? state.data.name : "",
+    typeof state.data.name === "string" ? state.data.name : ""
   );
   const [tag, setTag] = useState(
-    typeof state.data.tag === "string" ? state.data.tag : "latest",
+    typeof state.data.tag === "string" ? state.data.tag : "latest"
   );
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!hasSubmitted)
+    if (!hasSubmitted) {
       return;
+    }
 
-    if (isPending)
+    if (isPending) {
       return;
+    }
 
     if (state?.error?.root) {
       toast.error(state.error.root || "An unexpected error occurred.");
@@ -85,8 +94,9 @@ export function PullImageDialog() {
     const trimmedName = imageName.trim();
     const trimmedTag = tag.trim();
 
-    if (!trimmedName)
+    if (!trimmedName) {
       return null;
+    }
 
     return `${registry.host}/${trimmedName}${trimmedTag ? `:${trimmedTag}` : ""}`;
   })();
@@ -124,13 +134,14 @@ export function PullImageDialog() {
 
                 <Select
                   name="registry"
-                  value={registry.host}
                   onValueChange={(value) =>
-                    setRegistry(getRegistryByHost(value))}
+                    setRegistry(getRegistryByHost(value))
+                  }
+                  value={registry.host}
                 >
                   <SelectTrigger
-                    className=""
                     aria-invalid={!!state?.error?.registry}
+                    className=""
                   >
                     {registry.label}
                   </SelectTrigger>
@@ -161,12 +172,12 @@ export function PullImageDialog() {
                   <FieldLabel htmlFor="tag">Image Name</FieldLabel>
 
                   <Input
+                    aria-invalid={!!state?.error?.name}
                     id="name"
                     name="name"
-                    value={imageName}
                     onChange={(event) => setImageName(event.target.value)}
                     placeholder="nginx"
-                    aria-invalid={!!state?.error?.name}
+                    value={imageName}
                   />
 
                   {state?.error?.name && (
@@ -182,13 +193,13 @@ export function PullImageDialog() {
                   <FieldLabel htmlFor="tag">Tag</FieldLabel>
 
                   <Input
+                    aria-invalid={!!state?.error?.tag}
+                    autoComplete="off"
                     id="tag"
                     name="tag"
-                    value={tag}
                     onChange={(event) => setTag(event.target.value)}
                     placeholder="latest"
-                    autoComplete="off"
-                    aria-invalid={!!state?.error?.tag}
+                    value={tag}
                   />
 
                   {state?.error?.tag && (
@@ -199,10 +210,12 @@ export function PullImageDialog() {
 
               {imageReference && (
                 <>
-                  <FieldSeparator></FieldSeparator>
+                  <FieldSeparator />
 
                   <InfoCard>
-                    <InfoCardRow label="Image reference"><span className="font-mono">{imageReference}</span></InfoCardRow>
+                    <InfoCardRow label="Image reference">
+                      <span className="font-mono">{imageReference}</span>
+                    </InfoCardRow>
                   </InfoCard>
                 </>
               )}
@@ -212,7 +225,7 @@ export function PullImageDialog() {
           <DialogFooter>
             <ButtonGroup>
               <DialogClose asChild>
-                <Button size="sm" variant="secondary" type="button">
+                <Button size="sm" type="button" variant="secondary">
                   Cancel
                   <KbdGroup>
                     <Kbd>ESC</Kbd>
@@ -221,19 +234,17 @@ export function PullImageDialog() {
               </DialogClose>
             </ButtonGroup>
 
-            <Button size="sm" type="submit" disabled={isPending}>
+            <Button disabled={isPending} size="sm" type="submit">
               Pull Image
-              {isPending
-                ? (
-                    <Spinner />
-                  )
-                : (
-                    <KbdGroup>
-                      <Kbd>
-                        <CornerDownLeftIcon />
-                      </Kbd>
-                    </KbdGroup>
-                  )}
+              {isPending ? (
+                <Spinner />
+              ) : (
+                <KbdGroup>
+                  <Kbd>
+                    <CornerDownLeftIcon />
+                  </Kbd>
+                </KbdGroup>
+              )}
             </Button>
           </DialogFooter>
         </form>

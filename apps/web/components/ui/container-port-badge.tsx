@@ -31,16 +31,14 @@ export function ContainerPortBadge({
 
   return (
     <Badge
-      variant="outline"
       className={cn("inline-flex items-center gap-2 font-mono", className)}
+      variant="outline"
     >
-      {showIpLabel
-        ? (
-            <span className="text-[11px] uppercase tracking-wide text-foreground/70">
-              {ipLabel}
-            </span>
-          )
-        : null}
+      {showIpLabel ? (
+        <span className="text-[11px] text-foreground/70 uppercase tracking-wide">
+          {ipLabel}
+        </span>
+      ) : null}
       {`${port.publicPort}:${port.privatePort}`}
     </Badge>
   );

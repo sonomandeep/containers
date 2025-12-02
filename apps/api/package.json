@@ -2,8 +2,7 @@
   "name": "api",
   "version": "0.1.0",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "lint": "eslint . --fix"
+    "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
     "@containers/shared": "workspace:*",
@@ -18,10 +17,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.0.0",
     "@types/bun": "latest",
-    "@types/dockerode": "^3.3.45",
-    "eslint": "^9.37.0",
-    "eslint-plugin-format": "^1.0.2"
+    "@types/dockerode": "^3.3.45"
   }
 }

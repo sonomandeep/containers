@@ -4,20 +4,34 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "../utils";
 
-interface PullImageInput {
+type PullImageInput = {
   registry: string;
   name: string;
   tag: string;
-}
+};
 
-export async function pullImage(input: PullImageInput): Promise<ServiceResponse<Image, { message: string; code: typeof HttpStatusCodes.NOT_FOUND | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR }>> {
+export async function pullImage(input: PullImageInput): Promise<
+  ServiceResponse<
+    Image,
+    {
+      message: string;
+      code:
+        | typeof HttpStatusCodes.NOT_FOUND
+        | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+    }
+  >
+> {
   try {
-    const stream = await docker.pull(`${input.registry}/${input.name}:${input.tag}`);
+    const stream = await docker.pull(
+      `${input.registry}/${input.name}:${input.tag}`
+    );
     await new Promise((resolve, reject) => {
       docker.modem.followProgress(stream, (err, res) => {
-        if (err)
+        if (err) {
           reject(err);
-        else resolve(res);
+        } else {
+          resolve(res);
+        }
       });
     });
 
@@ -28,7 +42,7 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
       id: info.Id,
       repoTags: info.RepoTags ?? [],
       repoDigests: info.RepoDigests ?? [],
-      created: (new Date(info.Created)).valueOf() ?? 0,
+      created: new Date(info.Created).valueOf() ?? 0,
       size: info.Size ?? 0,
       virtualSize: info.VirtualSize ?? 0,
     };
@@ -38,16 +52,14 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
       error: null,
     };
   } catch (error) {
-    if (isDockerodeError(error)) {
-      if (error.statusCode === 404) {
-        return {
-          data: null,
-          error: {
-            message: HttpStatusPhrases.NOT_FOUND,
-            code: HttpStatusCodes.NOT_FOUND,
-          },
-        };
-      }
+    if (isDockerodeError(error) && error.statusCode === 404) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
     }
 
     return {
@@ -60,10 +72,10 @@ export async function pullImage(input: PullImageInput): Promise<ServiceResponse<
   }
 }
 
-interface RemoveImagesInput {
+type RemoveImagesInput = {
   images: Array<string>;
   force?: boolean;
-}
+};
 
 async function removeImage(imageId: string, force?: boolean) {
   if (force) {
@@ -84,7 +96,17 @@ async function removeImage(imageId: string, force?: boolean) {
   await image.remove(force ? { force: true } : undefined);
 }
 
-export async function removeImages(input: RemoveImagesInput): Promise<ServiceResponse<null, { message: string; code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR | typeof HttpStatusCodes.CONFLICT }>> {
+export async function removeImages(input: RemoveImagesInput): Promise<
+  ServiceResponse<
+    null,
+    {
+      message: string;
+      code:
+        | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR
+        | typeof HttpStatusCodes.CONFLICT;
+    }
+  >
+> {
   try {
     for (const imageId of input.images) {
       await removeImage(imageId, input.force);
@@ -95,11 +117,15 @@ export async function removeImages(input: RemoveImagesInput): Promise<ServiceRes
       error: null,
     };
   } catch (error) {
-    if (isDockerodeError(error) && error.statusCode === HttpStatusCodes.CONFLICT) {
+    if (
+      isDockerodeError(error) &&
+      error.statusCode === HttpStatusCodes.CONFLICT
+    ) {
       return {
         data: null,
         error: {
-          message: "Cannot delete images with existing containers. Stop them or retry with force delete.",
+          message:
+            "Cannot delete images with existing containers. Stop them or retry with force delete.",
           code: HttpStatusCodes.CONFLICT,
         },
       };

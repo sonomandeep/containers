@@ -27,21 +27,21 @@ const EMPTY_CONTAINERS_STATE: Image["containers"] = {
   exited: 0,
 };
 
-export const columns: ColumnDef<Image>[] = [
+export const columns: Array<ColumnDef<Image>> = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        aria-label="Select all"
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
+        aria-label="Select row"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
       />
     ),
     enableSorting: false,
@@ -84,7 +84,7 @@ export const columns: ColumnDef<Image>[] = [
       const primary = tags.at(0) ?? "untagged:latest";
 
       return (
-        <Badge variant="secondary" className="gap-2">
+        <Badge className="gap-2" variant="secondary">
           <Layers2Icon className="size-3 opacity-60" />
           {primary}
         </Badge>
@@ -105,7 +105,7 @@ export const columns: ColumnDef<Image>[] = [
 
       if (!tags.length) {
         return (
-          <Badge variant="outline" className="font-mono">
+          <Badge className="font-mono" variant="outline">
             none
           </Badge>
         );
@@ -115,12 +115,12 @@ export const columns: ColumnDef<Image>[] = [
 
       return (
         <div className="inline-flex items-center gap-2 whitespace-nowrap">
-          <Badge variant="outline" className="font-mono truncate">
+          <Badge className="truncate font-mono" variant="outline">
             {primary}
           </Badge>
 
           {rest.length > 0 && (
-            <Badge variant="outline" className="font-mono">
+            <Badge className="font-mono" variant="outline">
               <span>+</span>
               {rest.length}
             </Badge>
@@ -154,9 +154,9 @@ export const columns: ColumnDef<Image>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const containers
-        = row.getValue<Image["containers"]>("containers")
-          ?? EMPTY_CONTAINERS_STATE;
+      const containers =
+        row.getValue<Image["containers"]>("containers") ??
+        EMPTY_CONTAINERS_STATE;
 
       return <ContainersState state={containers} />;
     },

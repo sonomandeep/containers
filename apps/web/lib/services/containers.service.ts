@@ -45,7 +45,7 @@ export const startContainerInputSchema = z.object({
 export type StartContainerInput = z.infer<typeof startContainerInputSchema>;
 
 export async function removeContainer(
-  input: RemoveContainerInput,
+  input: RemoveContainerInput
 ): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
   const path = `/containers/${encodeURIComponent(input.containerId)}`;
 
@@ -64,7 +64,7 @@ export async function removeContainer(
 }
 
 export async function stopContainer(
-  input: StopContainerInput,
+  input: StopContainerInput
 ): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
   const path = `/containers/${encodeURIComponent(input.containerId)}/stop`;
 
@@ -83,7 +83,7 @@ export async function stopContainer(
 }
 
 export async function startContainer(
-  input: StartContainerInput,
+  input: StartContainerInput
 ): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
   const path = `/containers/${encodeURIComponent(input.containerId)}/start`;
 
@@ -102,7 +102,7 @@ export async function startContainer(
 }
 
 export async function launchContainer(
-  input: LaunchContainerInput,
+  input: LaunchContainerInput
 ): Promise<
   ServiceResponse<{ id: string }, { status: number; statusText: string }>
 > {

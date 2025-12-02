@@ -15,14 +15,14 @@ import { ContainerPortBadge } from "@/components/ui/container-port-badge";
 import { ContainerStateBadge } from "@/components/ui/container-state-badge";
 import { InfoCard, InfoCardRow } from "@/components/ui/info-card";
 
-interface Props {
+type Props = {
   container: Container;
   createdLabel: string;
-}
+};
 
 export function ContainerSheetInfo({ container, createdLabel }: Props) {
   return (
-    <div className="p-4 border-b border-secondary">
+    <div className="border-secondary border-b p-4">
       <InfoCard>
         <InfoCardRow icon={HashIcon} label="ID">
           <p className="font-mono">{container.id.slice(0, 12)}</p>
@@ -34,8 +34,8 @@ export function ContainerSheetInfo({ container, createdLabel }: Props) {
 
         <InfoCardRow icon={Layers2Icon} label="Image">
           <Link href={`/images/${container.image}`}>
-            <Badge variant="secondary" className="inline-flex gap-2">
-              <Layers2Icon className="opacity-60 size-3.5" />
+            <Badge className="inline-flex gap-2" variant="secondary">
+              <Layers2Icon className="size-3.5 opacity-60" />
               {container.image}
             </Badge>
           </Link>
@@ -57,10 +57,10 @@ export function ContainerSheetInfo({ container, createdLabel }: Props) {
   );
 }
 
-function renderPorts(ports: ContainerPort[]) {
+function renderPorts(ports: Array<ContainerPort>) {
   if (!ports.length) {
     return (
-      <Badge variant="outline" className="font-mono">
+      <Badge className="font-mono" variant="outline">
         -
       </Badge>
     );

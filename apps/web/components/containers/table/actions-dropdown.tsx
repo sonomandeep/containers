@@ -22,9 +22,9 @@ import {
   stopContainerAction,
 } from "@/lib/actions/containers.actions";
 
-interface ContainerActionsDropdownProps {
+type ContainerActionsDropdownProps = {
   container: Container;
-}
+};
 
 export default function ContainerActionsDropdown({
   container,
@@ -32,48 +32,48 @@ export default function ContainerActionsDropdown({
   const [open, setOpen] = useState(false);
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu onOpenChange={setOpen} open={open}>
       <DropdownMenuTrigger asChild>
         <Button
+          aria-label={`Open actions for ${container.name}`}
           data-row-click-ignore
           size="icon-sm"
           variant="ghost"
-          aria-label={`Open actions for ${container.name}`}
         >
           <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent data-row-click-ignore align="end" className="w-44">
+      <DropdownMenuContent align="end" className="w-44" data-row-click-ignore>
         <StartContainerAction
-          container={container}
           closeDropdown={() => setOpen(false)}
+          container={container}
         />
         <StopContainerAction
-          container={container}
           closeDropdown={() => setOpen(false)}
+          container={container}
         />
         <RemoveContainerAction
-          container={container}
           closeDropdown={() => setOpen(false)}
+          container={container}
         />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-interface ContainerActionComponentProps {
+type ContainerActionComponentProps = {
   container: Container;
   closeDropdown: () => void;
-}
+};
 
-interface ContainerActionItemProps {
+type ContainerActionItemProps = {
   icon: typeof PlayIcon;
   label: string;
   disabled?: boolean;
   variant?: "default" | "destructive";
   onSelect?: () => void;
-}
+};
 
 function ContainerActionItem({
   icon: Icon,
@@ -86,14 +86,15 @@ function ContainerActionItem({
     <DropdownMenuItem
       data-row-click-ignore
       disabled={disabled}
-      variant={variant}
       onSelect={(event) => {
         event.preventDefault();
-        if (disabled)
+        if (disabled) {
           return;
+        }
 
         onSelect?.();
       }}
+      variant={variant}
     >
       <Icon className="size-3.5" />
       {label}
@@ -118,7 +119,7 @@ function StartContainerAction({
       }
 
       toast.success(
-        `Started ${container.name} (${container.id.slice(0, 12)}).`,
+        `Started ${container.name} (${container.id.slice(0, 12)}).`
       );
 
       closeDropdown();
@@ -127,9 +128,9 @@ function StartContainerAction({
 
   return (
     <ContainerActionItem
+      disabled={disabled}
       icon={PlayIcon}
       label="Start"
-      disabled={disabled}
       onSelect={handleStart}
     />
   );
@@ -140,9 +141,9 @@ function StopContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled
-    = (container.state !== "running" && container.state !== "paused")
-      || isPending;
+  const disabled =
+    (container.state !== "running" && container.state !== "paused") ||
+    isPending;
 
   const handleStop = () => {
     startTransition(async () => {
@@ -154,7 +155,7 @@ function StopContainerAction({
       }
 
       toast.success(
-        `Stopped ${container.name} (${container.id.slice(0, 12)}).`,
+        `Stopped ${container.name} (${container.id.slice(0, 12)}).`
       );
 
       closeDropdown();
@@ -163,9 +164,9 @@ function StopContainerAction({
 
   return (
     <ContainerActionItem
+      disabled={disabled}
       icon={SquareIcon}
       label="Stop"
-      disabled={disabled}
       onSelect={handleStop}
     />
   );
@@ -176,11 +177,11 @@ function RemoveContainerAction({
   closeDropdown,
 }: ContainerActionComponentProps) {
   const [isPending, startTransition] = useTransition();
-  const disabled
-    = container.state === "running"
-      || container.state === "paused"
-      || container.state === "restarting"
-      || isPending;
+  const disabled =
+    container.state === "running" ||
+    container.state === "paused" ||
+    container.state === "restarting" ||
+    isPending;
 
   const handleRemove = () => {
     startTransition(async () => {
@@ -192,7 +193,7 @@ function RemoveContainerAction({
       }
 
       toast.success(
-        `Removed ${container.name} (${container.id.slice(0, 12)}).`,
+        `Removed ${container.name} (${container.id.slice(0, 12)}).`
       );
 
       closeDropdown();
@@ -201,11 +202,11 @@ function RemoveContainerAction({
 
   return (
     <ContainerActionItem
+      disabled={disabled}
       icon={Trash2Icon}
       label="Remove"
-      variant="destructive"
-      disabled={disabled}
       onSelect={handleRemove}
+      variant="destructive"
     />
   );
 }

@@ -1,3 +1,3 @@
 export default function Page() {
-  return <div className="w-full h-full flex flex-col">Hello World</div>;
+  return <div className="flex h-full w-full flex-col">Hello World</div>;
 }

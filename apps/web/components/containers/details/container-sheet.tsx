@@ -23,11 +23,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContainerSheetInfo } from "./container-sheet-info";
 import { ContainerSheetMetrics } from "./container-sheet-metrics";
 
-interface Props {
+type Props = {
   container: Container;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 export function ContainerSheet({ container, open, onOpenChange }: Props) {
   const createdAt = container.created * 1000;
@@ -35,7 +35,7 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
   const createdRelative = formatDistanceToNow(createdAt, { addSuffix: true });
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet onOpenChange={onOpenChange} open={open}>
       <SheetContent className="p-0">
         <div className="flex flex-1 flex-col overflow-hidden">
           <SheetHeaderToolbar>
@@ -67,34 +67,34 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
             createdLabel={createdLabel}
           />
 
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <Tabs defaultValue="metrics" className="flex h-full flex-col gap-0">
-              <div className="p-4 border-b border-secondary">
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <Tabs className="flex h-full flex-col gap-0" defaultValue="metrics">
+              <div className="border-secondary border-b p-4">
                 <TabsList className="gap-2">
                   <TabsTrigger value="metrics">
                     <ActivityIcon
-                      className="size-3.5 -ms-0.5 opacity-60"
                       aria-hidden="true"
+                      className="-ms-0.5 size-3.5 opacity-60"
                     />
                     Metrics
                   </TabsTrigger>
                   <TabsTrigger value="logs">
                     <ScrollTextIcon
-                      className="size-3.5 -ms-0.5 opacity-60"
-                      size={16}
                       aria-hidden="true"
+                      className="-ms-0.5 size-3.5 opacity-60"
+                      size={16}
                     />
                     Logs
                   </TabsTrigger>
                 </TabsList>
               </div>
 
-              <TabsContent value="metrics" className="flex-1 overflow-y-auto">
+              <TabsContent className="flex-1 overflow-y-auto" value="metrics">
                 <ContainerSheetMetrics metrics={container.metrics} />
               </TabsContent>
 
-              <TabsContent value="logs" className="flex-1 overflow-y-auto">
-                <div className="p-4 text-sm text-muted-foreground">
+              <TabsContent className="flex-1 overflow-y-auto" value="logs">
+                <div className="p-4 text-muted-foreground text-sm">
                   Logs will appear here.
                 </div>
               </TabsContent>
@@ -102,7 +102,7 @@ export function ContainerSheet({ container, open, onOpenChange }: Props) {
           </div>
         </div>
 
-        <SheetFooter className="border-t border-secondary p-2">
+        <SheetFooter className="border-secondary border-t p-2">
           <div className="inline-flex items-center justify-end">
             <SheetClose asChild>
               <Button variant="outline">Close</Button>

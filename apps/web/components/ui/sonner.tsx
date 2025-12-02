@@ -1,6 +1,5 @@
 "use client";
 
-import type { ToasterProps } from "sonner";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -9,6 +8,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import type { ToasterProps } from "sonner";
 import { Toaster as Sonner } from "sonner";
 
 function Toaster({ ...props }: ToasterProps) {
@@ -16,7 +16,6 @@ function Toaster({ ...props }: ToasterProps) {
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4 text-green-500" />,
@@ -33,6 +32,7 @@ function Toaster({ ...props }: ToasterProps) {
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }
+      theme={theme as ToasterProps["theme"]}
       {...props}
     />
   );
