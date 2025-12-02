@@ -1,6 +1,7 @@
 "use client";
 
 import type z from "zod";
+import { launchContainerSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeftIcon,
@@ -29,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { launchConfigSchema } from "@/lib/schema/containers";
 import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
@@ -37,12 +37,22 @@ interface Props {
   handleNext: () => void;
 }
 
+const schema = launchContainerSchema.pick({
+  cpu: true,
+  memory: true,
+  network: true,
+  envs: true,
+  ports: true,
+});
+
+type ConfigInput = z.infer<typeof schema>;
+
 export function LaunchConfigStep({ handleBack, handleNext }: Props) {
   const setConfigInput = useLaunchContainerStore(
     (state) => state.setConfigInput,
   );
-  const form = useForm<z.infer<typeof launchConfigSchema>>({
-    resolver: zodResolver(launchConfigSchema),
+  const form = useForm<ConfigInput>({
+    resolver: zodResolver(schema),
     defaultValues: {
       cpu: "",
       memory: "",
@@ -54,7 +64,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
   const envs = useFieldArray({ control: form.control, name: "envs" });
   const ports = useFieldArray({ control: form.control, name: "ports" });
 
-  function onSubmit(data: z.infer<typeof launchConfigSchema>) {
+  function onSubmit(data: ConfigInput) {
     setConfigInput({
       cpu: data.cpu ?? "",
       memory: data.memory ?? "",

@@ -1,6 +1,7 @@
 "use client";
 
 import type z from "zod";
+import { launchContainerSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
@@ -22,29 +23,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { launchBasicSchema } from "@/lib/schema/containers";
 import { useImagesStore, useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
   handleNext: () => void;
 }
 
+const schema = launchContainerSchema.pick({ name: true, image: true, command: true, restartPolicy: true });
+type BasicInput = z.infer<typeof schema>;
+
 export function LaunchBasicStep({ handleNext }: Props) {
   const setBasicInput = useLaunchContainerStore((state) => state.setBasicInput);
   const images = useImagesStore((state) => state.images);
-  const form = useForm<z.infer<typeof launchBasicSchema>>({
-    resolver: zodResolver(launchBasicSchema),
+  const form = useForm<BasicInput>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
-      imageId: "",
+      image: "",
       command: "",
       restartPolicy: "no",
     },
   });
 
-  function onSubmit(data: z.infer<typeof launchBasicSchema>) {
+  function onSubmit(data: BasicInput) {
     const selected
-      = images.find((opt) => opt.id === data.imageId) || null;
+      = images.find((opt) => opt.id === data.image) || null;
     setBasicInput({
       name: data.name,
       image: selected,
@@ -82,7 +85,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
             />
 
             <Controller
-              name="imageId"
+              name="image"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>

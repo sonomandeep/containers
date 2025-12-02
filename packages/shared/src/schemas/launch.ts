@@ -44,8 +44,8 @@ export const launchContainerSchema = z.object({
   cpu: z.string().optional(),
   memory: z.string().optional(),
   network: z.string().optional(),
-  envs: z.array(envVarSchema).optional().default([]),
-  ports: z.array(portMappingSchema).optional().default([]),
+  envs: z.array(envVarSchema).optional(),
+  ports: z.array(portMappingSchema).optional(),
 });
 
 export type LaunchContainerInput = z.infer<typeof launchContainerSchema>;
