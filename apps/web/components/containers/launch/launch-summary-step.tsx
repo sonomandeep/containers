@@ -27,7 +27,10 @@ export function LaunchSummaryStep({ handleBack }: Props) {
         <InfoCard>
           <InfoCardRow label="Name">{state.name || "—"}</InfoCardRow>
           <InfoCardRow label="Image">
-            {state.image?.repoTags?.[0] || state.image?.id || "—"}
+            <div className="inline-flex gap-2 items-baseline">
+              <span>{state?.image?.repoTags[0] ?? state.image?.id}</span>
+              <span className="text-muted-foreground">{state?.image?.id.replace("sha256:", "").slice(0, 12)}</span>
+            </div>
           </InfoCardRow>
           <InfoCardRow label="Command">
             {state.command

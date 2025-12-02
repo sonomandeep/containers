@@ -1,6 +1,5 @@
 "use client";
 
-import type { Image } from "@containers/shared/src/schemas/images";
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
@@ -24,44 +23,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { launchBasicSchema } from "@/lib/schema/containers";
-import { useLaunchContainerStore } from "@/lib/store";
+import { useImagesStore, useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
   handleNext: () => void;
 }
 
-const imageOptions: Image[] = [
-  {
-    id: "sha256:node",
-    repoTags: ["node:20-alpine"],
-    repoDigests: [],
-    created: Date.now(),
-    size: 0,
-    sharedSize: 0,
-    virtualSize: 0,
-  },
-  {
-    id: "sha256:python",
-    repoTags: ["python:3.12-slim"],
-    repoDigests: [],
-    created: Date.now(),
-    size: 0,
-    sharedSize: 0,
-    virtualSize: 0,
-  },
-  {
-    id: "sha256:nginx",
-    repoTags: ["nginx:stable-alpine"],
-    repoDigests: [],
-    created: Date.now(),
-    size: 0,
-    sharedSize: 0,
-    virtualSize: 0,
-  },
-] as const;
-
 export function LaunchBasicStep({ handleNext }: Props) {
   const setBasicInput = useLaunchContainerStore((state) => state.setBasicInput);
+  const images = useImagesStore((state) => state.images);
   const form = useForm<z.infer<typeof launchBasicSchema>>({
     resolver: zodResolver(launchBasicSchema),
     defaultValues: {
@@ -74,7 +44,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
 
   function onSubmit(data: z.infer<typeof launchBasicSchema>) {
     const selected
-      = imageOptions.find((opt) => opt.id === data.imageId) || null;
+      = images.find((opt) => opt.id === data.imageId) || null;
     setBasicInput({
       name: data.name,
       image: selected,
@@ -128,9 +98,10 @@ export function LaunchBasicStep({ handleNext }: Props) {
                     </SelectTrigger>
 
                     <SelectContent>
-                      {imageOptions.map((option) => (
+                      {images.map((option) => (
                         <SelectItem key={option.id} value={option.id}>
-                          {option.repoTags[0] ?? option.id}
+                          <span>{option.repoTags[0] ?? option.id}</span>
+                          <span className="text-muted-foreground">{option.id.replace("sha256:", "").slice(0, 12)}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -1,3 +1,4 @@
+import useImagesStore from "./images.store";
 import useLaunchContainerStore from "./launch-container.store";
 
-export { useLaunchContainerStore };
+export { useImagesStore, useLaunchContainerStore };
