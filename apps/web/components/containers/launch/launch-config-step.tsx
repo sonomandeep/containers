@@ -87,54 +87,52 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
               <div className="space-y-2">
                 {envs.fields.map((field, index) => (
-                  <div key={field.id} className="space-y-1">
-                    <div className="flex gap-2">
-                      <Controller
-                        name={`envs.${index}.key`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Key"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
+                  <div key={field.id} className="flex gap-2">
+                    <Controller
+                      name={`envs.${index}.key`}
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <Input
+                            {...field}
+                            placeholder="Key"
+                            className="font-mono"
+                            aria-invalid={fieldState.invalid}
+                          />
 
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
 
-                      <Controller
-                        name={`envs.${index}.value`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Value"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
+                    <Controller
+                      name={`envs.${index}.value`}
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <Input
+                            {...field}
+                            placeholder="Value"
+                            className="font-mono"
+                            aria-invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => envs.remove(index)}
-                      >
-                        <XIcon className="size-3.5 opacity-60" />
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => envs.remove(index)}
+                    >
+                      <XIcon className="size-3.5 opacity-60" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -156,54 +154,52 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
               <div className="space-y-2">
                 {ports.fields.map((field, index) => (
-                  <div key={field.id} className="space-y-1">
-                    <div className="flex gap-2">
-                      <Controller
-                        name={`ports.${index}.hostPort`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Host"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
+                  <div key={field.id} className="flex gap-2">
+                    <Controller
+                      name={`ports.${index}.hostPort`}
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <Input
+                            {...field}
+                            placeholder="Host"
+                            className="font-mono"
+                            aria-invalid={fieldState.invalid}
+                          />
 
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
 
-                      <Controller
-                        name={`ports.${index}.containerPort`}
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                          <Field>
-                            <Input
-                              {...field}
-                              placeholder="Container"
-                              className="font-mono"
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
+                    <Controller
+                      name={`ports.${index}.containerPort`}
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <Input
+                            {...field}
+                            placeholder="Container"
+                            className="font-mono"
+                            aria-invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => ports.remove(index)}
-                      >
-                        <XIcon className="size-3.5 opacity-60" />
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => ports.remove(index)}
+                    >
+                      <XIcon className="size-3.5 opacity-60" />
+                    </Button>
                   </div>
                 ))}
               </div>
