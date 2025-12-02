@@ -47,7 +47,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>CPU (vCPU)</FieldLabel>
 
-                    <Input {...field} id={field.name} type="text" placeholder="2" aria-invalid={fieldState.invalid} />
+                    <Input {...field} id={field.name} type="number" placeholder="2" aria-invalid={fieldState.invalid} />
 
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -61,7 +61,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Memory (in mb)</FieldLabel>
 
-                    <Input {...field} id={field.name} type="text" placeholder="2048" aria-invalid={fieldState.invalid} />
+                    <Input {...field} id={field.name} type="number" placeholder="2048" aria-invalid={fieldState.invalid} />
 
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -73,36 +73,59 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
             <Field>
               <FieldLabel>Environment Variables</FieldLabel>
-
               <div className="space-y-2">
                 {envs.fields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <div className="flex-1">
-                      <Input
-                        {...form.register(`envs.${index}.key` as const)}
-                        placeholder="Key"
-                        className="font-mono"
+                  <div key={field.id} className="space-y-1">
+                    <div className="flex gap-2">
+                      <Controller
+                        name={`envs.${index}.key`}
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              placeholder="Key"
+                              className="font-mono"
+                              aria-invalid={fieldState.invalid}
+                            />
+
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
                       />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        {...form.register(`envs.${index}.value` as const)}
-                        placeholder="Value"
-                        className="font-mono"
+
+                      <Controller
+                        name={`envs.${index}.value`}
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              placeholder="Value"
+                              className="font-mono"
+                              aria-invalid={fieldState.invalid}
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
                       />
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => envs.remove(index)}
+                      >
+                        <XIcon className="size-3.5 opacity-60" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => envs.remove(index)}
-                    >
-                      <XIcon className="size-3.5 opacity-60" />
-                    </Button>
                   </div>
                 ))}
               </div>
-
               <Button
                 type="button"
                 size="sm"
@@ -116,38 +139,59 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
 
             <Field>
               <FieldLabel>Port Mappings</FieldLabel>
-
               <div className="space-y-2">
                 {ports.fields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <div className="flex-1">
-                      <Input
-                        {...form.register(`ports.${index}.hostPort` as const)}
-                        placeholder="Host"
-                        className="font-mono"
-                        type="number"
+                  <div key={field.id} className="space-y-1">
+                    <div className="flex gap-2">
+                      <Controller
+                        name={`ports.${index}.hostPort`}
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              placeholder="Host"
+                              className="font-mono"
+                              aria-invalid={fieldState.invalid}
+                            />
+
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
                       />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        {...form.register(`ports.${index}.containerPort` as const)}
-                        placeholder="Container"
-                        className="font-mono"
-                        type="number"
+
+                      <Controller
+                        name={`ports.${index}.containerPort`}
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <Input
+                              {...field}
+                              placeholder="Container"
+                              className="font-mono"
+                              aria-invalid={fieldState.invalid}
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
                       />
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => ports.remove(index)}
+                      >
+                        <XIcon className="size-3.5 opacity-60" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => ports.remove(index)}
-                    >
-                      <XIcon className="size-3.5 opacity-60" />
-                    </Button>
                   </div>
                 ))}
               </div>
-
               <Button
                 type="button"
                 size="sm"
@@ -155,7 +199,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                 onClick={() => ports.append({ hostPort: "", containerPort: "" })}
               >
                 <PlusIcon className="size-3.5 opacity-60" />
-                Add Mapping
+                Add mapping
               </Button>
             </Field>
           </FieldGroup>
