@@ -2,7 +2,7 @@
 
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, ArrowRight, ListPlusIcon, NetworkIcon, PlusIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, ListPlusIcon, NetworkIcon, PlusIcon, XIcon } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -282,7 +282,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
             type="submit"
           >
             Next
-            <ArrowRight className="opacity-60 size-3.5" />
+            <ArrowRightIcon className="opacity-60 size-3.5" />
           </Button>
         </Field>
       </FieldGroup>

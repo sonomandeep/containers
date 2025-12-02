@@ -2,7 +2,7 @@
 
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, ArrowRight } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +23,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { launchBasicSchema } from "@/lib/schema/containers";
+import { useLaunchContainerStore } from "@/lib/store";
 
 interface Props {
   handleNext: () => void;
 }
 
 export function LaunchBasicStep({ handleNext }: Props) {
+  const setBasicInput = useLaunchContainerStore((state) => state.setBasicInput);
   const form = useForm<z.infer<typeof launchBasicSchema>>({
     resolver: zodResolver(launchBasicSchema),
     defaultValues: {
@@ -40,9 +42,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
   });
 
   function onSubmit(data: z.infer<typeof launchBasicSchema>) {
-    // Do something with the form values.
-    // eslint-disable-next-line no-console
-    console.log(data);
+    setBasicInput({ name: data.name, image: data.image, restartPolicy: data.restartPolicy, command: data.command });
     handleNext();
   }
 
@@ -154,7 +154,7 @@ export function LaunchBasicStep({ handleNext }: Props) {
             type="submit"
           >
             Next
-            <ArrowRight className="opacity-60 size-3.5" />
+            <ArrowRightIcon className="opacity-60 size-3.5" />
           </Button>
         </Field>
       </FieldGroup>
