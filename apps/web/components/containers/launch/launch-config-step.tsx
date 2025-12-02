@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/empty";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { launchConfigSchema } from "@/lib/schema/containers";
 
 interface Props {
@@ -25,6 +32,7 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
     defaultValues: {
       cpu: "",
       memory: "",
+      network: "bridge",
       envs: [],
       ports: [],
     },
@@ -73,6 +81,30 @@ export function LaunchConfigStep({ handleBack, handleNext }: Props) {
                 )}
               />
             </div>
+
+            <Controller
+              name="network"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Network Mode</FieldLabel>
+
+                  <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select mode" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="bridge">Bridge (default)</SelectItem>
+                      <SelectItem value="host">Host</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
 
             <FieldSeparator />
 

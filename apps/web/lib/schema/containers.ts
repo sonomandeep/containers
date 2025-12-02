@@ -10,10 +10,6 @@ export const launchBasicSchema = z.object({
     .trim()
     .min(1, { message: "Please select an image." }),
   command: z.string({ message: "Command must be a string." }).trim().optional(),
-  network: z
-    .string({ message: "Network must be a string." })
-    .trim()
-    .min(1, { message: "Please specify a network." }),
   restartPolicy: z
     .string({ message: "Restart policy must be a string." })
     .trim()
@@ -87,6 +83,10 @@ export const launchConfigSchema = z.object({
       const mem = Number.parseInt(val, 10);
       return mem >= 128 && mem <= 524288;
     }, { message: "Memory must be between 128 MB and 524288 MB (512 GB)." }),
+  network: z
+    .string({ message: "Network must be a string." })
+    .trim()
+    .min(1, { message: "Please specify a network." }),
   envs: z.array(envVarSchema),
   ports: z.array(portSchema),
 });

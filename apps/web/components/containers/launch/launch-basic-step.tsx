@@ -35,7 +35,6 @@ export function LaunchBasicStep({ handleNext }: Props) {
       name: "",
       image: "",
       command: "",
-      network: "bridge",
       restartPolicy: "no",
     },
   });
@@ -91,6 +90,31 @@ export function LaunchBasicStep({ handleNext }: Props) {
             />
 
             <Controller
+              name="restartPolicy"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Restart Policy</FieldLabel>
+
+                  <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select restart policy" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="no">No</SelectItem>
+                      <SelectItem value="on-failure">On failure</SelectItem>
+                      <SelectItem value="always">Always</SelectItem>
+                      <SelectItem value="unless-stopped">Unless stopped</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
               name="command"
               control={form.control}
               render={({ field, fieldState }) => (
@@ -111,56 +135,6 @@ export function LaunchBasicStep({ handleNext }: Props) {
               )}
             />
 
-            <div className="inline-flex gap-2">
-              <Controller
-                name="network"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Network Mode</FieldLabel>
-
-                    <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select mode" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectItem value="bridge">Bridge (default)</SelectItem>
-                        <SelectItem value="host">Host</SelectItem>
-                        <SelectItem value="none">None</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="restartPolicy"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Restart Policy</FieldLabel>
-
-                    <Select name={field.name} defaultValue={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select restart policy" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectItem value="no">No</SelectItem>
-                        <SelectItem value="on-failure">On failure</SelectItem>
-                        <SelectItem value="always">Always</SelectItem>
-                        <SelectItem value="unless-stopped">Unless stopped</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-            </div>
           </FieldGroup>
         </FieldSet>
 
