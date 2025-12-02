@@ -12,7 +12,7 @@ export type ContainerState = z.infer<typeof containerStateSchema>;
 export const containerPortSchema = z.object({
   ip: z.string(),
   privatePort: z.number(),
-  publicPort: z.number(),
+  publicPort: z.number().optional(),
   type: z.string(),
 });
 
