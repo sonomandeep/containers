@@ -1,5 +1,5 @@
 import { BoxIcon } from "lucide-react";
-import { LaunchContainerSheet } from "@/components/containers/launch";
+import { LaunchContainer } from "@/components/containers/launch";
 import PageHeader, {
   PageHeaderActions,
   PageHeaderTitle,
@@ -16,7 +16,7 @@ export default function RootLayout({
         <PageHeaderTitle icon={BoxIcon}>Containers</PageHeaderTitle>
 
         <PageHeaderActions>
-          <LaunchContainerSheet />
+          <LaunchContainer />
         </PageHeaderActions>
       </PageHeader>
 

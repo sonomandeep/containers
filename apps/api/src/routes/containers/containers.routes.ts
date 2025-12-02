@@ -1,7 +1,7 @@
-import { containerSchema } from "@containers/shared";
+import { containerSchema, launchContainerSchema } from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { jsonContent } from "stoker/openapi/helpers";
+import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createMessageObjectSchema } from "stoker/openapi/schemas";
 import { internalServerErrorSchema, notFoundSchema } from "@/lib/constants";
 
@@ -20,6 +20,40 @@ export const list = createRoute({
 });
 
 export type ListRoute = typeof list;
+
+export const launch = createRoute({
+  path: "/containers",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      launchContainerSchema,
+      "Container launch options",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        message: z.string(),
+        id: z.string(),
+      }),
+      "Container launched",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Image not found"),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema(
+        "A container with the same name already exists.",
+      ),
+      "Container conflict",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error",
+    ),
+  },
+});
+
+export type LaunchRoute = typeof launch;
 
 export const remove = createRoute({
   path: "/containers/{containerId}",

@@ -1,7 +1,9 @@
 "use server";
 
+import type { LaunchContainerInput } from "@containers/shared";
 import { logger } from "@/lib/logger";
 import {
+  launchContainer,
   removeContainer,
   startContainer,
   stopContainer,
@@ -56,4 +58,40 @@ export async function startContainerAction(containerId: string) {
   }
 
   return { data: { containerId }, error: null };
+}
+
+export async function launchContainerAction(input: LaunchContainerInput) {
+  logger.debug({ input }, "launchContainerPayload");
+
+  const { data, error } = await launchContainer(input);
+
+  if (error) {
+    logger.error(error, "launchContainerAction");
+
+    let message: string;
+    switch (error.status) {
+      case 404:
+        message = "Image not found.";
+        break;
+      case 409:
+        message = "A container with the same name already exists.";
+        break;
+      default:
+        message = "Unexpected error while launching the container.";
+        break;
+    }
+
+    return {
+      data: input,
+      error: message,
+    };
+  }
+
+  return {
+    data: {
+      ...input,
+      id: data?.id,
+    },
+    error: null,
+  };
 }

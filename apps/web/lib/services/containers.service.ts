@@ -1,4 +1,4 @@
-import type { ServiceResponse } from "@containers/shared";
+import type { LaunchContainerInput, ServiceResponse } from "@containers/shared";
 import { containerSchema } from "@containers/shared";
 import { updateTag } from "next/cache";
 import { z } from "zod";
@@ -99,4 +99,31 @@ export async function startContainer(
   updateTag("containers");
 
   return { data: null, error: null };
+}
+
+export async function launchContainer(
+  input: LaunchContainerInput,
+): Promise<
+  ServiceResponse<{ id: string }, { status: number; statusText: string }>
+> {
+  const { data, error } = await $api("/containers", {
+    method: "post",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
+    output: z.object({
+      message: z.string(),
+      id: z.string(),
+    }),
+  });
+
+  if (error) {
+    logger.error(error);
+    return { data: null, error };
+  }
+
+  updateTag("containers");
+
+  return { data: { id: data.id }, error: null };
 }
