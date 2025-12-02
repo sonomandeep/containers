@@ -1,6 +1,6 @@
 "use server";
 
-import type { LaunchContainerInput } from "@/lib/services/containers.service";
+import type { LaunchContainerInput } from "@containers/shared";
 import { logger } from "@/lib/logger";
 import {
   launchContainer,
