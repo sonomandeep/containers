@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeftIcon, RocketIcon } from "lucide-react";
-import { useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,11 @@ interface Props {
 export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
   const [isPending, startTransition] = useTransition();
   const state = useLaunchContainerStore((store) => store);
+  const launchButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    launchButtonRef.current?.focus();
+  }, []);
 
   const ports = state.ports?.length > 0 ? state.ports : [];
   const envs = state.envs?.length > 0 ? state.envs : [];
@@ -138,6 +143,7 @@ export function LaunchSummaryStep({ handleBack, handleClose }: Props) {
           size="sm"
           type="button"
           disabled={isPending}
+          ref={launchButtonRef}
           onClick={handleSubmit}
         >
           Launch
