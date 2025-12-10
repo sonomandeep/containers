@@ -15,9 +15,7 @@ import Layout from "@/layouts/layout.astro";
       <div class="mt-24">
         <div class="flex flex-col gap-10">
           <div class="flex flex-col gap-2">
-            <h1 class="text-4xl text-neutral-950">
-              containers can be simpler.
-            </h1>
+            <h1>containers can be simpler.</h1>
             <p class="text-base text-neutral-700">
               Pull images, launch containers, manage their lifecycle, <br>
               and monitor through a simple, self-hosted dashboard.
@@ -45,6 +43,18 @@ import Layout from "@/layouts/layout.astro";
   </section>
 
   <section class="bg-white py-64">
-    <Container>steps</Container>
+    <Container>
+      <div class="w-full grid grid-cols-6 gap-4 items-center">
+        <h1 class="col-span-3">
+          a simpler way to <br>
+          manage containers.
+        </h1>
+        <p class="col-span-3">
+          Containers connects a lightweight agent on your servers with a clean,
+          unified dashboard. You get real-time visibility, instant diagnostics,
+          and effortless control across every node.
+        </p>
+      </div>
+    </Container>
   </section>
 </Layout>

@@ -124,10 +124,14 @@
   }
 
   h1 {
-    @apply font-display;
+    @apply font-display text-4xl/12 text-neutral-950;
   }
 
   h2 {
     @apply font-display text-sm;
+  }
+
+  p {
+    @apply font-sans text-base text-neutral-700/80;
   }
 }
