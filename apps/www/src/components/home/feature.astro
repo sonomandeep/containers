@@ -2,18 +2,30 @@
 import { Image } from "astro:assets";
 import background from "@/assets/background.png";
 
-const { title, description, image, alt } = Astro.props;
+type Props = {
+  title: string;
+  description: string;
+  image: ImageMetadata;
+  alt: string;
+  switchSide?: boolean;
+};
+
+const { title, description, image, alt, switchSide = false } = Astro.props;
 ---
 
 <div
-  class="grid grid-cols-6 bg-neutral-100 p-4 border border-neutral-200 rounded-2xl"
+  class="grid grid-cols-6 gap-4 bg-neutral-100 p-4 border border-neutral-200 rounded-2xl"
 >
-  <div class="flex flex-col gap-1 h-full justify-center col-start-1 col-end-3">
+  <div
+    class={`flex flex-col gap-1 h-full justify-center ${switchSide ? "col-start-5 col-end-7" : "col-start-1 col-end-3"}`}
+  >
     <h2>{title}</h2>
     <p>{description}</p>
   </div>
 
-  <div class="w-full aspect-video bg-neutral-200/32 col-start-3 col-end-7">
+  <div
+    class={`w-full aspect-video bg-neutral-200/32 ${switchSide ? "col-start-1 col-end-5" : "col-start-3 col-end-7"}`}
+  >
     <div
       class="relative rounded-lg overflow-hidden px-24 pt-24 w-full h-[600px]"
     >

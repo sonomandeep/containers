@@ -11,6 +11,7 @@ const features = [
       "Manage containers and images from a clean UI, without relying on the CLI.",
     image: dashboard,
     alt: "Image pull dialog with form.",
+    switchSide: false,
   },
   {
     id: 1,
@@ -19,6 +20,7 @@ const features = [
       "See activity and performance instantly with live events, logs, and metrics.",
     image: dashboard,
     alt: "Card with logs and chart.",
+    switchSide: true,
   },
   {
     id: 2,
@@ -27,6 +29,7 @@ const features = [
       "Lightweight agents stream container data from all nodes, giving you a unified, consistent view.",
     image: dashboard,
     alt: "Nodes with agents card.",
+    switchSide: false,
   },
 ];
 ---
@@ -37,7 +40,7 @@ const features = [
   <div class="flex flex-col gap-32">
     {
   features.map(feature => (
-    <Feature title={feature.title} description={feature.description} image={feature.image} alt={feature.alt}/>
+    <Feature title={feature.title} description={feature.description} image={feature.image} alt={feature.alt} switchSide={feature.switchSide}/>
   ))
   }
   </div>
