@@ -1,4 +1,5 @@
 ---
+import { CornerDownLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 ---
 
@@ -6,5 +7,8 @@ import { Button } from "@/components/ui/button";
   <img src="/light.svg" alt="Containers logo." class="size-8 dark:hidden">
   <img src="/dark.svg" alt="Containers logo." class="size-8 hidden dark:block">
 
-  <Button size="sm">Get Updates</Button>
+  <Button size="sm">
+    Get Updates
+    <CornerDownLeftIcon className="size-3.5 opacity-70"/>
+  </Button>
 </header>
