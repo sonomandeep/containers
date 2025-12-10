@@ -5,4 +5,25 @@ import Layout from "@/layouts/layout.astro";
 
 <Layout>
   <Header/>
+
+  <section class="mt-32">
+    <div class="flex flex-col gap-10">
+      <div class="flex flex-col gap-2">
+        <h1 class="text-4xl text-neutral-950">containers can be simpler.</h1>
+        <p class="text-base text-neutral-700">
+          Pull images, launch containers, manage their lifecycle, <br>
+          and monitor through a simple, self-hosted dashboard.
+        </p>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden">
+        <img
+          src="/hero/image.jpg"
+          alt="Dashboard to manage containers"
+          class="w-full h-auto"
+          loading="lazy"
+        >
+      </div>
+    </div>
+  </section>
 </Layout>
