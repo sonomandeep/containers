@@ -1,4 +1,7 @@
 ---
+import { Image } from "astro:assets";
+import background from "@/assets/background.png";
+import dashboard from "@/assets/hero/dashboard.jpg";
 import Header from "@/components/layout/header.astro";
 import Layout from "@/layouts/layout.astro";
 ---
@@ -6,7 +9,7 @@ import Layout from "@/layouts/layout.astro";
 <Layout>
   <Header/>
 
-  <section class="mt-32">
+  <section class="mt-24">
     <div class="flex flex-col gap-10">
       <div class="flex flex-col gap-2">
         <h1 class="text-4xl text-neutral-950">containers can be simpler.</h1>
@@ -17,14 +20,19 @@ import Layout from "@/layouts/layout.astro";
       </div>
 
       <div
-        class="rounded-xl overflow-hidden px-24 pt-24 bg-[url(/background.png)] bg-center bg-no-repeat bg-cover aspect-video"
+        class="relative rounded-xl overflow-hidden px-24 pt-24 w-full h-[600px]"
       >
-        <img
-          src="/hero/dashboard.jpg"
+        <Image
+          src={background}
+          alt="Sky with clouds background image."
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+
+        <Image
+          src={dashboard}
           alt="Dashboard to manage containers"
-          class="w-full h-auto rounded-lg"
-          loading="lazy"
-        >
+          class="relative w-full h-auto rounded-lg z-10"
+        />
       </div>
     </div>
   </section>
