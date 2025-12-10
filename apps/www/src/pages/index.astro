@@ -1,39 +1,17 @@
 ---
-import { Image } from "astro:assets";
-import background from "@/assets/background.png";
-import dashboard from "@/assets/hero/dashboard.jpg";
+import Container from "@/components/layout/container.astro";
 import Header from "@/components/layout/header.astro";
+import Hero from "@/components/sections/hero.astro";
+import How from "@/components/sections/how.astro";
 import Layout from "@/layouts/layout.astro";
 ---
 
 <Layout>
-  <Header/>
+  <Container class="min-h-screen">
+    <Header/>
 
-  <section class="mt-24">
-    <div class="flex flex-col gap-10">
-      <div class="flex flex-col gap-2">
-        <h1 class="text-4xl text-neutral-950">containers can be simpler.</h1>
-        <p class="text-base text-neutral-700">
-          Pull images, launch containers, manage their lifecycle, <br>
-          and monitor through a simple, self-hosted dashboard.
-        </p>
-      </div>
+    <Hero/>
+  </Container>
 
-      <div
-        class="relative rounded-xl overflow-hidden px-24 pt-24 w-full h-[600px]"
-      >
-        <Image
-          src={background}
-          alt="Sky with clouds background image."
-          class="absolute inset-0 w-full h-full object-cover"
-        />
-
-        <Image
-          src={dashboard}
-          alt="Dashboard to manage containers"
-          class="relative w-full h-auto rounded-lg z-10"
-        />
-      </div>
-    </div>
-  </section>
+  <How/>
 </Layout>

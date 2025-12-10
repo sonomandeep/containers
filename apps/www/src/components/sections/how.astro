@@ -1,0 +1,36 @@
+---
+import { Image } from "astro:assets";
+import agents from "@/assets/how/agents.png";
+import logs from "@/assets/how/logs.png";
+import nodes from "@/assets/how/nodes.png";
+import Step from "@/components/home/step.astro";
+import Container from "@/components/layout/container.astro";
+---
+
+<section class="bg-white py-64">
+  <Container class="flex flex-col gap-10">
+    <div class="w-full grid grid-cols-6 gap-4 items-center">
+      <h1 class="col-span-3">
+        a simpler way to <br>
+        manage containers.
+      </h1>
+      <p class="col-span-3">
+        Containers connects a lightweight agent on your servers with a clean,
+        unified dashboard. You get real-time visibility, instant diagnostics,
+        and effortless control across every node.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-6 gap-4">
+      <Step label="install the agent">
+        <Image src={agents} alt="Agents list."/>
+      </Step>
+      <Step label="connect your nodes">
+        <Image src={nodes} alt="Nodes list."/>
+      </Step>
+      <Step label="monitor and manage">
+        <Image src={logs} alt="Logs list."/>
+      </Step>
+    </div>
+  </Container>
+</section>
