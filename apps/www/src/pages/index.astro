@@ -2,48 +2,50 @@
 import { Image } from "astro:assets";
 import background from "@/assets/background.png";
 import dashboard from "@/assets/hero/dashboard.jpg";
+import agents from "@/assets/how/agents.png";
+import nodes from "@/assets/how/nodes.png";
+import logs from "@/assets/how/logs.png";
 import Container from "@/components/layout/container.astro";
 import Header from "@/components/layout/header.astro";
+import Step from "@/components/home/step.astro";
 import Layout from "@/layouts/layout.astro";
 ---
 
 <Layout>
-  <section class="min-h-screen">
-    <Container>
-      <Header/>
+  <Container class="min-h-screen">
+    <Header/>
 
-      <div class="mt-24">
-        <div class="flex flex-col gap-10">
-          <div class="flex flex-col gap-2">
-            <h1>containers can be simpler.</h1>
-            <p class="text-base text-neutral-700">
-              Pull images, launch containers, manage their lifecycle, <br>
-              and monitor through a simple, self-hosted dashboard.
-            </p>
-          </div>
+    <div class="mt-24">
+      <div class="flex flex-col gap-10">
+        <div class="flex flex-col gap-2">
+          <h1>containers can be simpler.</h1>
+          <p class="text-base text-neutral-700">
+            Pull images, launch containers, manage their lifecycle, <br>
+            and monitor through a simple, self-hosted dashboard.
+          </p>
+        </div>
 
-          <div
-            class="relative rounded-xl overflow-hidden px-24 pt-24 w-full h-[600px]"
-          >
-            <Image
-              src={background}
-              alt="Sky with clouds background image."
-              class="absolute inset-0 w-full h-full object-cover"
-            />
+        <div
+          class="relative rounded-xl overflow-hidden px-24 pt-24 w-full h-[600px]"
+        >
+          <Image
+            src={background}
+            alt="Sky with clouds background image."
+            class="absolute inset-0 w-full h-full object-cover"
+          />
 
-            <Image
-              src={dashboard}
-              alt="Dashboard to manage containers"
-              class="relative w-full h-auto rounded-lg z-10"
-            />
-          </div>
+          <Image
+            src={dashboard}
+            alt="Dashboard to manage containers"
+            class="relative w-full h-auto rounded-lg z-10"
+          />
         </div>
       </div>
-    </Container>
-  </section>
+    </div>
+  </Container>
 
   <section class="bg-white py-64">
-    <Container>
+    <Container class="flex flex-col gap-10">
       <div class="w-full grid grid-cols-6 gap-4 items-center">
         <h1 class="col-span-3">
           a simpler way to <br>
@@ -54,6 +56,18 @@ import Layout from "@/layouts/layout.astro";
           unified dashboard. You get real-time visibility, instant diagnostics,
           and effortless control across every node.
         </p>
+      </div>
+
+      <div class="grid grid-cols-6 gap-4">
+        <Step label="install the agent">
+          <Image src={agents} alt="Agents list."/>
+        </Step>
+        <Step label="connect your nodes">
+          <Image src={nodes} alt="Nodes list."/>
+        </Step>
+        <Step label="monitor and manage">
+          <Image src={logs} alt="Logs list."/>
+        </Step>
       </div>
     </Container>
   </section>

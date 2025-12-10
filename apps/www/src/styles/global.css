@@ -128,7 +128,7 @@
   }
 
   h2 {
-    @apply font-display text-sm;
+    @apply font-display text-xl text-neutral-950;
   }
 
   p {
