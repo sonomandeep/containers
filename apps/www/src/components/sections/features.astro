@@ -1,38 +1,44 @@
 ---
-import Container from "@/components/layout/container.astro";
-import { Image } from "astro:assets";
-import background from "@/assets/background.png";
 import dashboard from "@/assets/hero/dashboard.jpg";
+import Feature from "@/components/home/feature.astro";
+import Container from "@/components/layout/container.astro";
+
+const features = [
+  {
+    id: 0,
+    title: "Containers & image",
+    description:
+      "Manage containers and images from a clean UI, without relying on the CLI.",
+    image: dashboard,
+    alt: "Image pull dialog with form.",
+  },
+  {
+    id: 1,
+    title: "Real-time events, logs & metrics",
+    description:
+      "See activity and performance instantly with live events, logs, and metrics.",
+    image: dashboard,
+    alt: "Card with logs and chart.",
+  },
+  {
+    id: 2,
+    title: "Distributed agent architecture",
+    description:
+      "Lightweight agents stream container data from all nodes, giving you a unified, consistent view.",
+    image: dashboard,
+    alt: "Nodes with agents card.",
+  },
+];
 ---
 
-<Container class="flex flex-col gap-10 py-64">
+<Container class="flex flex-col gap-5 py-64">
   <h1>features</h1>
-  <div
-    class="grid grid-cols-6 bg-neutral-100 p-4 border border-neutral-200 rounded-2xl"
-  >
-    <div class="flex flex-col gap-1 h-full justify-center col-span-2">
-      <h2>Containers & image</h2>
-      <p>
-        Manage containers and images from <br>a clean UI, without relying on the
-        CLI.
-      </p>
-    </div>
-    <div class="col-span-4 w-full aspect-video bg-neutral-200/32">
-      <div
-        class="relative rounded-lg overflow-hidden px-24 pt-24 w-full h-[600px]"
-      >
-        <Image
-          src={background}
-          alt="Sky with clouds background image."
-          class="absolute inset-0 w-full h-full object-cover"
-        />
 
-        <Image
-          src={dashboard}
-          alt="Dashboard to manage containers"
-          class="relative w-full h-auto rounded-lg z-10"
-        />
-      </div>
-    </div>
+  <div class="flex flex-col gap-32">
+    {
+  features.map(feature => (
+    <Feature title={feature.title} description={feature.description} image={feature.image} alt={feature.alt}/>
+  ))
+  }
   </div>
 </Container>

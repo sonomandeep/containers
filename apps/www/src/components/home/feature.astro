@@ -1,0 +1,33 @@
+---
+import { Image } from "astro:assets";
+import background from "@/assets/background.png";
+
+const { title, description, image, alt } = Astro.props;
+---
+
+<div
+  class="grid grid-cols-6 bg-neutral-100 p-4 border border-neutral-200 rounded-2xl"
+>
+  <div class="flex flex-col gap-1 h-full justify-center col-start-1 col-end-3">
+    <h2>{title}</h2>
+    <p>{description}</p>
+  </div>
+
+  <div class="w-full aspect-video bg-neutral-200/32 col-start-3 col-end-7">
+    <div
+      class="relative rounded-lg overflow-hidden px-24 pt-24 w-full h-[600px]"
+    >
+      <Image
+        src={background}
+        alt="Sky with clouds background image."
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+
+      <Image
+        src={image}
+        alt={alt}
+        class="relative w-full h-auto rounded-lg z-10"
+      />
+    </div>
+  </div>
+</div>
