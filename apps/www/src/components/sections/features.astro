@@ -1,5 +1,7 @@
 ---
-import dashboard from "@/assets/hero/dashboard.jpg";
+import pullImage from "@/assets/features/pull-image.png";
+import events from "@/assets/features/events.png";
+import architecture from "@/assets/features/architecture.png";
 import Feature from "@/components/home/feature.astro";
 import Container from "@/components/layout/container.astro";
 
@@ -9,7 +11,7 @@ const features = [
     title: "Containers & image",
     description:
       "Manage containers and images from a clean UI, without relying on the CLI.",
-    image: dashboard,
+    image: pullImage,
     alt: "Image pull dialog with form.",
     switchSide: false,
   },
@@ -18,7 +20,7 @@ const features = [
     title: "Real-time events, logs & metrics",
     description:
       "See activity and performance instantly with live events, logs, and metrics.",
-    image: dashboard,
+    image: events,
     alt: "Card with logs and chart.",
     switchSide: true,
   },
@@ -27,7 +29,7 @@ const features = [
     title: "Distributed agent architecture",
     description:
       "Lightweight agents stream container data from all nodes, giving you a unified, consistent view.",
-    image: dashboard,
+    image: architecture,
     alt: "Nodes with agents card.",
     switchSide: false,
   },

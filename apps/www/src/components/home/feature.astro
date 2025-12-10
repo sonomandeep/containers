@@ -27,7 +27,7 @@ const { title, description, image, alt, switchSide = false } = Astro.props;
     class={`col-span-4 w-full aspect-video bg-neutral-200/32 ${switchSide ? "order-1" : "order-2"}`}
   >
     <div
-      class="relative rounded-lg overflow-hidden px-24 pt-24 w-full h-[600px]"
+      class="flex items-center px-32 justify-center relative rounded-lg overflow-hidden w-full h-[600px]"
     >
       <Image
         src={background}
