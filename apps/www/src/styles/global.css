@@ -124,10 +124,10 @@
   }
 
   h1 {
-    @apply font-medium font-display;
+    @apply font-display;
   }
 
   h2 {
-    @apply font-medium text-sm;
+    @apply font-display text-sm;
   }
 }
