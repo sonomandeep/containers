@@ -1,0 +1,42 @@
+name: Build & Deploy www app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/www/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (monorepo root)
+        run: bun install
+
+      - name: Build Astro app via Turborepo
+        run: bunx turbo run build --filter=www
+
+      - name: Deploy to Cloudflare Workers
+        run: bunx wrangler deploy --assets=./dist --name=containers-www --compatibility-date 2025-12-10
+        working-directory: apps/www
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
