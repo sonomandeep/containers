@@ -1,0 +1,14 @@
+---
+import { Badge } from "@/components/ui/badge";
+import { type RoadmapItemState, roadmapMappings } from "@/lib/roadmap";
+
+type Props = {
+  state: RoadmapItemState;
+};
+
+const { state } = Astro.props;
+---
+
+{state === "NOT_STARTED" && <Badge variant="outline">{roadmapMappings[state]}</Badge>}
+{state === "IN_PROGRESS" && <Badge variant="info">{roadmapMappings[state]}</Badge>}
+{state === "SHIPPED" && <Badge variant="success">{roadmapMappings[state]}</Badge>}
