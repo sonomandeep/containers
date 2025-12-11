@@ -1,0 +1,45 @@
+---
+import FaqItem from "@/components/home/faq-item.astro";
+import Container from "@/components/layout/container.astro";
+
+const items: Array<{
+  id: number;
+  title: string;
+  description: string;
+}> = [
+  {
+    id: 0,
+    title: "How does the agent work?",
+    description:
+      "It connects to your Docker engine, reads events, and streams them securely to the dashboard.",
+  },
+  {
+    id: 1,
+    title: "Can I use it across multiple servers?",
+    description:
+      "Yes, agents can join the same workspace to provide a unified multi-node view.",
+  },
+  {
+    id: 2,
+    title: "Is everything self-hosted?",
+    description:
+      "Yes, both the dashboard and the agents run entirely on your infrastructure.",
+  },
+  {
+    id: 3,
+    title: "What features are coming next?",
+    description:
+      "Upcoming capabilities include logs, metrics, and deeper container management tools.",
+  },
+] as const;
+---
+
+<Container class="py-64 flex flex-col gap-5 max-w-2xl!">
+  <h1>FAQ</h1>
+
+  <div class="w-full flex flex-col gap-6">
+    {items.map(item => (
+    <FaqItem title={item.title} description={item.description} />
+      ))}
+  </div>
+</Container>

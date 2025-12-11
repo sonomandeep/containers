@@ -16,13 +16,13 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         success:
-          "border-green-100 bg-green-50 text-green-500 dark:border-green-900 dark:bg-green-950 [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-green-100 bg-green-50 text-green-500 dark:border-green-900 dark:bg-green-950",
         info:
-          "border-sky-100 bg-sku-50 text-sky-500 dark:border-sky-900 dark:bg-sky-950 [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-blue-100 bg-blue-50 text-blue-500 dark:border-blue-900 dark:bg-blue-950",
         warning:
-          "border-amber-100 bg-amber-50 text-amber-500 dark:border-amber-900 dark:bg-amber-950 [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-amber-100 bg-amber-50 text-amber-500 dark:border-amber-900 dark:bg-amber-950",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90",
       },
     },
     defaultVariants: {
