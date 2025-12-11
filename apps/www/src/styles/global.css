@@ -131,6 +131,10 @@
     @apply font-display text-xl text-neutral-950;
   }
 
+  h3 {
+    @apply font-display text-base text-neutral-950;
+  }
+
   p {
     @apply font-sans text-base text-neutral-700/80;
   }

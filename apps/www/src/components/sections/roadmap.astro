@@ -1,0 +1,65 @@
+---
+import RoadmapItem from "@/components/home/roadmap-item.astro";
+import Container from "@/components/layout/container.astro";
+import { type RoadmapItemState } from "@/lib/roadmap";
+
+const items: Array<{
+  id: number;
+  title: string;
+  description: string;
+  state: RoadmapItemState;
+}> = [
+  {
+    id: 0,
+    title: "basic ops",
+    description: "Essential container start/stop and management actions.",
+    state: "SHIPPED",
+  },
+  {
+    id: 1,
+    title: "dashboard",
+    description: "Essential container start/stop and management actions.",
+    state: "SHIPPED",
+  },
+  {
+    id: 2,
+    title: "agents",
+    description: "Lightweight processes that read Docker and stream events.",
+    state: "IN_PROGRESS",
+  },
+  {
+    id: 3,
+    title: "multi node",
+    description: "Centralized management across multiple servers.",
+    state: "NOT_STARTED",
+  },
+  {
+    id: 4,
+    title: "real time",
+    description: "Instant updates on container state and events.",
+    state: "NOT_STARTED",
+  },
+  {
+    id: 5,
+    title: "logs & metrics",
+    description: "Advanced observability with integrated logs and metrics.",
+    state: "NOT_STARTED",
+  },
+] as const;
+---
+
+<section class="bg-white py-64">
+  <Container class="flex flex-col gap-5">
+    <h1 class="col-span-3">roadmap</h1>
+
+    <div class="w-full grid grid-cols-6 gap-4">
+      {items.map(item => (
+      <RoadmapItem
+        title={item.title}
+        description={item.description}
+        state={item.state}
+      />
+      ))}
+    </div>
+  </Container>
+</section>
