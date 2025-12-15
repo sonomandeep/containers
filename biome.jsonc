@@ -7,6 +7,14 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error"]
+          }
+        }
+      },
       "performance": {
         "noBarrelFile": "off",
         "noNamespaceImport": "off"
