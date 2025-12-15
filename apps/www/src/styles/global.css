@@ -128,7 +128,7 @@
   }
 
   h2 {
-    @apply font-display text-xl text-neutral-950;
+    @apply font-display text-lg sm:text-xl text-neutral-950;
   }
 
   h3 {
