@@ -17,17 +17,17 @@ const { title, description, image, alt, switchSide = false } = Astro.props;
   class="grid grid-cols-6 gap-4 bg-neutral-100 p-4 border border-neutral-200 rounded-2xl"
 >
   <div
-    class={`col-span-2 flex flex-col gap-1 h-full justify-center ${switchSide ? "order-2" : "order-1"}`}
+    class={`col-span-6 sm:col-span-2 flex flex-col gap-1 h-full justify-center ${switchSide ? "sm:order-2" : "sm:order-1"}`}
   >
     <h2>{title}</h2>
     <p class="max-w-96">{description}</p>
   </div>
 
   <div
-    class={`col-span-4 w-full aspect-video bg-neutral-200/32 ${switchSide ? "order-1" : "order-2"}`}
+    class={`sm:col-span-4 col-span-6 w-full aspect-video bg-neutral-200/32 ${switchSide ? "sm:order-1" : "sm:order-2"}`}
   >
     <div
-      class="flex items-center px-32 justify-center relative rounded-lg overflow-hidden w-full h-[600px]"
+      class="flex items-center pl-8 sm:px-32 justify-center relative rounded-lg overflow-hidden w-full h-[512px]"
     >
       <Image
         src={background}
@@ -38,7 +38,7 @@ const { title, description, image, alt, switchSide = false } = Astro.props;
       <Image
         src={image}
         alt={alt}
-        class="relative w-full h-auto rounded-lg z-10"
+        class="relative sm:w-full sm:h-auto rounded-lg z-10"
       />
     </div>
   </div>

@@ -36,10 +36,10 @@ const features = [
 ];
 ---
 
-<Container class="flex flex-col gap-5 py-64">
+<Container class="flex flex-col gap-5 py-32 sm:py-64">
   <h1>features</h1>
 
-  <div class="flex flex-col gap-32">
+  <div class="flex flex-col gap-16 sm:gap-32">
     {
   features.map(feature => (
     <Feature title={feature.title} description={feature.description} image={feature.image} alt={feature.alt} switchSide={feature.switchSide}/>
