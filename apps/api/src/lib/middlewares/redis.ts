@@ -1,5 +1,6 @@
 import { RedisClient } from "bun";
 import { createMiddleware } from "hono/factory";
+import env from "@/env";
 import type { AppBindings } from "@/lib/types";
 
 let redisInstance: RedisClient | null = null;
@@ -10,8 +11,8 @@ async function getRedisClient(): Promise<RedisClient> {
   }
 
   try {
-    const client = new RedisClient("", {
-      connectionTimeout: ,
+    const client = new RedisClient(env.REDIS_HOST, {
+      connectionTimeout: env.REDIS_TIMEOUT,
     });
     await client.connect();
 
