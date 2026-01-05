@@ -9,9 +9,6 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(["trace", "debug", "info", "warn", "error", "fatal"])
     .default("info"),
-
-  REDIS_HOST: z.string(),
-  REDIS_TIMEOUT: z.coerce.number().default(1000),
 });
 
 export type Env = z.infer<typeof envSchema>;

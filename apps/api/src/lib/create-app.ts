@@ -4,7 +4,6 @@ import { requestId } from "hono/request-id";
 import { notFound, onError } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 import pinoLogger from "@/lib/middlewares/logger";
-import { redisMiddleware } from "./middlewares/redis";
 import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
@@ -19,7 +18,6 @@ export default function createApp() {
 
   app.use(requestId());
   app.use(pinoLogger);
-  app.use(redisMiddleware);
 
   app.notFound(notFound);
   app.onError(onError);

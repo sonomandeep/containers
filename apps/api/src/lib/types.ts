@@ -5,14 +5,12 @@ import type {
   RouteHandler,
   z,
 } from "@hono/zod-openapi";
-import type { RedisClient } from "bun";
 import type { Schema } from "hono";
 import type pino from "pino";
 
 export type AppBindings = {
   Variables: {
     logger: pino.Logger;
-    redis: RedisClient;
   };
   Bindings: {
     incoming: IncomingMessage;
