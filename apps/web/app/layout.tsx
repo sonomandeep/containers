@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import {Logo} from "@/components/core/logo"
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Containers - Mando.sh",
-  description: "Containers management.",
+  title: "Containers - mando.sh",
+  description: "Containers management platform.",
+  icons: {
+    icon: [
+      {
+        url: "icon.svg",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "icon2.svg",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
