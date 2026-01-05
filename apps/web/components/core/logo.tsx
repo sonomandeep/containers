@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 
-interface Props {
+type Props = {
   size: number;
-}
+};
 
 export function Logo({ size }: Props) {
   // Render both variants and let Tailwind's `dark:` utilities choose the correct one
@@ -14,18 +14,18 @@ export function Logo({ size }: Props) {
       <Image
         alt="ACME Inc. logo"
         className="block dark:hidden"
-        width={size}
         height={size}
         priority
         src="/logo-light.svg"
+        width={size}
       />
       <Image
         alt="ACME Inc. logo"
         className="hidden dark:block"
-        width={size}
         height={size}
         priority
         src="/logo-dark.svg"
+        width={size}
       />
     </>
   );
