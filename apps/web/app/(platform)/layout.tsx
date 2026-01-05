@@ -10,7 +10,7 @@ export default function RootLayout({
     <SidebarProvider>
       <AppSidebar />
 
-      <SidebarInset>
+      <SidebarInset className="rounded-none! bg-transparent! shadow-none!">
         <main className="h-full w-full">{children}</main>
         {/* <Toaster /> */}
       </SidebarInset>
