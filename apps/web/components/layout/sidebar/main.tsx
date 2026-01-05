@@ -30,17 +30,19 @@ export function NavMain({ items }: Props) {
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton>
-              <Link
-                className={cn(
-                  pathname === item.url &&
-                    "bg-sidebar-accent text-sidebar-accent-foreground"
-                )}
-                href={item.url}
-              >
-                <item.icon />
-                <span>{item.name}</span>
-              </Link>
+            <SidebarMenuButton
+              render={
+                <Link
+                  className={cn(
+                    pathname === item.url &&
+                      "bg-sidebar-accent text-sidebar-accent-foreground"
+                  )}
+                  href={item.url}
+                />
+              }
+            >
+              <item.icon />
+              <span>{item.name}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
