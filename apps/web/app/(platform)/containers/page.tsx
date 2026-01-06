@@ -17,7 +17,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 export default function Page() {
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
-      <section className="flex w-full flex-col gap-3 rounded-xl border border-neutral-100 bg-background p-3">
+      <section className="flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between">
           <div className="inline-flex items-baseline gap-2">
             <h2>Containers</h2>
@@ -139,7 +139,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="@container flex min-h-0 w-full flex-1 flex-col gap-3 overflow-hidden rounded-lg bg-background p-3">
+      <section className="@container flex min-h-0 w-full flex-1 flex-col gap-3 overflow-hidden rounded-lg border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between px-3">
           <div className="inline-flex items-baseline gap-2">
             <h2>Containers</h2>
