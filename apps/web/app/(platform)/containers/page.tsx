@@ -3,26 +3,13 @@ import {
   ArrowDownUpIcon,
   ArrowUpIcon,
   CpuIcon,
-  EllipsisVerticalIcon,
   FunnelIcon,
   HardDriveIcon,
   MemoryStickIcon,
   NetworkIcon,
-  PlayIcon,
-  RotateCwIcon,
-  SquareIcon,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardToolbar,
-} from "@/components/core/card";
+import { ContainerCard } from "@/components/containers/container-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -171,90 +158,7 @@ export default function Page() {
 
         <div className="grid grid-cols-4 gap-4">
           {containers.services.map((container) => (
-            <Card key={container.id}>
-              <CardToolbar>
-                <span className="font-mono">{container.id}</span>
-
-                <div className="inline-flex items-center gap-1">
-                  <Button size="icon-sm" variant="ghost">
-                    <SquareIcon />
-                  </Button>
-
-                  <Button size="icon-sm" variant="ghost">
-                    <RotateCwIcon />
-                  </Button>
-
-                  <Button size="icon-sm" variant="ghost">
-                    <EllipsisVerticalIcon />
-                  </Button>
-                </div>
-              </CardToolbar>
-
-              <CardContent>
-                <CardHeader>
-                  <div className="inline-flex w-full items-center justify-between">
-                    <CardTitle>{container.name}</CardTitle>
-
-                    <div className="inline-flex items-center gap-1 rounded-sm border border-green-100 bg-green-50 py-0.5 pr-2 pl-1 text-green-600">
-                      <PlayIcon className="size-3" />
-                      <span className="text-xs">{container.status}</span>
-                    </div>
-                  </div>
-
-                  <CardDescription>{container.image}</CardDescription>
-                </CardHeader>
-
-                <div className="grid grid-cols-2 grid-rows-2 gap-3">
-                  <div className="flex w-full flex-col">
-                    <span className="text-muted-foreground">CPU</span>
-                    <p className="font-medium text-neutral-700 text-sm">
-                      {container.cpu_percent}
-                    </p>
-                  </div>
-
-                  <div className="flex w-full flex-col">
-                    <span className="text-muted-foreground">Memory</span>
-                    <p className="font-medium text-neutral-700 text-sm">
-                      {container.memory_mb}
-                    </p>
-                  </div>
-
-                  <div className="flex w-full flex-col">
-                    <span className="text-muted-foreground">Network</span>
-                    <p className="font-medium text-neutral-700 text-sm">
-                      {container.network_kbps}
-                    </p>
-                  </div>
-
-                  <div className="flex w-full flex-col">
-                    <span className="text-muted-foreground">Disk I/O</span>
-                    <p className="font-medium text-neutral-700 text-sm">
-                      {`${container.disk_io_mb.read} MB / ${container.disk_io_mb.write} MB`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
-                  {container.ports.map((port) => (
-                    <Badge
-                      className="inline-flex items-center gap-1 rounded-sm font-mono text-neutral-700 text-sm"
-                      key={port.protocol + port.host_port}
-                      variant="outline"
-                    >
-                      <span className="text-muted-foreground text-xs">
-                        {port.protocol}
-                      </span>
-                      <p>{`${port.host_port}:${port.container_port}`}</p>
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-
-              <CardFooter className="justify-between">
-                <span>{container.uptime}</span>
-                <span>{container.environment}</span>
-              </CardFooter>
-            </Card>
+            <ContainerCard container={container as any} key={container.id} />
           ))}
         </div>
       </section>
@@ -268,7 +172,7 @@ const containers = {
       id: "a3f1c9e4b7d2",
       name: "API Gateway",
       image: "nginx:latest",
-      status: "Running",
+      status: "RUNNING",
       cpu_percent: 38.2,
       memory_mb: 295.4,
       network_kbps: 842.6,
@@ -284,7 +188,7 @@ const containers = {
       id: "b7d21f9c4a3e",
       name: "Auth Service",
       image: "node:20-alpine",
-      status: "Running",
+      status: "RESTARTING",
       cpu_percent: 22.9,
       memory_mb: 181.7,
       network_kbps: 312.4,
@@ -297,7 +201,7 @@ const containers = {
       id: "c91e7a4d2f88",
       name: "User Service",
       image: "python:3.12-slim",
-      status: "Running",
+      status: "RUNNING",
       cpu_percent: 55.6,
       memory_mb: 412.3,
       network_kbps: 1204.9,
@@ -310,7 +214,7 @@ const containers = {
       id: "d4e8f1a92c6b",
       name: "Orders Service",
       image: "java:21-jre",
-      status: "Running",
+      status: "STOPPED",
       cpu_percent: 68.1,
       memory_mb: 768.5,
       network_kbps: 1543.2,
@@ -323,7 +227,7 @@ const containers = {
       id: "e2a6c9b8d713",
       name: "Metrics Collector",
       image: "prom/prometheus:latest",
-      status: "Running",
+      status: "RUNNING",
       cpu_percent: 14.7,
       memory_mb: 256.1,
       network_kbps: 198.3,
