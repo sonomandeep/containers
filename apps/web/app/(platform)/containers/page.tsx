@@ -12,9 +12,6 @@ import {
   RotateCwIcon,
   SquareIcon,
 } from "lucide-react";
-import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,7 +19,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+  CardToolbar,
+} from "@/components/core/card";
+import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Page() {
@@ -171,22 +172,29 @@ export default function Page() {
         <div className="grid grid-cols-4 gap-4">
           {containers.services.map((container) => (
             <Card key={container.id}>
-              <div className="inline-flex w-full items-center justify-between p-2">
-                <span className="font-mono text-neutral-500 text-xs">
-                  {container.id}
-                </span>
+              <CardToolbar>
+                <span className="font-mono">{container.id}</span>
 
-                <div className="inline-flex items-center gap-3 text-muted-foreground">
-                  <SquareIcon className="size-3" />
-                  <RotateCwIcon className="size-3" />
-                  <EllipsisVerticalIcon className="size-3" />
+                <div className="inline-flex items-center gap-1">
+                  <Button size="icon-sm" variant="ghost">
+                    <SquareIcon />
+                  </Button>
+
+                  <Button size="icon-sm" variant="ghost">
+                    <RotateCwIcon />
+                  </Button>
+
+                  <Button size="icon-sm" variant="ghost">
+                    <EllipsisVerticalIcon />
+                  </Button>
                 </div>
-              </div>
+              </CardToolbar>
 
               <CardContent>
                 <CardHeader>
                   <div className="inline-flex w-full items-center justify-between">
                     <CardTitle>{container.name}</CardTitle>
+
                     <div className="inline-flex items-center gap-1 rounded-sm border border-green-100 bg-green-50 py-0.5 pr-2 pl-1 text-green-600">
                       <PlayIcon className="size-3" />
                       <span className="text-xs">{container.status}</span>
