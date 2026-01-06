@@ -138,7 +138,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="flex h-full w-full flex-1 flex-col gap-3 rounded-lg bg-background p-3">
+      <section className="@container flex h-full w-full flex-1 flex-col gap-3 rounded-lg bg-background p-3">
         <div className="inline-flex w-full items-center justify-between px-3">
           <div className="inline-flex items-baseline gap-2">
             <h2>Containers</h2>
@@ -156,7 +156,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
           {containers.services.map((container) => (
             <ContainerCard container={container as any} key={container.id} />
           ))}
