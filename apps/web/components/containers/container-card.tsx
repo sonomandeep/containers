@@ -54,7 +54,7 @@ export type ContainerInfo = {
 };
 
 type Props = {
-  container: ContainerInfo;
+  container: any;
 };
 
 export function ContainerCard({ container }: Props) {
@@ -128,17 +128,17 @@ export function ContainerCard({ container }: Props) {
           />
           <ContainerMetric
             label="Disk I/O"
-            value={`${`${container.disk_io_mb.read} MB / ${container.disk_io_mb.write} MB`}`}
+            value={`${`${container.disk_io_mb?.read} MB / ${container.disk_io_mb?.write} MB`}`}
           />
         </div>
 
         <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
-          {container.ports.map((port) => (
+          {container.ports?.map((port) => (
             <ContainerPortBadge
-              containerPort={port.container_port}
-              hostPort={port.host_port}
-              key={`${port.protocol}_${port.host_port}:${port.container_port}`}
-              protocol={port.protocol}
+              containerPort={port.private}
+              hostPort={port.public}
+              key={`${port.ipVersion}_${port.public}:${port.private}`}
+              protocol={port.ipVersion}
             />
           ))}
         </div>

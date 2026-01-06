@@ -13,8 +13,16 @@ import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { listContainers } from "@/lib/services/containers.service";
+import { logger } from "@/lib/logger";
 
-export default function Page() {
+export default async function Page() {
+  const { data, error } = await listContainers();
+  if (error) {
+    logger.error(error);
+    throw new Error("error getting containers");
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
       <section className="flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3">
@@ -160,7 +168,7 @@ export default function Page() {
         <ScrollArea className="min-h-0 flex-1">
           <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
             {containers.services.map((container) => (
-              <ContainerCard container={container as any} key={container.id} />
+              <ContainerCard container={data} key={container.id} />
             ))}
           </div>
         </ScrollArea>
