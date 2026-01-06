@@ -1,12 +1,28 @@
 import {
   ArrowDownIcon,
+  ArrowDownUpIcon,
   ArrowUpIcon,
   CpuIcon,
+  EllipsisVerticalIcon,
+  FunnelIcon,
   HardDriveIcon,
   MemoryStickIcon,
   NetworkIcon,
+  PlayIcon,
+  RotateCwIcon,
+  SquareIcon,
 } from "lucide-react";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Page() {
@@ -134,9 +150,179 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="h-full flex-1 rounded-lg bg-background shadow-sm">
-        Hello from containers page!
+      <section className="flex h-full w-full flex-1 flex-col gap-3 rounded-lg bg-background p-3">
+        <div className="inline-flex w-full items-center justify-between px-3">
+          <div className="inline-flex items-baseline gap-2">
+            <h2>Containers</h2>
+            <span className="text-muted-foreground text-xs">8 nodes</span>
+          </div>
+
+          <div className="inline-flex items-center gap-3">
+            <Button size="icon-sm" variant="ghost">
+              <ArrowDownUpIcon />
+            </Button>
+
+            <Button size="icon-sm" variant="ghost">
+              <FunnelIcon />
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          {containers.services.map((container) => (
+            <Card key={container.id}>
+              <div className="inline-flex w-full items-center justify-between p-2">
+                <span className="font-mono text-neutral-500 text-xs">
+                  {container.id}
+                </span>
+
+                <div className="inline-flex items-center gap-3 text-muted-foreground">
+                  <SquareIcon className="size-3" />
+                  <RotateCwIcon className="size-3" />
+                  <EllipsisVerticalIcon className="size-3" />
+                </div>
+              </div>
+
+              <CardContent>
+                <CardHeader>
+                  <div className="inline-flex w-full items-center justify-between">
+                    <CardTitle>{container.name}</CardTitle>
+                    <div className="inline-flex items-center gap-1 rounded-sm border border-green-100 bg-green-50 py-0.5 pr-2 pl-1 text-green-600">
+                      <PlayIcon className="size-3" />
+                      <span className="text-xs">{container.status}</span>
+                    </div>
+                  </div>
+
+                  <CardDescription>{container.image}</CardDescription>
+                </CardHeader>
+
+                <div className="grid grid-cols-2 grid-rows-2 gap-3">
+                  <div className="flex w-full flex-col">
+                    <span className="text-muted-foreground">CPU</span>
+                    <p className="font-medium text-neutral-700 text-sm">
+                      {container.cpu_percent}
+                    </p>
+                  </div>
+
+                  <div className="flex w-full flex-col">
+                    <span className="text-muted-foreground">Memory</span>
+                    <p className="font-medium text-neutral-700 text-sm">
+                      {container.memory_mb}
+                    </p>
+                  </div>
+
+                  <div className="flex w-full flex-col">
+                    <span className="text-muted-foreground">Network</span>
+                    <p className="font-medium text-neutral-700 text-sm">
+                      {container.network_kbps}
+                    </p>
+                  </div>
+
+                  <div className="flex w-full flex-col">
+                    <span className="text-muted-foreground">Disk I/O</span>
+                    <p className="font-medium text-neutral-700 text-sm">
+                      {`${container.disk_io_mb.read} MB / ${container.disk_io_mb.write} MB`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
+                  {container.ports.map((port) => (
+                    <Badge
+                      className="inline-flex items-center gap-1 rounded-sm font-mono text-neutral-700 text-sm"
+                      key={port.protocol + port.host_port}
+                      variant="outline"
+                    >
+                      <span className="text-muted-foreground text-xs">
+                        {port.protocol}
+                      </span>
+                      <p>{`${port.host_port}:${port.container_port}`}</p>
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+
+              <CardFooter className="justify-between">
+                <span>{container.uptime}</span>
+                <span>{container.environment}</span>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </section>
     </div>
   );
 }
+
+const containers = {
+  services: [
+    {
+      id: "a3f1c9e4b7d2",
+      name: "API Gateway",
+      image: "nginx:latest",
+      status: "Running",
+      cpu_percent: 38.2,
+      memory_mb: 295.4,
+      network_kbps: 842.6,
+      disk_io_mb: { read: 102, write: 21 },
+      ports: [
+        { protocol: "IPv4", host_port: 80, container_port: 80 },
+        { protocol: "IPv4", host_port: 443, container_port: 443 },
+      ],
+      uptime: "3 days 4 hours",
+      environment: "prod-us-east-1",
+    },
+    {
+      id: "b7d21f9c4a3e",
+      name: "Auth Service",
+      image: "node:20-alpine",
+      status: "Running",
+      cpu_percent: 22.9,
+      memory_mb: 181.7,
+      network_kbps: 312.4,
+      disk_io_mb: { read: 48, write: 9 },
+      ports: [{ protocol: "IPv4", host_port: 8080, container_port: 8080 }],
+      uptime: "7 days 1 hour",
+      environment: "prod-us-east-1",
+    },
+    {
+      id: "c91e7a4d2f88",
+      name: "User Service",
+      image: "python:3.12-slim",
+      status: "Running",
+      cpu_percent: 55.6,
+      memory_mb: 412.3,
+      network_kbps: 1204.9,
+      disk_io_mb: { read: 189, write: 46 },
+      ports: [{ protocol: "IPv4", host_port: 9000, container_port: 9000 }],
+      uptime: "1 day 6 hours",
+      environment: "prod-eu-west-1",
+    },
+    {
+      id: "d4e8f1a92c6b",
+      name: "Orders Service",
+      image: "java:21-jre",
+      status: "Running",
+      cpu_percent: 68.1,
+      memory_mb: 768.5,
+      network_kbps: 1543.2,
+      disk_io_mb: { read: 321, write: 97 },
+      ports: [{ protocol: "IPv4", host_port: 9100, container_port: 9100 }],
+      uptime: "12 hours",
+      environment: "prod-us-west-2",
+    },
+    {
+      id: "e2a6c9b8d713",
+      name: "Metrics Collector",
+      image: "prom/prometheus:latest",
+      status: "Running",
+      cpu_percent: 14.7,
+      memory_mb: 256.1,
+      network_kbps: 198.3,
+      disk_io_mb: { read: 76, write: 12 },
+      ports: [{ protocol: "IPv4", host_port: 9090, container_port: 9090 }],
+      uptime: "15 days 9 hours",
+      environment: "prod-us-east-1",
+    },
+  ],
+};
