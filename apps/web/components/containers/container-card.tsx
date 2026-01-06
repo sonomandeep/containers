@@ -121,7 +121,7 @@ export function ContainerCard({ container }: Props) {
 
         <div className="grid grid-cols-2 grid-rows-2 gap-3">
           <ContainerMetric label="CPU" value={`${container.cpu_percent} %`} />
-          <ContainerMetric label="Memory" value={`${container.memory_mb} %`} />
+          <ContainerMetric label="Memory" value={`${container.memory_mb} MB`} />
           <ContainerMetric
             label="Network"
             value={`${container.network_kbps} Kbps`}
