@@ -27,7 +27,7 @@ export function CardToolbar({
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-between px-3 py-2 text-muted-foreground text-xs",
+        "inline-flex items-center justify-between px-3 py-2 text-muted-foreground text-xs has-[button]:py-1 has-[button]:pr-1",
         className
       )}
       data-slot="card-toolbar"
