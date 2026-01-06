@@ -5,7 +5,7 @@ import {
   removeContainer,
   startContainer,
   stopContainer,
-} from "@/lib/services/containers";
+} from "@/lib/services/containers.service";
 import type { AppRouteHandler } from "@/lib/types";
 import type {
   LaunchRoute,
