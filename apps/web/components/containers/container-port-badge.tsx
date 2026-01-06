@@ -1,20 +1,24 @@
 import { Badge } from "@/components/ui/badge";
 
 type Props = {
-  protocol: "IPv4" | "IPv6";
-  hostPort: number;
-  containerPort: number;
+  ipVersion: string;
+  host: number | undefined;
+  container: number;
 };
 
-export function ContainerPortBadge({
-  protocol,
-  hostPort,
-  containerPort,
-}: Props) {
+export function ContainerPortBadge({ ipVersion, host, container }: Props) {
   return (
     <Badge className="font-mono font-normal" variant="outline">
-      <span>{protocol}</span>
-      <p className="font-medium">{`${hostPort}:${containerPort}`}</p>
+      <span>{ipVersion}</span>
+      <p className="font-medium">{getPortMapping(host, container)}</p>
     </Badge>
   );
+}
+
+function getPortMapping(host: number | undefined, container: number) {
+  if (!host) {
+    return String(container);
+  }
+
+  return `${host}:${container}`;
 }

@@ -1,12 +1,13 @@
+import type { ContainerState } from "@containers/shared";
 import { PlayIcon, RotateCwIcon, SquareIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Props = {
-  status: "RUNNING" | "RESTARTING" | "STOPPED";
+  state: ContainerState;
 };
 
-export function ContainerStatus({ status }: Props) {
-  if (status === "RESTARTING") {
+export function ContainerStateBadge({ state }: Props) {
+  if (state === "restarting") {
     return (
       <Badge variant="warning">
         <RotateCwIcon data-icon="inline-start" />
@@ -15,11 +16,11 @@ export function ContainerStatus({ status }: Props) {
     );
   }
 
-  if (status === "STOPPED") {
+  if (state === "exited") {
     return (
       <Badge variant="error">
         <SquareIcon data-icon="inline-start" />
-        <span>Stopped</span>
+        <span>Exited</span>
       </Badge>
     );
   }

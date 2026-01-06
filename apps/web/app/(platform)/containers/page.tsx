@@ -13,8 +13,8 @@ import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { listContainers } from "@/lib/services/containers.service";
 import { logger } from "@/lib/logger";
+import { listContainers } from "@/lib/services/containers.service";
 
 export default async function Page() {
   const { data, error } = await listContainers();
@@ -167,8 +167,8 @@ export default async function Page() {
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
-            {containers.services.map((container) => (
-              <ContainerCard container={data} key={container.id} />
+            {data.map((container) => (
+              <ContainerCard container={container} key={container.id} />
             ))}
           </div>
         </ScrollArea>
@@ -176,76 +176,3 @@ export default async function Page() {
     </div>
   );
 }
-
-const containers = {
-  services: [
-    {
-      id: "a3f1c9e4b7d2",
-      name: "API Gateway",
-      image: "nginx:latest",
-      status: "RUNNING",
-      cpu_percent: 38.2,
-      memory_mb: 295.4,
-      network_kbps: 842.6,
-      disk_io_mb: { read: 102, write: 21 },
-      ports: [
-        { protocol: "IPv4", host_port: 80, container_port: 80 },
-        { protocol: "IPv4", host_port: 443, container_port: 443 },
-      ],
-      uptime: "3 days 4 hours",
-      environment: "prod-us-east-1",
-    },
-    {
-      id: "b7d21f9c4a3e",
-      name: "Auth Service",
-      image: "node:20-alpine",
-      status: "RESTARTING",
-      cpu_percent: 22.9,
-      memory_mb: 181.7,
-      network_kbps: 312.4,
-      disk_io_mb: { read: 48, write: 9 },
-      ports: [{ protocol: "IPv4", host_port: 8080, container_port: 8080 }],
-      uptime: "7 days 1 hour",
-      environment: "prod-us-east-1",
-    },
-    {
-      id: "c91e7a4d2f88",
-      name: "User Service",
-      image: "python:3.12-slim",
-      status: "RUNNING",
-      cpu_percent: 55.6,
-      memory_mb: 412.3,
-      network_kbps: 1204.9,
-      disk_io_mb: { read: 189, write: 46 },
-      ports: [{ protocol: "IPv4", host_port: 9000, container_port: 9000 }],
-      uptime: "1 day 6 hours",
-      environment: "prod-eu-west-1",
-    },
-    {
-      id: "d4e8f1a92c6b",
-      name: "Orders Service",
-      image: "java:21-jre",
-      status: "STOPPED",
-      cpu_percent: 68.1,
-      memory_mb: 768.5,
-      network_kbps: 1543.2,
-      disk_io_mb: { read: 321, write: 97 },
-      ports: [{ protocol: "IPv4", host_port: 9100, container_port: 9100 }],
-      uptime: "12 hours",
-      environment: "prod-us-west-2",
-    },
-    {
-      id: "e2a6c9b8d713",
-      name: "Metrics Collector",
-      image: "prom/prometheus:latest",
-      status: "RUNNING",
-      cpu_percent: 14.7,
-      memory_mb: 256.1,
-      network_kbps: 198.3,
-      disk_io_mb: { read: 76, write: 12 },
-      ports: [{ protocol: "IPv4", host_port: 9090, container_port: 9090 }],
-      uptime: "15 days 9 hours",
-      environment: "prod-us-east-1",
-    },
-  ],
-};
