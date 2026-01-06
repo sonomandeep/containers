@@ -8,8 +8,8 @@ import {
   CardTitle,
   CardToolbar,
 } from "@/components/core/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStatus } from "./container-status";
 
 type PortProtocol = "IPv4" | "IPv6";
@@ -86,16 +86,12 @@ export function ContainerCard({ container }: Props) {
 
         <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
           {container.ports.map((port) => (
-            <Badge
-              className="inline-flex items-center gap-1 rounded-sm font-mono text-neutral-700 text-sm"
-              key={port.protocol + port.host_port}
-              variant="outline"
-            >
-              <span className="text-muted-foreground text-xs">
-                {port.protocol}
-              </span>
-              <p>{`${port.host_port}:${port.container_port}`}</p>
-            </Badge>
+            <ContainerPortBadge
+              containerPort={port.container_port}
+              hostPort={port.host_port}
+              key={`${port.protocol}_${port.host_port}:${port.container_port}`}
+              protocol={port.protocol}
+            />
           ))}
         </div>
       </CardContent>
