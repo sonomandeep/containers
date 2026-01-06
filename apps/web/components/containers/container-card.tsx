@@ -1,4 +1,14 @@
-import { EllipsisVerticalIcon, RotateCwIcon, SquareIcon } from "lucide-react";
+import {
+  EllipsisVerticalIcon,
+  FileTextIcon,
+  FolderKeyIcon,
+  HardDriveIcon,
+  NetworkIcon,
+  RotateCwIcon,
+  SquareIcon,
+  SquareTerminalIcon,
+  Trash2Icon,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,6 +19,13 @@ import {
   CardToolbar,
 } from "@/components/core/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStatus } from "./container-status";
 
@@ -55,9 +72,40 @@ export function ContainerCard({ container }: Props) {
             <RotateCwIcon />
           </Button>
 
-          <Button size="icon-sm" variant="ghost">
-            <EllipsisVerticalIcon />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button size="icon-sm" variant="ghost" />}
+            >
+              <EllipsisVerticalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <FileTextIcon />
+                Logs
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <NetworkIcon />
+                Ports
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <FolderKeyIcon />
+                Variables
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <HardDriveIcon />
+                Volumes
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <SquareTerminalIcon />
+                Terminal
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive">
+                <Trash2Icon />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardToolbar>
 
