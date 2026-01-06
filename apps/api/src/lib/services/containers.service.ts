@@ -1,4 +1,11 @@
-import type { LaunchContainerInput, ServiceResponse } from "@containers/shared";
+import type {
+  Container,
+  ContainerPort,
+  ContainerState,
+  LaunchContainerInput,
+  ServiceResponse,
+} from "@containers/shared";
+import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
@@ -48,6 +55,30 @@ type StartContainerError = {
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
+
+function getPorts(ports: Array<Dockerode.Port>): Array<ContainerPort> {
+  return ports.map((port) => ({
+    ipVersion: port.IP === "0.0.0.0" ? "IPv4" : "IPv6",
+    public: port.PublicPort,
+    private: port.PrivatePort,
+    type: port.Type,
+  }));
+}
+
+export async function listContainers(): Promise<Array<Container>> {
+  const items = await docker.listContainers({ all: true });
+  const containers = items.map((item) => ({
+    id: item.Id,
+    name: item.Names.at(0)?.replace("/", "") || "-",
+    image: item.Image,
+    state: item.State as ContainerState,
+    status: item.Status,
+    ports: getPorts(item.Ports),
+    created: item.Created,
+  }));
+
+  return containers;
+}
 
 export async function removeContainer(
   input: RemoveContainerInput
