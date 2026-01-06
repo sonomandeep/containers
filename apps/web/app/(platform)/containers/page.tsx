@@ -11,11 +11,12 @@ import {
 import { ContainerCard } from "@/components/containers/container-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Page() {
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
       <section className="flex w-full flex-col gap-3 rounded-xl border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between">
           <div className="inline-flex items-baseline gap-2">
@@ -138,7 +139,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="@container flex h-full w-full flex-1 flex-col gap-3 rounded-lg bg-background p-3">
+      <section className="@container flex min-h-0 w-full flex-1 flex-col gap-3 overflow-hidden rounded-lg bg-background p-3">
         <div className="inline-flex w-full items-center justify-between px-3">
           <div className="inline-flex items-baseline gap-2">
             <h2>Containers</h2>
@@ -156,11 +157,13 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
-          {containers.services.map((container) => (
-            <ContainerCard container={container as any} key={container.id} />
-          ))}
-        </div>
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
+            {containers.services.map((container) => (
+              <ContainerCard container={container as any} key={container.id} />
+            ))}
+          </div>
+        </ScrollArea>
       </section>
     </div>
   );

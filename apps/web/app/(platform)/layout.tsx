@@ -7,11 +7,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar />
 
-      <SidebarInset className="rounded-none! bg-transparent! shadow-none!">
-        <main className="h-full w-full">{children}</main>
+      <SidebarInset className="min-h-0 overflow-hidden rounded-none! bg-transparent! shadow-none!">
+        <main className="h-full min-h-0 w-full overflow-hidden">
+          {children}
+        </main>
         {/* <Toaster /> */}
       </SidebarInset>
     </SidebarProvider>
