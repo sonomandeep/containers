@@ -109,11 +109,12 @@ export function ContainerCard({ container }: Props) {
         <div className="grid grid-cols-2 grid-rows-2 gap-3">
           <ContainerMetric
             label="CPU"
-            value={`${getContainerMetrics(container.id, containers).cpu} %`}
+            value={formatCpuUsage(container.id, containers)}
           />
           <ContainerMetric
             label="Memory"
-            value={`${getContainerMetrics(container.id, containers).memory.percent} %`}
+            value={formatMemoryUsage(container.id, containers).percent}
+            sub={formatMemoryUsage(container.id, containers).memoryGb}
           />
           <ContainerMetric label="Network" value="-" />
           <ContainerMetric label="Disk I/O" value="-" />
@@ -149,11 +150,69 @@ function getContainerMetrics(
   return current.metrics;
 }
 
-function ContainerMetric({ label, value }: { label: string; value: string }) {
+function formatCpuUsage(id: string, containers: Array<Container>) {
+  const cpu = getContainerMetrics(id, containers)?.cpu;
+
+  if (!cpu || cpu === "-") {
+    return "-";
+  }
+
+  return `${cpu} %`;
+}
+
+function formatMemoryUsage(id: string, containers: Array<Container>) {
+  const memory = getContainerMetrics(id, containers)?.memory;
+
+  const isInvalid = (v: string) => v == null || v === "-";
+
+  if (
+    !memory ||
+    isInvalid(memory.usage) ||
+    isInvalid(memory.limit) ||
+    isInvalid(memory.percent)
+  ) {
+    return {
+      percent: "-",
+      memoryGb: undefined,
+    };
+  }
+
+  const usageMb = Number(memory.usage);
+  const limitMb = Number(memory.limit);
+  const percent = Number(memory.percent);
+
+  if (Number.isNaN(usageMb) || Number.isNaN(limitMb) || Number.isNaN(percent)) {
+    return {
+      percent: "-",
+      memoryGb: undefined,
+    };
+  }
+
+  const usageGb = (usageMb / 1024).toFixed(1);
+  const limitGb = (limitMb / 1024).toFixed(1);
+
+  return {
+    percent: `${percent.toFixed(2)} %`,
+    memoryGb: `${usageGb} / ${limitGb} GB`,
+  };
+}
+
+function ContainerMetric({
+  label,
+  value,
+  sub = "",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
     <div className="flex w-full flex-col">
       <span className="text-muted-foreground">{label}</span>
-      <p className="font-medium text-neutral-700 text-sm">{value}</p>
+      <div className="inline-flex items-baseline gap-2">
+        <p className="font-medium text-neutral-700 text-sm">{value}</p>
+        {value !== "-" && <span className="text-muted-foreground">{sub}</span>}
+      </div>
     </div>
   );
 }
