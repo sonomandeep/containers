@@ -131,6 +131,49 @@ export function ContainerCard({ container }: Props) {
   );
 }
 
+function ContainerMetric({
+  label,
+  value,
+  sub = "",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="flex w-full flex-col">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="inline-flex items-baseline gap-2">
+        <p className="font-medium text-neutral-700 text-sm">{value}</p>
+        {value !== "-" && <span className="text-muted-foreground">{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
+function ContainerPorts({ ports }: { ports: Array<ContainerPort> }) {
+  if (ports.length === 0) {
+    return (
+      <Badge className="font-mono" variant="outline">
+        <p className="font-medium">No Ports</p>
+      </Badge>
+    );
+  }
+
+  return (
+    <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
+      {ports.map((port) => (
+        <ContainerPortBadge
+          container={port.private}
+          host={port.public}
+          ipVersion={port.ipVersion}
+          key={`${port.ipVersion}_${port.public}:${port.private}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function getContainerMetrics(
   id: string,
   containers: Array<Container>
@@ -195,47 +238,4 @@ function formatMemoryUsage(id: string, containers: Array<Container>) {
     percent: `${percent.toFixed(2)} %`,
     memoryGb: `${usageGb} / ${limitGb} GB`,
   };
-}
-
-function ContainerMetric({
-  label,
-  value,
-  sub = "",
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className="flex w-full flex-col">
-      <span className="text-muted-foreground">{label}</span>
-      <div className="inline-flex items-baseline gap-2">
-        <p className="font-medium text-neutral-700 text-sm">{value}</p>
-        {value !== "-" && <span className="text-muted-foreground">{sub}</span>}
-      </div>
-    </div>
-  );
-}
-
-function ContainerPorts({ ports }: { ports: Array<ContainerPort> }) {
-  if (ports.length === 0) {
-    return (
-      <Badge className="font-mono" variant="outline">
-        <p className="font-medium">No Ports</p>
-      </Badge>
-    );
-  }
-
-  return (
-    <div className="inline-flex flex-nowrap gap-2 overflow-hidden">
-      {ports.map((port) => (
-        <ContainerPortBadge
-          container={port.private}
-          host={port.public}
-          ipVersion={port.ipVersion}
-          key={`${port.ipVersion}_${port.public}:${port.private}`}
-        />
-      ))}
-    </div>
-  );
 }
