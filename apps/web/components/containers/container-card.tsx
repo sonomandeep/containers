@@ -7,8 +7,8 @@ import {
   FolderKeyIcon,
   HardDriveIcon,
   NetworkIcon,
+  PlayIcon,
   RotateCwIcon,
-  SquareIcon,
   SquareTerminalIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -33,6 +33,7 @@ import {
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
+import { StopContainer } from "./stop-container";
 
 type Props = {
   container: Container;
@@ -46,51 +47,7 @@ export function ContainerCard({ container }: Props) {
       <CardToolbar>
         <span className="font-mono">{container.id.slice(0, 12)}</span>
 
-        <div className="inline-flex items-center gap-1">
-          <Button size="icon-sm" variant="ghost">
-            <SquareIcon />
-          </Button>
-
-          <Button size="icon-sm" variant="ghost">
-            <RotateCwIcon />
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button size="icon-sm" variant="ghost" />}
-            >
-              <EllipsisVerticalIcon />
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <FileTextIcon />
-                Logs
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <NetworkIcon />
-                Ports
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FolderKeyIcon />
-                Variables
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <HardDriveIcon />
-                Volumes
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <SquareTerminalIcon />
-                Terminal
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">
-                <Trash2Icon />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ContainerActions container={container} />
       </CardToolbar>
 
       <CardContent>
@@ -125,6 +82,61 @@ export function ContainerCard({ container }: Props) {
         <span>{container.host}</span>
       </CardFooter>
     </Card>
+  );
+}
+
+function ContainerActions({ container }: { container: Container }) {
+  return (
+    <div className="inline-flex items-center gap-1">
+      {container.state === "running" && <StopContainer id={container.id} />}
+
+      {container.state === "running" && (
+        <Button size="icon-sm" variant="ghost">
+          <RotateCwIcon />
+        </Button>
+      )}
+
+      {container.state === "paused" ||
+        (container.state === "exited" && (
+          <Button size="icon-sm" variant="ghost">
+            <PlayIcon />
+          </Button>
+        ))}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
+          <EllipsisVerticalIcon />
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <FileTextIcon />
+            Logs
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <NetworkIcon />
+            Ports
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <FolderKeyIcon />
+            Variables
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <HardDriveIcon />
+            Volumes
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <SquareTerminalIcon />
+            Terminal
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <Trash2Icon />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 

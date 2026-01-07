@@ -1,3 +1,5 @@
+"use server";
+
 import { containerSchema } from "@containers/shared";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
@@ -18,4 +20,20 @@ export async function listContainers() {
   }
 
   return { data, error: null };
+}
+
+export async function stopContainer(id: string) {
+  const path = `/containers/${encodeURIComponent(id)}/stop`;
+
+  const { error } = await $api(path, {
+    method: "post",
+  });
+  if (error) {
+    logger.error(error);
+    return {
+      error: "Unexpected error while stopping the container.",
+    };
+  }
+
+  return { error: null };
 }
