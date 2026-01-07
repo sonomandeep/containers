@@ -1,5 +1,5 @@
-import { createRouter } from "@/lib/create-app";
 import { cors } from "hono/cors";
+import { createRouter } from "@/lib/create-app";
 import * as handlers from "./containers.handlers";
 import * as routes from "./containers.routes";
 

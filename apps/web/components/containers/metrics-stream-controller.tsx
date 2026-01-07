@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noConsole: frontend */
 "use client";
 
 import { useEffect } from "react";

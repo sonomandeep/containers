@@ -9,13 +9,13 @@ import {
   NetworkIcon,
 } from "lucide-react";
 import { ContainerCard } from "@/components/containers/container-card";
+import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
-import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 
 export default async function Page() {
   const { data, error } = await listContainers();
