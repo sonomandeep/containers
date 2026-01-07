@@ -10,6 +10,17 @@ export const containerStateSchema = z.enum([
 
 export type ContainerState = z.infer<typeof containerStateSchema>;
 
+export const containerMetricsSchema = z.object({
+  cpu: z.string(),
+  memory: z.object({
+    usage: z.string(),
+    limit: z.string(),
+    percent: z.string(),
+  }),
+});
+
+export type ContainerMetrics = z.infer<typeof containerMetricsSchema>;
+
 export const containerPortSchema = z.object({
   ipVersion: z.string(),
   private: z.number(),
@@ -26,6 +37,7 @@ export const containerSchema = z.object({
   state: containerStateSchema,
   status: z.string(),
   ports: z.array(containerPortSchema),
+  metrics: containerMetricsSchema.optional(),
   created: z.number(),
 });
 

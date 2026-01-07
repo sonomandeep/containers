@@ -1,4 +1,10 @@
-import type { Container, ContainerPort } from "@containers/shared";
+"use client";
+
+import type {
+  Container,
+  ContainerMetrics,
+  ContainerPort,
+} from "@containers/shared";
 import {
   EllipsisVerticalIcon,
   FileTextIcon,
@@ -30,12 +36,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
+import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
   container: Container;
 };
 
 export function ContainerCard({ container }: Props) {
+  const containers = useContainersStore((state) => state.containers);
+
   return (
     <Card key={container.id}>
       <CardToolbar>
@@ -98,8 +107,14 @@ export function ContainerCard({ container }: Props) {
         </CardHeader>
 
         <div className="grid grid-cols-2 grid-rows-2 gap-3">
-          <ContainerMetric label="CPU" value="-" />
-          <ContainerMetric label="Memory" value="-" />
+          <ContainerMetric
+            label="CPU"
+            value={`${getContainerMetrics(container.id, containers).cpu} %`}
+          />
+          <ContainerMetric
+            label="Memory"
+            value={`${getContainerMetrics(container.id, containers).memory.percent} %`}
+          />
           <ContainerMetric label="Network" value="-" />
           <ContainerMetric label="Disk I/O" value="-" />
         </div>
@@ -113,6 +128,25 @@ export function ContainerCard({ container }: Props) {
       </CardFooter>
     </Card>
   );
+}
+
+function getContainerMetrics(
+  id: string,
+  containers: Array<Container>
+): ContainerMetrics {
+  const current = containers.find((item) => item.id === id);
+  if (!current?.metrics) {
+    return {
+      cpu: "-",
+      memory: {
+        usage: "-",
+        limit: "-",
+        percent: "-",
+      },
+    };
+  }
+
+  return current.metrics;
 }
 
 function ContainerMetric({ label, value }: { label: string; value: string }) {

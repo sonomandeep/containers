@@ -26,7 +26,8 @@ export default async function Page() {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
-      <MetricsStreamController />
+      <MetricsStreamController containers={data} />
+
       <section className="flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between">
           <div className="inline-flex items-baseline gap-2">
