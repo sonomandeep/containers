@@ -106,12 +106,7 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
     );
   }
 
-  return c.json(
-    {
-      message: "container stopped",
-    },
-    HttpStatusCodes.OK
-  );
+  return c.json(result.data, HttpStatusCodes.OK);
 };
 
 export const start: AppRouteHandler<StartRoute> = async (c) => {

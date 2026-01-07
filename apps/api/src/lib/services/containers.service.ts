@@ -77,21 +77,55 @@ export async function listContainers(): Promise<Array<Container>> {
         metrics = await getContainerMetrics(item.Id);
       }
 
-      return {
-        id: item.Id,
-        name: item.Names.at(0)?.replace("/", "") || "-",
-        image: item.Image,
-        state: item.State as ContainerState,
-        status: item.Status,
-        ports: getPorts(item.Ports),
-        metrics,
-        created: item.Created,
-        host: os.hostname(),
-      } satisfies Container;
+      return formatContainerInfo(item, metrics);
     })
   );
 
   return result;
+}
+
+function formatContainerInfo(
+  info: Dockerode.ContainerInfo,
+  metrics?: ContainerMetrics | undefined
+): Container {
+  return {
+    id: info.Id,
+    name: info.Names.at(0)?.replace("/", "") || "-",
+    image: info.Image,
+    state: info.State as ContainerState,
+    status: info.Status,
+    ports: getPorts(info.Ports),
+    metrics,
+    created: info.Created,
+    host: os.hostname(),
+  };
+}
+
+function formatContainerInspectInfo(
+  info: Dockerode.ContainerInspectInfo,
+  metrics?: ContainerMetrics | undefined
+): Container {
+  return {
+    id: info.Id,
+    name: info.Name?.replace("/", "") || "-",
+    image: info.Config.Image,
+    state: info.State.Status as ContainerState,
+    status: `${info.State.Status}${info.State.Running ? " (running)" : ""}`,
+    ports: getPorts(
+      Object.entries(info.NetworkSettings.Ports || {}).flatMap(
+        ([containerPort, hostBindings]) =>
+          (hostBindings || []).map((binding) => ({
+            IP: binding.HostIp || "",
+            PrivatePort: parseInt(containerPort.split("/")[0]),
+            PublicPort: parseInt(binding.HostPort),
+            Type: containerPort.split("/")[1] as "tcp" | "udp",
+          }))
+      )
+    ),
+    metrics,
+    created: new Date(info.Created).getTime() / 1000,
+    host: os.hostname(),
+  };
 }
 
 async function getContainerMetrics(id: string) {
@@ -207,13 +241,14 @@ export async function removeContainer(
 
 export async function stopContainer(
   input: StopContainerInput
-): Promise<ServiceResponse<null, StopContainerError>> {
+): Promise<ServiceResponse<Container, StopContainerError>> {
   try {
     const container = docker.getContainer(input.containerId);
     await container.stop();
+    const info = await container.inspect();
 
     return {
-      data: null,
+      data: formatContainerInspectInfo(info),
       error: null,
     };
   } catch (error) {

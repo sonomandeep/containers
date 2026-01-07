@@ -110,10 +110,7 @@ export const stop = createRoute({
     }),
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      createMessageObjectSchema("container stopped"),
-      "Container stopped"
-    ),
+    [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container stopped"),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Container not found"
