@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
+import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 
 export default async function Page() {
   const { data, error } = await listContainers();
@@ -25,6 +26,7 @@ export default async function Page() {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+      <MetricsStreamController />
       <section className="flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between">
           <div className="inline-flex items-baseline gap-2">
