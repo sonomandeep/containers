@@ -65,7 +65,8 @@ export function ContainerCard({ container }: Props) {
             >
               <EllipsisVerticalIcon />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+
+            <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <FileTextIcon />
                 Logs
@@ -145,7 +146,7 @@ function ContainerMetric({
       <span className="text-muted-foreground">{label}</span>
       <div className="inline-flex items-baseline gap-2">
         <p className="font-medium text-neutral-700 text-sm">{value}</p>
-        {value !== "-" && <span className="text-muted-foreground">{sub}</span>}
+        <span className="text-muted-foreground text-sm">{sub}</span>
       </div>
     </div>
   );
