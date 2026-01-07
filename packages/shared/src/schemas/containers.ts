@@ -11,11 +11,10 @@ export const containerStateSchema = z.enum([
 export type ContainerState = z.infer<typeof containerStateSchema>;
 
 export const containerMetricsSchema = z.object({
-  cpu: z.string(),
+  cpu: z.number(),
   memory: z.object({
-    usage: z.string(),
-    limit: z.string(),
-    percent: z.string(),
+    used: z.number(),
+    total: z.number(),
   }),
 });
 

@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  Container,
-  ContainerMetrics,
-  ContainerPort,
-} from "@containers/shared";
+import type { Container, ContainerPort } from "@containers/shared";
 import {
   EllipsisVerticalIcon,
   FileTextIcon,
@@ -37,6 +33,7 @@ import {
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
+import prettyBytes from "pretty-bytes";
 
 type Props = {
   container: Container;
@@ -114,7 +111,7 @@ export function ContainerCard({ container }: Props) {
           />
           <ContainerMetric
             label="Memory"
-            sub={formatMemoryUsage(container.id, containers).memoryGb}
+            sub={formatMemoryUsage(container.id, containers).sub}
             value={formatMemoryUsage(container.id, containers).percent}
           />
           <ContainerMetric label="Network" value="-" />
@@ -144,7 +141,7 @@ function ContainerMetric({
   return (
     <div className="flex w-full flex-col">
       <span className="text-muted-foreground">{label}</span>
-      <div className="inline-flex items-baseline gap-2">
+      <div className="inline-flex gap-2">
         <p className="font-medium text-neutral-700 text-sm">{value}</p>
         <span className="text-muted-foreground text-sm">{sub}</span>
       </div>
@@ -175,68 +172,38 @@ function ContainerPorts({ ports }: { ports: Array<ContainerPort> }) {
   );
 }
 
-function getContainerMetrics(
-  id: string,
-  containers: Array<Container>
-): ContainerMetrics {
-  const current = containers.find((item) => item.id === id);
-  if (!current?.metrics) {
-    return {
-      cpu: "-",
-      memory: {
-        usage: "-",
-        limit: "-",
-        percent: "-",
-      },
-    };
-  }
-
-  return current.metrics;
-}
-
 function formatCpuUsage(id: string, containers: Array<Container>) {
-  const cpu = getContainerMetrics(id, containers)?.cpu;
+  const current = containers.find((item) => item.id === id);
+  const cpu = current?.metrics?.cpu;
 
-  if (!cpu || cpu === "-") {
+  if (current === undefined || cpu === undefined) {
     return "-";
   }
 
-  return `${cpu} %`;
+  return `${cpu.toFixed(1)} %`;
 }
 
 function formatMemoryUsage(id: string, containers: Array<Container>) {
-  const memory = getContainerMetrics(id, containers)?.memory;
-
-  const isInvalid = (value: string) => value === null || value === "-";
-
-  if (
-    !memory ||
-    isInvalid(memory.usage) ||
-    isInvalid(memory.limit) ||
-    isInvalid(memory.percent)
-  ) {
-    return {
-      percent: "-",
-      memoryGb: undefined,
-    };
+  const m = containers.find((c) => c.id === id)?.metrics?.memory;
+  if (!m || m.used == null || m.total == null || m.total <= 0) {
+    return { percent: "-", memoryFormatted: undefined as string | undefined };
   }
 
-  const usageMb = Number(memory.usage);
-  const limitMb = Number(memory.limit);
-  const percent = Number(memory.percent);
+  const percent = `${((m.used / m.total) * 100).toFixed(1)} %`;
 
-  if (Number.isNaN(usageMb) || Number.isNaN(limitMb) || Number.isNaN(percent)) {
-    return {
-      percent: "-",
-      memoryGb: undefined,
-    };
-  }
+  const GB = 1024 ** 3;
+  const MB = 1024 ** 2;
 
-  const usageGb = (usageMb / 1024).toFixed(1);
-  const limitGb = (limitMb / 1024).toFixed(1);
+  const useMB = m.total < 2 * GB || m.used < 0.05 * GB;
+  const div = useMB ? MB : GB;
+  const unit = useMB ? "MB" : "GB";
+  const dec = useMB ? 0 : 1;
+
+  const used = (m.used / div).toFixed(dec);
+  const total = (m.total / div).toFixed(dec);
 
   return {
-    percent: `${percent.toFixed(2)} %`,
-    memoryGb: `${usageGb} / ${limitGb} GB`,
+    percent,
+    sub: `${used} / ${total} ${unit}`,
   };
 }

@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noConsole: frontend */
 "use client";
 
-import { type Container, containerMetricsSchema } from "@containers/shared";
+import { type Container, containerSchema } from "@containers/shared";
 import { useEffect } from "react";
 import z from "zod";
 import { useContainersStore } from "@/lib/store/containers.store";
@@ -31,34 +31,21 @@ export function MetricsStreamController({ containers }: Props) {
       const event = e as MessageEvent;
       const raw = JSON.parse(event.data);
 
-      const validation = z
-        .array(
-          containerMetricsSchema.extend({
-            id: z.string(),
-          })
-        )
-        .safeParse(raw);
+      const validation = z.array(containerSchema).safeParse(raw);
       if (!validation.success) {
         console.error("validation error", validation.error);
         return;
       }
 
       if (store) {
-        store.setContainers(
-          containers.map((container) => ({
-            ...container,
-            metrics:
-              validation.data.find((item) => item.id === container.id) ||
-              undefined,
-          }))
-        );
+        store.setContainers(validation.data);
       }
     };
 
-    eventSource.addEventListener("containers-metrics", handler);
+    eventSource.addEventListener("containers", handler);
 
     return () => {
-      eventSource.removeEventListener("containers-metrics", handler);
+      eventSource.removeEventListener("containers", handler);
       eventSource.close();
     };
   }, []);
