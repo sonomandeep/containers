@@ -33,7 +33,6 @@ import {
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
-import prettyBytes from "pretty-bytes";
 
 type Props = {
   container: Container;
@@ -185,7 +184,7 @@ function formatCpuUsage(id: string, containers: Array<Container>) {
 
 function formatMemoryUsage(id: string, containers: Array<Container>) {
   const m = containers.find((c) => c.id === id)?.metrics?.memory;
-  if (!m || m.used == null || m.total == null || m.total <= 0) {
+  if (!m || m.used === null || m.total === null || m.total <= 0) {
     return { percent: "-", memoryFormatted: undefined as string | undefined };
   }
 
