@@ -1,7 +1,6 @@
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
-  getContainersMetrics,
   launchContainer,
   listContainers,
   removeContainer,
@@ -38,11 +37,11 @@ export const stream: AppSSEHandler<MetricsRoute> = (c) => {
 
     while (isActive) {
       try {
-        const contianersMetrics = await getContainersMetrics();
+        const containers = await listContainers();
 
         await s.writeSSE({
-          data: JSON.stringify(contianersMetrics),
-          event: "containers-metrics",
+          data: JSON.stringify(containers),
+          event: "containers",
           id: String(Date.now()),
         });
 

@@ -1,5 +1,6 @@
 import type {
   Container,
+  ContainerMetrics,
   ContainerPort,
   ContainerState,
   LaunchContainerInput,
@@ -67,64 +68,77 @@ function getPorts(ports: Array<Dockerode.Port>): Array<ContainerPort> {
 
 export async function listContainers(): Promise<Array<Container>> {
   const items = await docker.listContainers({ all: true });
-  const containers = items.map((item) => ({
-    id: item.Id,
-    name: item.Names.at(0)?.replace("/", "") || "-",
-    image: item.Image,
-    state: item.State as ContainerState,
-    status: item.Status,
-    ports: getPorts(item.Ports),
-    created: item.Created,
-  }));
 
-  return containers;
-}
-
-export async function getContainersMetrics() {
-  const containers = await docker.listContainers({
-    filters: { status: ["running"] },
-  });
-
-  const metricsPromises = containers.map(async (containerInfo) => {
-    try {
-      const container = docker.getContainer(containerInfo.Id);
-      const stats = await container.stats({ stream: false });
-
-      const cpuDelta =
-        stats.cpu_stats.cpu_usage.total_usage -
-        stats.precpu_stats.cpu_usage.total_usage;
-      const systemDelta =
-        stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-      const cpuPercent =
-        (cpuDelta / systemDelta) * stats.cpu_stats.online_cpus * 100;
-
-      const memoryUsage = stats.memory_stats.usage;
-      const memoryLimit = stats.memory_stats.limit;
-      const memoryPercent = (memoryUsage / memoryLimit) * 100;
+  const result = await Promise.all(
+    items.map(async (item) => {
+      let metrics: ContainerMetrics | undefined;
+      if (item.State === "running") {
+        metrics = await getContainerMetrics(item.Id);
+      }
 
       return {
-        id: containerInfo.Id,
-        name: containerInfo.Names[0].replace("/", ""),
-        cpu: cpuPercent.toFixed(2),
-        memory: {
-          usage: (memoryUsage / 1024 / 1024).toFixed(2), // MB
-          limit: (memoryLimit / 1024 / 1024).toFixed(2), // MB
-          percent: memoryPercent.toFixed(2),
-        },
-      };
-    } catch (error) {
-      console.error(
-        `Error getting metrics for container ${containerInfo.Id}:`,
-        error
-      );
-      return null;
-    }
-  });
+        id: item.Id,
+        name: item.Names.at(0)?.replace("/", "") || "-",
+        image: item.Image,
+        state: item.State as ContainerState,
+        status: item.Status,
+        ports: getPorts(item.Ports),
+        metrics,
+        created: item.Created,
+      } satisfies Container;
+    })
+  );
 
-  const allMetrics = await Promise.all(metricsPromises);
-
-  return allMetrics.filter((m) => m !== null);
+  return result;
 }
+
+async function getContainerMetrics(id: string) {
+  const container = docker.getContainer(id);
+  const stats = await container.stats({ stream: false });
+
+  const cpu = getCpuUsage(stats);
+  const memory = getMemoryUsage(stats);
+
+  return {
+    cpu,
+    memory,
+  };
+}
+
+function getCpuUsage(stats: Dockerode.ContainerStats) {
+  const cpuDelta =
+    stats.cpu_stats.cpu_usage.total_usage -
+    stats.precpu_stats.cpu_usage.total_usage;
+
+  const systemDelta =
+    stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+
+  const cpuCount =
+    stats.cpu_stats.online_cpus ||
+    stats.cpu_stats.cpu_usage.percpu_usage?.length ||
+    1;
+
+  let cpuPercent = 0;
+
+  if (systemDelta > 0 && cpuDelta > 0) {
+    cpuPercent = (cpuDelta / systemDelta) * cpuCount * 100;
+  }
+
+  return Number(cpuPercent.toFixed(1));
+}
+
+function getMemoryUsage(stats: Dockerode.ContainerStats) {
+  const used =
+    stats.memory_stats.usage - (stats.memory_stats.stats?.cache || 0);
+
+  const total = stats.memory_stats.limit;
+
+  return {
+    used,
+    total,
+  };
+}
+
 export async function removeContainer(
   input: RemoveContainerInput
 ): Promise<ServiceResponse<null, RemoveContainerError>> {
