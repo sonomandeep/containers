@@ -7,7 +7,6 @@ import {
   FolderKeyIcon,
   HardDriveIcon,
   NetworkIcon,
-  PlayIcon,
   RotateCwIcon,
   SquareTerminalIcon,
   Trash2Icon,
@@ -33,6 +32,7 @@ import {
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
+import { StartContainer } from "./start-container";
 import { StopContainer } from "./stop-container";
 
 type Props = {
@@ -97,11 +97,7 @@ function ContainerActions({ container }: { container: Container }) {
       )}
 
       {container.state === "paused" ||
-        (container.state === "exited" && (
-          <Button size="icon-sm" variant="ghost">
-            <PlayIcon />
-          </Button>
-        ))}
+        (container.state === "exited" && <StartContainer id={container.id} />)}
 
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>

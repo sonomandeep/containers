@@ -22,6 +22,20 @@ export async function listContainers() {
   return { data, error: null };
 }
 
+export async function startContainer(id: string) {
+  const path = `/containers/${encodeURIComponent(id)}/start`;
+
+  const { error } = await $api(path, {
+    method: "post",
+  });
+  if (error) {
+    logger.error(error, "startContainer error");
+    return { error: "Unexpected error while starting the container." };
+  }
+
+  return { error: null };
+}
+
 export async function stopContainer(id: string) {
   const path = `/containers/${encodeURIComponent(id)}/stop`;
 
@@ -29,10 +43,8 @@ export async function stopContainer(id: string) {
     method: "post",
   });
   if (error) {
-    logger.error(error);
-    return {
-      error: "Unexpected error while stopping the container.",
-    };
+    logger.error(error, "stopContainer error");
+    return { error: "Unexpected error while stopping the container." };
   }
 
   return { error: null };
