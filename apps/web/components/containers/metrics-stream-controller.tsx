@@ -1,10 +1,10 @@
 /** biome-ignore-all lint/suspicious/noConsole: frontend */
 "use client";
 
-import { containerMetricsSchema, type Container } from "@containers/shared";
+import { type Container, containerMetricsSchema } from "@containers/shared";
 import { useEffect } from "react";
-import { useContainersStore } from "@/lib/store/containers.store";
 import z from "zod";
+import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
   containers: Array<Container>;

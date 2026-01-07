@@ -34,9 +34,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
-import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
   container: Container;
@@ -113,8 +113,8 @@ export function ContainerCard({ container }: Props) {
           />
           <ContainerMetric
             label="Memory"
-            value={formatMemoryUsage(container.id, containers).percent}
             sub={formatMemoryUsage(container.id, containers).memoryGb}
+            value={formatMemoryUsage(container.id, containers).percent}
           />
           <ContainerMetric label="Network" value="-" />
           <ContainerMetric label="Disk I/O" value="-" />
@@ -163,7 +163,7 @@ function formatCpuUsage(id: string, containers: Array<Container>) {
 function formatMemoryUsage(id: string, containers: Array<Container>) {
   const memory = getContainerMetrics(id, containers)?.memory;
 
-  const isInvalid = (v: string) => v == null || v === "-";
+  const isInvalid = (value: string) => value === null || value === "-";
 
   if (
     !memory ||
