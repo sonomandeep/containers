@@ -8,14 +8,13 @@ import {
   MemoryStickIcon,
   NetworkIcon,
 } from "lucide-react";
-import { ContainerCard } from "@/components/containers/container-card";
 import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
+import { ContainersGrid } from "@/components/containers/containers-grid";
 
 export default async function Page() {
   const { data, error } = await listContainers();
@@ -168,13 +167,7 @@ export default async function Page() {
           </div>
         </div>
 
-        <ScrollArea className="min-h-0 flex-1">
-          <div className="grid @7xl:grid-cols-4 grid-cols-3 gap-4">
-            {data.map((container) => (
-              <ContainerCard container={container} key={container.id} />
-            ))}
-          </div>
-        </ScrollArea>
+        <ContainersGrid />
       </section>
     </div>
   );
