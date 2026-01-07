@@ -1,6 +1,10 @@
 "use server";
 
-import { containerSchema } from "@containers/shared";
+import {
+  type Container,
+  containerSchema,
+  type ServiceResponse,
+} from "@containers/shared";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
@@ -36,16 +40,24 @@ export async function startContainer(id: string) {
   return { error: null };
 }
 
-export async function stopContainer(id: string) {
+export async function stopContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
   const path = `/containers/${encodeURIComponent(id)}/stop`;
 
-  const { error } = await $api(path, {
+  const { data, error } = await $api(path, {
     method: "post",
+    output: containerSchema,
   });
   if (error) {
     logger.error(error, "stopContainer error");
-    return { error: "Unexpected error while stopping the container." };
+    return {
+      data: null,
+      error: "Unexpected error while stopping the container.",
+    };
   }
 
-  return { error: null };
+  logger.info(data, "stop response data");
+
+  return { data, error: null };
 }
