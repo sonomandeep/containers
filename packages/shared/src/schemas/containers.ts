@@ -37,6 +37,7 @@ export const containerSchema = z.object({
   status: z.string(),
   ports: z.array(containerPortSchema),
   metrics: containerMetricsSchema.optional(),
+  host: z.string().optional(),
   created: z.number(),
 });
 

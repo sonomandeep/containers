@@ -1,3 +1,4 @@
+import os from "node:os";
 import type {
   Container,
   ContainerMetrics,
@@ -85,6 +86,7 @@ export async function listContainers(): Promise<Array<Container>> {
         ports: getPorts(item.Ports),
         metrics,
         created: item.Created,
+        host: os.hostname(),
       } satisfies Container;
     })
   );

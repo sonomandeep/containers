@@ -122,7 +122,7 @@ export function ContainerCard({ container }: Props) {
 
       <CardFooter className="justify-between">
         <span>{container.status}</span>
-        <span>Node</span>
+        <span>{container.host}</span>
       </CardFooter>
     </Card>
   );
