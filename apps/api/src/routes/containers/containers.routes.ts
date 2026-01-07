@@ -21,19 +21,14 @@ export const list = createRoute({
 
 export type ListRoute = typeof list;
 
-export const metrics = createRoute({
-  path: "/containers/metrics/stream",
+export const stream = createRoute({
+  path: "/containers/stream",
   method: "get",
   tags,
-  responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      createMessageObjectSchema("containers metrics"),
-      "Containers metrics"
-    ),
-  },
+  responses: {},
 });
 
-export type MetricsRoute = typeof metrics;
+export type MetricsRoute = typeof stream;
 
 export const launch = createRoute({
   path: "/containers",

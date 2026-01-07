@@ -15,7 +15,7 @@ const router = createRouter()
   .openapi(routes.stop, handlers.stop)
   .openapi(routes.start, handlers.start)
   .get(
-    routes.metrics.path,
+    routes.stream.path,
     cors({
       origin: (origin) => {
         if (!origin) {
@@ -24,10 +24,9 @@ const router = createRouter()
 
         return allowedOrigins.has(origin) ? origin : null;
       },
-      // per ora niente cookie -> false
       credentials: false,
     }),
-    handlers.metrics
+    handlers.stream
   );
 
 export default router;

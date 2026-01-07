@@ -24,10 +24,10 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   return c.json(containers);
 };
 
-export const metrics: AppSSEHandler<MetricsRoute> = (c) => {
+export const stream: AppSSEHandler<MetricsRoute> = (c) => {
   c.var.logger.debug("container metrics stream started");
 
-  return streamSSE(c, async (stream) => {
+  return streamSSE(c, async (s) => {
     let isActive = true;
     const UPDATE_INTERVAL = 5000;
 
@@ -40,23 +40,23 @@ export const metrics: AppSSEHandler<MetricsRoute> = (c) => {
       try {
         const contianersMetrics = await getContainersMetrics();
 
-        await stream.writeSSE({
+        await s.writeSSE({
           data: JSON.stringify(contianersMetrics),
           event: "containers-metrics",
           id: String(Date.now()),
         });
 
-        await stream.sleep(UPDATE_INTERVAL);
+        await s.sleep(UPDATE_INTERVAL);
       } catch (error) {
         c.var.logger.error(error, "error fetching container metrics");
 
-        await stream.writeSSE({
+        await s.writeSSE({
           data: JSON.stringify({ error: "Failed to fetch metrics" }),
           event: "error",
           id: String(Date.now()),
         });
 
-        await stream.sleep(UPDATE_INTERVAL * 2);
+        await s.sleep(UPDATE_INTERVAL * 2);
       }
     }
 
