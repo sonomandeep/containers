@@ -95,8 +95,9 @@ export async function listContainers(): Promise<Array<Container>> {
 async function getContainerMetrics(id: string) {
   const container = docker.getContainer(id);
   const stats = await container.stats({ stream: false });
+  const inspect = await container.inspect();
 
-  const cpu = getCpuUsage(stats);
+  const cpu = getCpuUsage(stats, getContainerCPUInfo(inspect));
   const memory = getMemoryUsage(stats);
 
   return {
@@ -105,7 +106,17 @@ async function getContainerMetrics(id: string) {
   };
 }
 
-function getCpuUsage(stats: Dockerode.ContainerStats) {
+function getContainerCPUInfo(inspect: Dockerode.ContainerInspectInfo) {
+  const nanoCpus = inspect.HostConfig.NanoCpus;
+
+  if (!nanoCpus || nanoCpus === 0) {
+    return null;
+  }
+
+  return nanoCpus / 1e9;
+}
+
+function getCpuUsage(stats: Dockerode.ContainerStats, cores: number | null) {
   const cpuDelta =
     stats.cpu_stats.cpu_usage.total_usage -
     stats.precpu_stats.cpu_usage.total_usage;
@@ -122,6 +133,14 @@ function getCpuUsage(stats: Dockerode.ContainerStats) {
 
   if (systemDelta > 0 && cpuDelta > 0) {
     cpuPercent = (cpuDelta / systemDelta) * cpuCount * 100;
+  }
+
+  if (cores !== null) {
+    cpuPercent /= cores;
+  }
+
+  if (cpuPercent > 100) {
+    cpuPercent = 100;
   }
 
   return Number(cpuPercent.toFixed(1));
