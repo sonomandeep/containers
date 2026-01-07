@@ -5,7 +5,7 @@ import type {
   RouteHandler,
   z,
 } from "@hono/zod-openapi";
-import type { Schema } from "hono";
+import type { Context, Schema } from "hono";
 import type pino from "pino";
 
 export type AppBindings = {
@@ -27,6 +27,10 @@ export type AppRouteHandler<R extends RouteConfig> = RouteHandler<
   R,
   AppBindings
 >;
+
+export type AppSSEHandler<R extends RouteConfig> = (
+  c: Context<AppBindings, R["path"]>
+) => Response | Promise<Response>;
 
 export type ZodSchema =
   | z.core.$ZodUnion

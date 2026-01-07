@@ -1,15 +1,18 @@
+import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
+  getContainersMetrics,
   launchContainer,
   listContainers,
   removeContainer,
   startContainer,
   stopContainer,
 } from "@/lib/services/containers.service";
-import type { AppRouteHandler } from "@/lib/types";
+import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
   ListRoute,
+  MetricsRoute,
   RemoveRoute,
   StartRoute,
   StopRoute,
@@ -19,6 +22,46 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
 
   return c.json(containers);
+};
+
+export const metrics: AppSSEHandler<MetricsRoute> = (c) => {
+  c.var.logger.debug("container metrics stream started");
+
+  return streamSSE(c, async (stream) => {
+    let isActive = true;
+    const UPDATE_INTERVAL = 5000;
+
+    c.req.raw.signal.addEventListener("abort", () => {
+      c.var.logger.debug("client disconnected from metrics stream");
+      isActive = false;
+    });
+
+    while (isActive) {
+      try {
+        const contianersMetrics = await getContainersMetrics();
+
+        await stream.writeSSE({
+          data: JSON.stringify(contianersMetrics),
+          event: "containers-metrics",
+          id: String(Date.now()),
+        });
+
+        await stream.sleep(UPDATE_INTERVAL);
+      } catch (error) {
+        c.var.logger.error(error, "error fetching container metrics");
+
+        await stream.writeSSE({
+          data: JSON.stringify({ error: "Failed to fetch metrics" }),
+          event: "error",
+          id: String(Date.now()),
+        });
+
+        await stream.sleep(UPDATE_INTERVAL * 2);
+      }
+    }
+
+    c.var.logger.debug("container metrics stream ended");
+  });
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {

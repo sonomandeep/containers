@@ -80,6 +80,51 @@ export async function listContainers(): Promise<Array<Container>> {
   return containers;
 }
 
+export async function getContainersMetrics() {
+  const containers = await docker.listContainers({
+    filters: { status: ["running"] },
+  });
+
+  const metricsPromises = containers.map(async (containerInfo) => {
+    try {
+      const container = docker.getContainer(containerInfo.Id);
+      const stats = await container.stats({ stream: false });
+
+      const cpuDelta =
+        stats.cpu_stats.cpu_usage.total_usage -
+        stats.precpu_stats.cpu_usage.total_usage;
+      const systemDelta =
+        stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+      const cpuPercent =
+        (cpuDelta / systemDelta) * stats.cpu_stats.online_cpus * 100;
+
+      const memoryUsage = stats.memory_stats.usage;
+      const memoryLimit = stats.memory_stats.limit;
+      const memoryPercent = (memoryUsage / memoryLimit) * 100;
+
+      return {
+        id: containerInfo.Id,
+        name: containerInfo.Names[0].replace("/", ""),
+        cpu: cpuPercent.toFixed(2),
+        memory: {
+          usage: (memoryUsage / 1024 / 1024).toFixed(2), // MB
+          limit: (memoryLimit / 1024 / 1024).toFixed(2), // MB
+          percent: memoryPercent.toFixed(2),
+        },
+      };
+    } catch (error) {
+      console.error(
+        `Error getting metrics for container ${containerInfo.Id}:`,
+        error
+      );
+      return null;
+    }
+  });
+
+  const allMetrics = await Promise.all(metricsPromises);
+
+  return allMetrics.filter((m) => m !== null);
+}
 export async function removeContainer(
   input: RemoveContainerInput
 ): Promise<ServiceResponse<null, RemoveContainerError>> {

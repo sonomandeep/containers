@@ -21,6 +21,20 @@ export const list = createRoute({
 
 export type ListRoute = typeof list;
 
+export const metrics = createRoute({
+  path: "/containers/metrics/stream",
+  method: "get",
+  tags,
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("containers metrics"),
+      "Containers metrics"
+    ),
+  },
+});
+
+export type MetricsRoute = typeof metrics;
+
 export const launch = createRoute({
   path: "/containers",
   method: "post",
