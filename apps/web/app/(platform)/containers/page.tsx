@@ -8,13 +8,13 @@ import {
   MemoryStickIcon,
   NetworkIcon,
 } from "lucide-react";
+import { ContainersGrid } from "@/components/containers/containers-grid";
 import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
-import { ContainersGrid } from "@/components/containers/containers-grid";
 
 export default async function Page() {
   const { data, error } = await listContainers();

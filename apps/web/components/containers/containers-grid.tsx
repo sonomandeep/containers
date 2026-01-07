@@ -1,8 +1,8 @@
 "use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ContainerCard } from "./container-card";
 import { useContainersStore } from "@/lib/store/containers.store";
+import { ContainerCard } from "./container-card";
 
 export function ContainersGrid() {
   const containers = useContainersStore((state) => state.containers);

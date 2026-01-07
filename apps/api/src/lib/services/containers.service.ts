@@ -116,8 +116,8 @@ function formatContainerInspectInfo(
         ([containerPort, hostBindings]) =>
           (hostBindings || []).map((binding) => ({
             IP: binding.HostIp || "",
-            PrivatePort: parseInt(containerPort.split("/")[0]),
-            PublicPort: parseInt(binding.HostPort),
+            PrivatePort: Number.parseInt(containerPort.split("/")[0]),
+            PublicPort: Number.parseInt(binding.HostPort),
             Type: containerPort.split("/")[1] as "tcp" | "udp",
           }))
       )
