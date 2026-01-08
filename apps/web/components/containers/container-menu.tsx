@@ -1,4 +1,17 @@
-import { AlertCircle, CornerDownLeftIcon, Trash2Icon } from "lucide-react";
+import {
+  AlertCircle,
+  CornerDownLeftIcon,
+  EllipsisVerticalIcon,
+  FileTextIcon,
+  FolderKeyIcon,
+  HardDriveIcon,
+  NetworkIcon,
+  SquareTerminalIcon,
+  Trash2Icon,
+} from "lucide-react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,14 +21,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  EllipsisVerticalIcon,
-  FileTextIcon,
-  FolderKeyIcon,
-  HardDriveIcon,
-  NetworkIcon,
-  SquareTerminalIcon,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,20 +29,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useTransition } from "react";
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import {
   Field,
   FieldDescription,
-  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { deleteContainer } from "@/lib/services/containers.service";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "sonner";
+import { deleteContainer } from "@/lib/services/containers.service";
 import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
@@ -141,20 +142,20 @@ function DeleteAlertDialog({
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="bg-neutral-100! rounded-lg! p-0! gap-0!">
+      <AlertDialogContent className="gap-0! rounded-lg! bg-neutral-100! p-0!">
         <AlertDialogHeader className="gap-0!">
-          <div className="inline-flex gap-2 items-baseline p-2">
+          <div className="inline-flex items-baseline gap-2 p-2">
             <AlertDialogTitle className="text-sm">
               Delete Container
             </AlertDialogTitle>
-            <span className="text-xs text-muted-foreground">{name}</span>
+            <span className="text-muted-foreground text-xs">{name}</span>
           </div>
         </AlertDialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="border border-neutral-200 bg-white rounded-lg mx-2 p-3 gap-3 flex flex-col">
+          <div className="mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3">
             <Alert variant="destructive">
-              <div className="inline-flex gap-2 items-center">
+              <div className="inline-flex items-center gap-2">
                 <AlertCircle className="size-3" />
                 <AlertTitle>
                   This will permanently delete the container.
@@ -169,11 +170,11 @@ function DeleteAlertDialog({
                     Type <span className="font-mono">{name}</span> to confirm
                   </FieldLabel>
                   <Input
-                    id="name"
                     autoComplete="off"
+                    id="name"
+                    onChange={(event) => setContainerName(event.target.value)}
                     placeholder={name}
                     value={containerName}
-                    onChange={(event) => setContainerName(event.target.value)}
                   />
                   <FieldDescription>
                     This helps prevent accidental deletions.
@@ -184,19 +185,19 @@ function DeleteAlertDialog({
           </div>
 
           <AlertDialogFooter className="p-2">
-            <AlertDialogCancel type="button" onClick={() => setOpen(false)}>
+            <AlertDialogCancel onClick={() => setOpen(false)} type="button">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               disabled={containerName !== name || isPending}
               type="submit"
+              variant="destructive"
             >
               Delete Container
               {isPending ? (
                 <Spinner className="size-3" />
               ) : (
-                <CornerDownLeftIcon className="opacity-60 size-3" />
+                <CornerDownLeftIcon className="size-3 opacity-60" />
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

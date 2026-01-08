@@ -14,11 +14,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useContainersStore } from "@/lib/store/containers.store";
+import { ContainerMenu } from "./container-menu";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
 import { StartContainer } from "./start-container";
 import { StopContainer } from "./stop-container";
-import { ContainerMenu } from "./container-menu";
 
 type Props = {
   container: Container;
