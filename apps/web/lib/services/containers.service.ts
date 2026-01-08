@@ -26,18 +26,24 @@ export async function listContainers() {
   return { data, error: null };
 }
 
-export async function startContainer(id: string) {
+export async function startContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
   const path = `/containers/${encodeURIComponent(id)}/start`;
 
-  const { error } = await $api(path, {
+  const { data, error } = await $api(path, {
     method: "post",
+    output: containerSchema,
   });
   if (error) {
     logger.error(error, "startContainer error");
-    return { error: "Unexpected error while starting the container." };
+    return {
+      data: null,
+      error: "Unexpected error while starting the container.",
+    };
   }
 
-  return { error: null };
+  return { data, error: null };
 }
 
 export async function stopContainer(

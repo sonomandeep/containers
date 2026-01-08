@@ -35,6 +35,7 @@ export function StopContainer({ id }: Props) {
                 : container
             )
           );
+
           return result;
         }),
         {
