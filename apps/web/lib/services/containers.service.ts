@@ -67,3 +67,16 @@ export async function stopContainer(
 
   return { data, error: null };
 }
+
+export async function deleteContainer(
+  id: string,
+  name: string
+): Promise<ServiceResponse<{ id: string; name: string }, string>> {
+  logger.info({ id, name }, "delete container");
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  return {
+    data: { id, name },
+    error: null,
+  };
+}

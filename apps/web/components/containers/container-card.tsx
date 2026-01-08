@@ -1,16 +1,7 @@
 "use client";
 
 import type { Container, ContainerPort } from "@containers/shared";
-import {
-  EllipsisVerticalIcon,
-  FileTextIcon,
-  FolderKeyIcon,
-  HardDriveIcon,
-  NetworkIcon,
-  RotateCwIcon,
-  SquareTerminalIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { RotateCwIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -22,18 +13,12 @@ import {
 } from "@/components/core/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
 import { StartContainer } from "./start-container";
 import { StopContainer } from "./stop-container";
+import { ContainerMenu } from "./container-menu";
 
 type Props = {
   container: Container;
@@ -99,39 +84,7 @@ function ContainerActions({ container }: { container: Container }) {
       {container.state === "paused" ||
         (container.state === "exited" && <StartContainer id={container.id} />)}
 
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
-          <EllipsisVerticalIcon />
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <FileTextIcon />
-            Logs
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <NetworkIcon />
-            Ports
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <FolderKeyIcon />
-            Variables
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <HardDriveIcon />
-            Volumes
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <SquareTerminalIcon />
-            Terminal
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">
-            <Trash2Icon />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ContainerMenu id={container.id} name={container.name} />
     </div>
   );
 }
