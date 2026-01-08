@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/core/alert-dialog";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -143,12 +143,10 @@ function DeleteAlertDialog({
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="gap-0! rounded-lg! bg-neutral-100! p-0!">
-        <AlertDialogHeader className="gap-0!">
+      <AlertDialogContent>
+        <AlertDialogHeader>
           <div className="inline-flex items-baseline gap-2 p-2">
-            <AlertDialogTitle className="text-sm">
-              Delete Container
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete Container</AlertDialogTitle>
             <span className="text-muted-foreground text-xs">{name}</span>
           </div>
         </AlertDialogHeader>
@@ -185,10 +183,11 @@ function DeleteAlertDialog({
             </FieldSet>
           </div>
 
-          <AlertDialogFooter className="p-2">
+          <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setOpen(false)} type="button">
               Cancel
             </AlertDialogCancel>
+
             <AlertDialogAction
               disabled={containerName !== name || isPending}
               type="submit"
