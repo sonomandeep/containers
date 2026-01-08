@@ -19,6 +19,7 @@ import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
 import { StartContainer } from "./start-container";
 import { StopContainer } from "./stop-container";
+import { RestartContainer } from "./restart-container";
 
 type Props = {
   container: Container;
@@ -75,11 +76,7 @@ function ContainerActions({ container }: { container: Container }) {
     <div className="inline-flex items-center gap-1">
       {container.state === "running" && <StopContainer id={container.id} />}
 
-      {container.state === "running" && (
-        <Button size="icon-sm" variant="ghost">
-          <RotateCwIcon />
-        </Button>
-      )}
+      {container.state === "running" && <RestartContainer id={container.id} />}
 
       {container.state === "paused" ||
         (container.state === "exited" && <StartContainer id={container.id} />)}

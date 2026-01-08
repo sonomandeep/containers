@@ -46,6 +46,26 @@ export async function startContainer(
   return { data, error: null };
 }
 
+export async function restartContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
+  const path = `/containers/${encodeURIComponent(id)}/restart`;
+
+  const { data, error } = await $api(path, {
+    method: "post",
+    output: containerSchema,
+  });
+  if (error) {
+    logger.error(error, "restartContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while restarting the container.",
+    };
+  }
+
+  return { data, error: null };
+}
+
 export async function stopContainer(
   id: string
 ): Promise<ServiceResponse<Container, string>> {

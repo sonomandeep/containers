@@ -1,6 +1,7 @@
 import type { ContainerState } from "@containers/shared";
-import { PlayIcon, RotateCwIcon, SquareIcon } from "lucide-react";
+import { PlayIcon, SquareIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 type Props = {
   state: ContainerState;
@@ -10,7 +11,7 @@ export function ContainerStateBadge({ state }: Props) {
   if (state === "restarting") {
     return (
       <Badge variant="warning">
-        <RotateCwIcon data-icon="inline-start" />
+        <Spinner data-icon="inline-start" />
         <span>Restarting</span>
       </Badge>
     );
