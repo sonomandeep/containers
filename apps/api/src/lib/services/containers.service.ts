@@ -38,6 +38,10 @@ type StopContainerInput = {
   containerId: string;
 };
 
+type RestartContainerInput = {
+  containerId: string;
+};
+
 type StopContainerError = {
   message: string;
   code:
@@ -51,6 +55,14 @@ type StartContainerInput = {
 };
 
 type StartContainerError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.CONFLICT
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+type RestartContainerError = {
   message: string;
   code:
     | typeof HttpStatusCodes.NOT_FOUND
@@ -328,6 +340,54 @@ export async function startContainer(
       }
     }
 
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function restartContainer(
+  input: RestartContainerInput
+): Promise<ServiceResponse<Container, RestartContainerError>> {
+  try {
+    const container = docker.getContainer(input.containerId);
+    await container.restart();
+    const info = await container.inspect();
+    const metrics = await getContainerMetrics(container.id);
+
+    return {
+      data: formatContainerInspectInfo(info, metrics),
+      error: null,
+    };
+  } catch (error) {
+    if (isDockerodeError(error)) {
+      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
+        return {
+          data: null,
+          error: {
+            message: HttpStatusPhrases.NOT_FOUND,
+            code: HttpStatusCodes.NOT_FOUND,
+          },
+        };
+      }
+
+      if (
+        error.statusCode === HttpStatusCodes.CONFLICT ||
+        error.statusCode === HttpStatusCodes.NOT_MODIFIED
+      ) {
+        return {
+          data: null,
+          error: {
+            message: "Container is already running.",
+            code: HttpStatusCodes.CONFLICT,
+          },
+        };
+      }
+    }
     return {
       data: null,
       error: {

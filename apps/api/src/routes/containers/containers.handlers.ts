@@ -4,6 +4,7 @@ import {
   launchContainer,
   listContainers,
   removeContainer,
+  restartContainer,
   startContainer,
   stopContainer,
 } from "@/lib/services/containers.service";
@@ -13,6 +14,7 @@ import type {
   ListRoute,
   MetricsRoute,
   RemoveRoute,
+  RestartRoute,
   StartRoute,
   StopRoute,
 } from "./containers.routes";
@@ -113,6 +115,26 @@ export const start: AppRouteHandler<StartRoute> = async (c) => {
   const params = c.req.valid("param");
 
   const result = await startContainer({
+    containerId: params.containerId,
+  });
+
+  if (result.error) {
+    c.var.logger.error(result.error);
+    return c.json(
+      {
+        message: result.error.message,
+      },
+      result.error.code
+    );
+  }
+
+  return c.json(result.data, HttpStatusCodes.OK);
+};
+
+export const restart: AppRouteHandler<RestartRoute> = async (c) => {
+  const params = c.req.valid("param");
+
+  const result = await restartContainer({
     containerId: params.containerId,
   });
 

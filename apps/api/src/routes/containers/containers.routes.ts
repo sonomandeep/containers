@@ -155,3 +155,31 @@ export const start = createRoute({
 });
 
 export type StartRoute = typeof start;
+
+export const restart = createRoute({
+  path: "/containers/{containerId}/restart",
+  method: "post",
+  tags,
+  request: {
+    params: z.object({
+      containerId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container restarted"),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Container not found"
+    ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema("Container is already running."),
+      "Container running"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+
+export type RestartRoute = typeof restart;
