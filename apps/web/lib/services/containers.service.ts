@@ -63,20 +63,24 @@ export async function stopContainer(
     };
   }
 
-  logger.info(data, "stop response data");
-
   return { data, error: null };
 }
 
 export async function deleteContainer(
-  id: string,
-  name: string
-): Promise<ServiceResponse<{ id: string; name: string }, string>> {
-  logger.info({ id, name }, "delete container");
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  id: string
+): Promise<ServiceResponse<{ id: string }, string>> {
+  const path = `/containers/${encodeURIComponent(id)}`;
 
-  return {
-    data: { id, name },
-    error: null,
-  };
+  const { error } = await $api(path, {
+    method: "delete",
+  });
+  if (error) {
+    logger.error(error, "deleteContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while deleting the container.",
+    };
+  }
+
+  return { data: { id }, error: null };
 }

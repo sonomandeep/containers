@@ -37,6 +37,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { deleteContainer } from "@/lib/services/containers.service";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
   id: string;
@@ -111,13 +113,29 @@ function DeleteAlertDialog({
 }) {
   const [containerName, setContainerName] = useState("");
   const [isPending, startTransition] = useTransition();
+  const store = useContainersStore((state) => state);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    startTransition(() => {
+      toast.promise(
+        deleteContainer(id).then((result) => {
+          if (result.error) {
+            throw new Error(result.error);
+          }
 
-    startTransition(async () => {
-      const { data, error } = await deleteContainer(id, name);
-      console.log(data, error);
+          store.setContainers(
+            store.containers.filter((container) => container.id !== id)
+          );
+
+          return result;
+        }),
+        {
+          loading: "Deleting container...",
+          success: "Container deleted successfully",
+          error: (error) => error.message,
+        }
+      );
     });
   };
 
