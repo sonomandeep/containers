@@ -138,10 +138,7 @@ export const start = createRoute({
     }),
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      createMessageObjectSchema("container started"),
-      "Container started"
-    ),
+    [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container started"),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Container not found"

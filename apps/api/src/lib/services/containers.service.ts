@@ -111,16 +111,18 @@ function formatContainerInspectInfo(
     image: info.Config.Image,
     state: info.State.Status as ContainerState,
     status: `${info.State.Status}${info.State.Running ? " (running)" : ""}`,
-    ports: getPorts(
-      Object.entries(info.NetworkSettings.Ports || {}).flatMap(
-        ([containerPort, hostBindings]) =>
-          (hostBindings || []).map((binding) => ({
-            IP: binding.HostIp || "",
-            PrivatePort: Number.parseInt(containerPort.split("/")[0]),
-            PublicPort: Number.parseInt(binding.HostPort),
-            Type: containerPort.split("/")[1] as "tcp" | "udp",
-          }))
-      )
+    ports: Object.entries(info.NetworkSettings.Ports || {}).flatMap(
+      ([portKey, hostConfigs]) => {
+        const [privatePort, type] = portKey.split("/");
+        return hostConfigs === null
+          ? [{ ipVersion: "", private: +privatePort, type }]
+          : hostConfigs.map(({ HostIp, HostPort }) => ({
+              ipVersion: HostIp === "0.0.0.0" ? "IPv4" : "IPv6",
+              private: +privatePort,
+              ...(HostPort && { public: +HostPort }),
+              type,
+            }));
+      }
     ),
     metrics,
     created: new Date(info.Created).getTime() / 1000,
@@ -289,13 +291,15 @@ export async function stopContainer(
 
 export async function startContainer(
   input: StartContainerInput
-): Promise<ServiceResponse<null, StartContainerError>> {
+): Promise<ServiceResponse<Container, StartContainerError>> {
   try {
     const container = docker.getContainer(input.containerId);
     await container.start();
+    const info = await container.inspect();
+    const metrics = await getContainerMetrics(container.id);
 
     return {
-      data: null,
+      data: formatContainerInspectInfo(info, metrics),
       error: null,
     };
   } catch (error) {
