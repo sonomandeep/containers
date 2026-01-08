@@ -9,6 +9,7 @@ export const containerStateSchema = z.enum([
 ]);
 
 export type ContainerState = z.infer<typeof containerStateSchema>;
+export const ContainerStateEnum = containerStateSchema.enum;
 
 export const containerMetricsSchema = z.object({
   cpu: z.number(),

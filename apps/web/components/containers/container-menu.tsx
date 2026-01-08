@@ -1,3 +1,4 @@
+import { type Container, ContainerStateEnum } from "@containers/shared";
 import {
   AlertCircle,
   CornerDownLeftIcon,
@@ -42,11 +43,10 @@ import { deleteContainer } from "@/lib/services/containers.service";
 import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
-  id: string;
-  name: string;
+  container: Container;
 };
 
-export function ContainerMenu({ id, name }: Props) {
+export function ContainerMenu({ container }: Props) {
   const [deleteContainerDialogOpen, setDeleteContainerDialogOpen] =
     useState(false);
 
@@ -82,6 +82,7 @@ export function ContainerMenu({ id, name }: Props) {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
+            disabled={container.state !== ContainerStateEnum.exited}
             onClick={() => setDeleteContainerDialogOpen(true)}
             variant="destructive"
           >
@@ -92,8 +93,8 @@ export function ContainerMenu({ id, name }: Props) {
       </DropdownMenu>
 
       <DeleteAlertDialog
-        id={id}
-        name={name}
+        id={container.id}
+        name={container.name}
         open={deleteContainerDialogOpen}
         setOpen={setDeleteContainerDialogOpen}
       />

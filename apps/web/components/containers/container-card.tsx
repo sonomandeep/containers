@@ -84,7 +84,7 @@ function ContainerActions({ container }: { container: Container }) {
       {container.state === "paused" ||
         (container.state === "exited" && <StartContainer id={container.id} />)}
 
-      <ContainerMenu id={container.id} name={container.name} />
+      <ContainerMenu container={container} />
     </div>
   );
 }
