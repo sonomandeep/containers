@@ -1,7 +1,11 @@
 "use client";
 
-import type { Container, ContainerPort } from "@containers/shared";
-import { RotateCwIcon } from "lucide-react";
+import {
+  ContainerStateEnum,
+  type Container,
+  type ContainerPort,
+} from "@containers/shared";
+import { AlertTriangleIcon, RotateCwIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -64,7 +68,7 @@ export function ContainerCard({ container }: Props) {
       </CardContent>
 
       <CardFooter className="justify-between">
-        <span>{container.status}</span>
+        <ContainerStatus container={container} />
         <span>{container.host}</span>
       </CardFooter>
     </Card>
@@ -127,6 +131,19 @@ function ContainerPorts({ ports }: { ports: Array<ContainerPort> }) {
       ))}
     </div>
   );
+}
+
+function ContainerStatus({ container }: { container: Container }) {
+  if (container.state === ContainerStateEnum.restarting) {
+    return (
+      <div className="text-amber-600 inline-flex items-center gap-2">
+        <AlertTriangleIcon className="size-3" />
+        <span>Restarting</span>
+      </div>
+    );
+  }
+
+  return <span>{container.status}</span>;
 }
 
 function formatCpuUsage(id: string, containers: Array<Container>) {
