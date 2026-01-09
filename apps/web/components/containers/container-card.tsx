@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  ContainerStateEnum,
   type Container,
   type ContainerPort,
+  ContainerStateEnum,
 } from "@containers/shared";
-import { AlertTriangleIcon, RotateCwIcon } from "lucide-react";
+import { AlertTriangleIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,14 +16,13 @@ import {
   CardToolbar,
 } from "@/components/core/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerMenu } from "./container-menu";
 import { ContainerPortBadge } from "./container-port-badge";
 import { ContainerStateBadge } from "./container-state-badge";
+import { RestartContainer } from "./restart-container";
 import { StartContainer } from "./start-container";
 import { StopContainer } from "./stop-container";
-import { RestartContainer } from "./restart-container";
 
 type Props = {
   container: Container;
@@ -136,7 +135,7 @@ function ContainerPorts({ ports }: { ports: Array<ContainerPort> }) {
 function ContainerStatus({ container }: { container: Container }) {
   if (container.state === ContainerStateEnum.restarting) {
     return (
-      <div className="text-amber-600 inline-flex items-center gap-2">
+      <div className="inline-flex items-center gap-2 text-amber-600">
         <AlertTriangleIcon className="size-3" />
         <span>Restarting</span>
       </div>

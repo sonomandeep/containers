@@ -1,5 +1,6 @@
 "use client";
 
+import { ContainerStateEnum } from "@containers/shared";
 import { RotateCwIcon } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { restartContainer } from "@/lib/services/containers.service";
 import { useContainersStore } from "@/lib/store/containers.store";
-import { ContainerStateEnum } from "@containers/shared";
 
 type Props = {
   id: string;

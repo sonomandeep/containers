@@ -1,6 +1,8 @@
+"use client";
+
 import { type Container, ContainerStateEnum } from "@containers/shared";
 import {
-  AlertCircle,
+  AlertCircleIcon,
   CornerDownLeftIcon,
   EllipsisVerticalIcon,
   FileTextIcon,
@@ -41,6 +43,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { deleteContainer } from "@/lib/services/containers.service";
 import { useContainersStore } from "@/lib/store/containers.store";
+import EnvVariablesDialog from "./env-variables-dialog";
 
 type Props = {
   container: Container;
@@ -49,6 +52,7 @@ type Props = {
 export function ContainerMenu({ container }: Props) {
   const [deleteContainerDialogOpen, setDeleteContainerDialogOpen] =
     useState(false);
+  const [envVariablesDialogOpen, setEnvVariablesDialogOpen] = useState(false);
 
   return (
     <>
@@ -66,10 +70,15 @@ export function ContainerMenu({ container }: Props) {
             <NetworkIcon />
             Ports
           </DropdownMenuItem>
-          <DropdownMenuItem>
+
+          <DropdownMenuItem
+            disabled={container.state !== ContainerStateEnum.running}
+            onClick={() => setEnvVariablesDialogOpen(true)}
+          >
             <FolderKeyIcon />
             Variables
           </DropdownMenuItem>
+
           <DropdownMenuItem>
             <HardDriveIcon />
             Volumes
@@ -91,6 +100,13 @@ export function ContainerMenu({ container }: Props) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EnvVariablesDialog
+        id={container.id}
+        name={container.name}
+        open={envVariablesDialogOpen}
+        setOpen={setEnvVariablesDialogOpen}
+      />
 
       <DeleteAlertDialog
         id={container.id}
@@ -155,7 +171,7 @@ function DeleteAlertDialog({
           <div className="mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3">
             <Alert variant="destructive">
               <div className="inline-flex items-center gap-2">
-                <AlertCircle className="size-3" />
+                <AlertCircleIcon className="size-3" />
                 <AlertTitle>
                   This will permanently delete the container.
                 </AlertTitle>
