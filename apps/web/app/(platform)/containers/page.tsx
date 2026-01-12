@@ -11,6 +11,15 @@ import {
 import { ContainersGrid } from "@/components/containers/containers-grid";
 import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 import {
+  MetricCard,
+  MetricCardContent,
+  MetricCardHeader,
+  MetricCardLabel,
+  MetricCardProgress,
+  MetricCardStats,
+  MetricCardValue,
+} from "@/components/core/metric-card";
+import {
   SectionCard,
   SectionCardDescription,
   SectionCardHeader,
@@ -70,98 +79,79 @@ export default async function Page() {
         </SectionCardHeader>
 
         <div className="grid grid-cols-4 gap-4">
-          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-            <div className="inline-flex items-center gap-1">
-              <CpuIcon className="size-3 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground text-xs">
-                CPU
-              </span>
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
-              <div className="inline-flex w-full items-center justify-between font-mono">
-                <span className="font-medium text-neutral-700">32.5%</span>
-                <span className="font-medium text-muted-foreground text-xs">
-                  12 vCPU
-                </span>
-              </div>
-
-              <div className="h-3 w-full">
+          <MetricCard>
+            <MetricCardHeader>
+              <CpuIcon />
+              CPU
+            </MetricCardHeader>
+            <MetricCardContent>
+              <MetricCardStats>
+                <MetricCardValue>32.5%</MetricCardValue>
+                <MetricCardLabel>12 vCPU</MetricCardLabel>
+              </MetricCardStats>
+              <MetricCardProgress>
                 <SegmentedProgressBar value={32.5} />
-              </div>
-            </div>
-          </div>
+              </MetricCardProgress>
+            </MetricCardContent>
+          </MetricCard>
 
-          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-            <div className="inline-flex items-center gap-1">
-              <MemoryStickIcon className="size-3 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground text-xs">
-                Memory
-              </span>
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
-              <div className="inline-flex w-full items-center justify-between font-mono">
-                <span className="font-medium text-neutral-700">93.8%</span>
-                <span className="font-medium text-muted-foreground text-xs">
-                  32 GB
-                </span>
-              </div>
-
-              <div className="h-3 w-full">
+          <MetricCard>
+            <MetricCardHeader>
+              <MemoryStickIcon />
+              Memory
+            </MetricCardHeader>
+            <MetricCardContent>
+              <MetricCardStats>
+                <MetricCardValue>93.8%</MetricCardValue>
+                <MetricCardLabel>32 GB</MetricCardLabel>
+              </MetricCardStats>
+              <MetricCardProgress>
                 <SegmentedProgressBar value={93.8} />
-              </div>
-            </div>
-          </div>
+              </MetricCardProgress>
+            </MetricCardContent>
+          </MetricCard>
 
-          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-            <div className="inline-flex items-center gap-1">
-              <HardDriveIcon className="size-3 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground text-xs">
-                Disk
-              </span>
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
-              <div className="inline-flex w-full items-center justify-between font-mono">
-                <span className="font-medium text-neutral-700">74.2%</span>
-                <span className="font-medium text-muted-foreground text-xs">
-                  512 GB
-                </span>
-              </div>
-
-              <div className="h-3 w-full">
+          <MetricCard>
+            <MetricCardHeader>
+              <HardDriveIcon />
+              Disk
+            </MetricCardHeader>
+            <MetricCardContent>
+              <MetricCardStats>
+                <MetricCardValue>74.2%</MetricCardValue>
+                <MetricCardLabel>512 GB</MetricCardLabel>
+              </MetricCardStats>
+              <MetricCardProgress>
                 <SegmentedProgressBar value={74.2} />
-              </div>
-            </div>
-          </div>
+              </MetricCardProgress>
+            </MetricCardContent>
+          </MetricCard>
 
-          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-            <div className="inline-flex items-center gap-1">
-              <NetworkIcon className="size-3 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground text-xs">
-                Network
-              </span>
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
-              <div className="inline-flex w-full items-center justify-between font-medium font-mono text-neutral-700">
-                <div className="inline-flex items-center gap-1">
-                  <ArrowUpIcon className="size-3.5" />
-                  <span>3.7 Gbps</span>
-                </div>
-
-                <div className="inline-flex items-center gap-1">
-                  <span>0.7 Gbps</span>
-                  <ArrowDownIcon className="size-3.5" />
-                </div>
-              </div>
-
-              <div className="h-3 w-full">
+          <MetricCard>
+            <MetricCardHeader>
+              <NetworkIcon />
+              Network
+            </MetricCardHeader>
+            <MetricCardContent>
+              <MetricCardStats>
+                <MetricCardValue>
+                  <div className="inline-flex items-center gap-1">
+                    <ArrowUpIcon className="size-3.5" />
+                    <span>3.7 Gbps</span>
+                  </div>
+                </MetricCardValue>
+                <MetricCardValue>
+                  <div className="inline-flex items-center gap-1">
+                    <span>0.7 Gbps</span>
+                    <ArrowDownIcon className="size-3.5" />
+                  </div>
+                </MetricCardValue>
+              </MetricCardStats>
+              <MetricCardProgress>
                 <SegmentedProgressBar value={80} />
-              </div>
-            </div>
-          </div>
+              </MetricCardProgress>
+            </MetricCardContent>
+          </MetricCard>
         </div>
       </SectionCard>
 
