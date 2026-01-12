@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
+    "@hookform/resolvers": "^5.2.2",
     "better-fetch": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

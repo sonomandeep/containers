@@ -104,3 +104,8 @@ export async function deleteContainer(
 
   return { data: { id }, error: null };
 }
+
+export async function updateEnvVariables(id: string, envs: unknown) {
+  logger.debug({ id, envs }, "envs from form");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+}

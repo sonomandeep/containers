@@ -43,3 +43,10 @@ export const containerSchema = z.object({
 });
 
 export type Container = z.infer<typeof containerSchema>;
+
+export const envinmentVariableSchema = z.object({
+  key: z.string().min(1).nonempty(),
+  value: z.string().min(1).nonempty(),
+});
+
+export type EnvironmentVariable = z.infer<typeof envinmentVariableSchema>;

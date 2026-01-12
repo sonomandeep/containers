@@ -1,12 +1,16 @@
 "use client";
 
+import { envinmentVariableSchema } from "@containers/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangleIcon,
   CornerDownLeftIcon,
   PlusIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useState } from "react";
+import { useTransition } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import z from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,16 +21,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
+import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
+import { updateEnvVariables } from "@/lib/services/containers.service";
 
 type Props = {
   id: string;
@@ -37,6 +35,8 @@ type Props = {
 
 export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
   const form = useForm({
+    resolver: zodResolver(z.object({ envs: z.array(envinmentVariableSchema) })),
+    mode: "onSubmit",
     defaultValues: {
       envs: [{ key: "", value: "" }],
     },
@@ -45,14 +45,24 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
     control: form.control,
     name: "envs",
   });
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (values: unknown) => {
-    console.log(values);
+    startTransition(async () => {
+      await updateEnvVariables(id, values);
+    });
   };
 
   return (
-    <Dialog onOpenChange={(value) => setOpen(value)} open={open}>
+    <Dialog
+      onOpenChange={(value) => {
+        setOpen(value);
+        if (!value) {
+          form.reset();
+        }
+      }}
+      open={open}
+    >
       <DialogContent className="gap-0! bg-neutral-100! p-0!">
         <DialogHeader>
           <div className="inline-flex items-baseline gap-2 p-2">
@@ -77,14 +87,14 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
 
             <div className="flex flex-col gap-3">
               <FieldSet className="gap-2">
-                {fields.map((field, index) => (
+                {fields.map((item, index) => (
                   <div
                     className="inline-flex items-center gap-2 font-mono"
-                    key={field.id}
+                    key={item.id}
                   >
                     <Controller
-                      name={`envs.${index}.key`}
                       control={form.control}
+                      name={`envs.${index}.key`}
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid}>
                           <Input
@@ -92,16 +102,13 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
                             aria-invalid={fieldState.invalid}
                             placeholder="KEY"
                           />
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
                         </Field>
                       )}
                     />
 
                     <Controller
-                      name={`envs.${index}.value`}
                       control={form.control}
+                      name={`envs.${index}.value`}
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid}>
                           <Input
@@ -109,18 +116,15 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
                             aria-invalid={fieldState.invalid}
                             placeholder="VALUE"
                           />
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
                         </Field>
                       )}
                     />
 
                     <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      type="button"
                       onClick={() => remove(index)}
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
                     >
                       <Trash2Icon className="opacity-60" />
                     </Button>
@@ -128,11 +132,15 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
                 ))}
               </FieldSet>
 
+              {form.formState.errors.envs && (
+                <FieldError>Validation error, check envs</FieldError>
+              )}
+
               <Button
                 className="border-dashed text-muted-foreground"
-                variant="outline"
-                type="button"
                 onClick={() => append({ key: "", value: "" })}
+                type="button"
+                variant="outline"
               >
                 <PlusIcon /> Add Variable
               </Button>
