@@ -142,7 +142,7 @@ export default async function Page() {
           <Card className="col-span-2 flex-1">
             <CardToolbar>{data.length} images</CardToolbar>
 
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 p-0">
               <ImagesTable images={data} />
             </CardContent>
 
