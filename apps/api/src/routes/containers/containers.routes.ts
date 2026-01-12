@@ -28,7 +28,7 @@ export const stream = createRoute({
   responses: {},
 });
 
-export type MetricsRoute = typeof stream;
+export type StreamRoute = typeof stream;
 
 export const launch = createRoute({
   path: "/containers",

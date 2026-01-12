@@ -12,7 +12,7 @@ import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
   ListRoute,
-  MetricsRoute,
+  StreamRoute,
   RemoveRoute,
   RestartRoute,
   StartRoute,
@@ -25,7 +25,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   return c.json(containers);
 };
 
-export const stream: AppSSEHandler<MetricsRoute> = (c) => {
+export const stream: AppSSEHandler<StreamRoute> = (c) => {
   c.var.logger.debug("container metrics stream started");
 
   return streamSSE(c, async (s) => {
