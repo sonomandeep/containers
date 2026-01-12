@@ -3,6 +3,8 @@
 import {
   type Container,
   containerSchema,
+  envinmentVariableSchema,
+  EnvironmentVariable,
   type ServiceResponse,
 } from "@containers/shared";
 import { z } from "zod";
@@ -105,7 +107,27 @@ export async function deleteContainer(
   return { data: { id }, error: null };
 }
 
-export async function updateEnvVariables(id: string, envs: unknown) {
-  logger.debug({ id, envs }, "envs from form");
-  await new Promise((resolve) => setTimeout(resolve, 300));
+export async function updateEnvVariables(
+  id: string,
+  envs: Array<EnvironmentVariable>
+) {
+  const path = `/containers/${encodeURIComponent(id)}/envs`;
+
+  const { data, error } = await $api(path, {
+    method: "post",
+    body: JSON.stringify(envs),
+    output: z.array(envinmentVariableSchema),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+  if (error) {
+    logger.error(error, "updateEnvVariables error");
+    return {
+      data: null,
+      error: "Unexpected error while updating env variables.",
+    };
+  }
+
+  return { data: { id, envs: data }, error: null };
 }

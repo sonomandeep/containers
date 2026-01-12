@@ -33,13 +33,17 @@ type Props = {
   setOpen(value: boolean): void;
 };
 
+const formSchema = z.object({
+  envs: z.array(envinmentVariableSchema),
+});
+
 export default function EnvVariablesDialog({
   container,
   open,
   setOpen,
 }: Props) {
-  const form = useForm({
-    resolver: zodResolver(z.object({ envs: z.array(envinmentVariableSchema) })),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
       envs: [...(container.envs || { key: "", value: "" })],
@@ -51,11 +55,11 @@ export default function EnvVariablesDialog({
   });
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (values: unknown) => {
+  function handleSubmit(data: z.infer<typeof formSchema>) {
     startTransition(async () => {
-      await updateEnvVariables(container.id, values);
+      await updateEnvVariables(container.id, data.envs);
     });
-  };
+  }
 
   return (
     <Dialog
