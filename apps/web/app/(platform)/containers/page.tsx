@@ -10,6 +10,14 @@ import {
 } from "lucide-react";
 import { ContainersGrid } from "@/components/containers/containers-grid";
 import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
+import {
+  SectionCard,
+  SectionCardDescription,
+  SectionCardHeader,
+  SectionCardHeaderContent,
+  SectionCardMeta,
+  SectionCardTitle,
+} from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -27,31 +35,39 @@ export default async function Page() {
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
       <MetricsStreamController containers={data} />
 
-      <section className="flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3">
-        <div className="inline-flex w-full items-center justify-between">
-          <div className="inline-flex items-baseline gap-2">
-            <h2>Containers</h2>
-            <span className="text-muted-foreground text-xs">8 nodes</span>
-          </div>
+      <SectionCard>
+        <SectionCardHeader>
+          <SectionCardHeaderContent>
+            <SectionCardTitle>Cluster Resources</SectionCardTitle>
+            <SectionCardDescription>3 node</SectionCardDescription>
+          </SectionCardHeaderContent>
 
-          <ToggleGroup className="gap-1 bg-neutral-50 p-0.5 font-mono">
-            <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-              1h
-            </ToggleGroupItem>
-            <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-              4h
-            </ToggleGroupItem>
-            <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-              1d
-            </ToggleGroupItem>
-            <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-              7d
-            </ToggleGroupItem>
-            <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-              30d
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+          <SectionCardMeta>
+            <ToggleGroup
+              className="gap-1 bg-neutral-50 p-0.5 font-mono"
+              defaultValue={["1h"]}
+            >
+              <ToggleGroupItem
+                className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"
+                value="1h"
+              >
+                1h
+              </ToggleGroupItem>
+              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
+                4h
+              </ToggleGroupItem>
+              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
+                1d
+              </ToggleGroupItem>
+              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
+                7d
+              </ToggleGroupItem>
+              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
+                30d
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </SectionCardMeta>
+        </SectionCardHeader>
 
         <div className="grid grid-cols-4 gap-4">
           <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
@@ -147,7 +163,7 @@ export default async function Page() {
             </div>
           </div>
         </div>
-      </section>
+      </SectionCard>
 
       <section className="@container flex min-h-0 w-full flex-1 flex-col gap-3 overflow-hidden rounded-lg border border-neutral-100 bg-background p-3">
         <div className="inline-flex w-full items-center justify-between px-3">
