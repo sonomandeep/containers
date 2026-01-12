@@ -21,6 +21,7 @@ import {
 } from "@/components/core/metric-card";
 import {
   SectionCard,
+  SectionCardActions,
   SectionCardDescription,
   SectionCardHeader,
   SectionCardHeaderContent,
@@ -51,7 +52,7 @@ export default async function Page() {
             <SectionCardDescription>3 node</SectionCardDescription>
           </SectionCardHeaderContent>
 
-          <SectionCardMeta>
+          <SectionCardActions>
             <ToggleGroup
               className="gap-1 bg-neutral-50 p-0.5 font-mono"
               defaultValue={["1h"]}
@@ -75,7 +76,7 @@ export default async function Page() {
                 30d
               </ToggleGroupItem>
             </ToggleGroup>
-          </SectionCardMeta>
+          </SectionCardActions>
         </SectionCardHeader>
 
         <div className="grid grid-cols-4 gap-4">
@@ -155,14 +156,16 @@ export default async function Page() {
         </div>
       </SectionCard>
 
-      <section className="@container flex min-h-0 w-full flex-1 flex-col gap-3 overflow-hidden rounded-lg border border-neutral-100 bg-background p-3">
-        <div className="inline-flex w-full items-center justify-between px-3">
-          <div className="inline-flex items-baseline gap-2">
-            <h2>Containers</h2>
-            <span className="text-muted-foreground text-xs">8 nodes</span>
-          </div>
+      <SectionCard className="@container min-h-0 flex-1 overflow-hidden">
+        <SectionCardHeader>
+          <SectionCardHeaderContent>
+            <SectionCardTitle>Your Containers</SectionCardTitle>
+            <SectionCardDescription>
+              {data.length} containers
+            </SectionCardDescription>
+          </SectionCardHeaderContent>
 
-          <div className="inline-flex items-center gap-3">
+          <SectionCardActions>
             <Button size="icon-sm" variant="ghost">
               <ArrowDownUpIcon />
             </Button>
@@ -170,11 +173,11 @@ export default async function Page() {
             <Button size="icon-sm" variant="ghost">
               <FunnelIcon />
             </Button>
-          </div>
-        </div>
+          </SectionCardActions>
+        </SectionCardHeader>
 
         <ContainersGrid />
-      </section>
+      </SectionCard>
     </div>
   );
 }
