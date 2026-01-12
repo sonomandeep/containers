@@ -15,6 +15,7 @@ const router = createRouter()
   .openapi(routes.stop, handlers.stop)
   .openapi(routes.start, handlers.start)
   .openapi(routes.restart, handlers.restart)
+  .openapi(routes.updateEnvs, handlers.updateEnvs)
   .get(
     routes.stream.path,
     cors({

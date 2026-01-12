@@ -1,4 +1,8 @@
-import { containerSchema, launchContainerSchema } from "@containers/shared";
+import {
+  containerSchema,
+  envinmentVariableSchema,
+  launchContainerSchema,
+} from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
@@ -18,7 +22,6 @@ export const list = createRoute({
     ),
   },
 });
-
 export type ListRoute = typeof list;
 
 export const stream = createRoute({
@@ -27,8 +30,29 @@ export const stream = createRoute({
   tags,
   responses: {},
 });
-
 export type StreamRoute = typeof stream;
+
+export const updateEnvs = createRoute({
+  path: "/containers/{containerId}/envs",
+  method: "post",
+  tags,
+  request: {
+    params: z.object({
+      containerId: z.string().min(1),
+    }),
+    body: jsonContentRequired(
+      z.array(envinmentVariableSchema),
+      "Container envs"
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.array(envinmentVariableSchema),
+      "Container environment variabels"
+    ),
+  },
+});
+export type UpdateEnvsRoute = typeof updateEnvs;
 
 export const launch = createRoute({
   path: "/containers",
@@ -61,7 +85,6 @@ export const launch = createRoute({
     ),
   },
 });
-
 export type LaunchRoute = typeof launch;
 
 export const remove = createRoute({
@@ -97,7 +120,6 @@ export const remove = createRoute({
     ),
   },
 });
-
 export type RemoveRoute = typeof remove;
 
 export const stop = createRoute({
@@ -125,7 +147,6 @@ export const stop = createRoute({
     ),
   },
 });
-
 export type StopRoute = typeof stop;
 
 export const start = createRoute({
@@ -153,7 +174,6 @@ export const start = createRoute({
     ),
   },
 });
-
 export type StartRoute = typeof start;
 
 export const restart = createRoute({
@@ -181,5 +201,4 @@ export const restart = createRoute({
     ),
   },
 });
-
 export type RestartRoute = typeof restart;

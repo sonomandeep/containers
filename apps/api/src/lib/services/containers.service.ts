@@ -483,6 +483,18 @@ export async function launchContainer(
   }
 }
 
+export async function updateContainerEnvs(
+  id: string,
+  envs: Array<EnvironmentVariable>
+): Promise<
+  ServiceResponse<{ id: string; envs: Array<EnvironmentVariable> }, string>
+> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  console.log(id, envs);
+
+  return { data: { id, envs }, error: null };
+}
+
 const commandRegEx = /^"(.*)"$/;
 
 function parseCommand(command?: string): Array<string> | undefined {

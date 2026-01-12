@@ -7,6 +7,7 @@ import {
   restartContainer,
   startContainer,
   stopContainer,
+  updateContainerEnvs,
 } from "@/lib/services/containers.service";
 import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
@@ -17,6 +18,7 @@ import type {
   RestartRoute,
   StartRoute,
   StopRoute,
+  UpdateEnvsRoute,
 } from "./containers.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
@@ -63,6 +65,15 @@ export const stream: AppSSEHandler<StreamRoute> = (c) => {
 
     c.var.logger.debug("container metrics stream ended");
   });
+};
+
+export const updateEnvs: AppRouteHandler<UpdateEnvsRoute> = async (c) => {
+  const params = c.req.valid("param");
+  const input = c.req.valid("json");
+
+  const result = await updateContainerEnvs(params.containerId, input);
+
+  return c.json(result.data?.envs || [], HttpStatusCodes.OK);
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
