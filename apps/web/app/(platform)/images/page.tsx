@@ -29,6 +29,7 @@ import {
   SectionCardTitle,
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
+import { ImagesTable } from "@/components/images/table";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -139,9 +140,11 @@ export default async function Page() {
 
         <div className="grid flex-1 grid-cols-3 gap-3">
           <Card className="col-span-2 flex-1">
-            <CardToolbar>{data.length}</CardToolbar>
+            <CardToolbar>{data.length} images</CardToolbar>
 
-            <CardContent className="flex-1">aaa</CardContent>
+            <CardContent className="flex-1">
+              <ImagesTable images={data} />
+            </CardContent>
 
             <CardFooter className="justify-between">
               <Select>
