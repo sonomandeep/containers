@@ -6,14 +6,11 @@ import {
   LayersIcon,
 } from "lucide-react";
 import {
-  SectionCard,
-  SectionCardDescription,
-  SectionCardHeader,
-  SectionCardHeaderContent,
-  SectionCardMeta,
-  SectionCardTitle,
-} from "@/components/core/section-card";
-import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
+  Card,
+  CardContent,
+  CardFooter,
+  CardToolbar,
+} from "@/components/core/card";
 import {
   MetricCard,
   MetricCardContent,
@@ -24,11 +21,22 @@ import {
   MetricCardValue,
 } from "@/components/core/metric-card";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardToolbar,
-} from "@/components/core/card";
+  SectionCard,
+  SectionCardDescription,
+  SectionCardHeader,
+  SectionCardHeaderContent,
+  SectionCardMeta,
+  SectionCardTitle,
+} from "@/components/core/section-card";
+import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import {
   Select,
   SelectContent,
@@ -36,27 +44,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { listImages } from "@/lib/services/images.service";
 
-export default function Page() {
+export default async function Page() {
+  const { data, error } = await listImages();
+
+  if (error !== null) {
+    throw new Error(error);
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
       <SectionCard>
         <SectionCardHeader>
           <SectionCardHeaderContent>
             <SectionCardTitle>Cluster Images</SectionCardTitle>
-            <SectionCardDescription>37 images</SectionCardDescription>
+            <SectionCardDescription>
+              {data.length} Images
+            </SectionCardDescription>
           </SectionCardHeaderContent>
 
-          <SectionCardMeta>376 GB</SectionCardMeta>
+          <SectionCardMeta>
+            {(
+              data.reduce((acc, image) => acc + image.size, 0) /
+              1024 ** 3
+            ).toFixed(2)}
+            &nbsp;GB
+          </SectionCardMeta>
         </SectionCardHeader>
 
         <div className="grid grid-cols-3 gap-4">
@@ -123,9 +137,9 @@ export default function Page() {
           </SectionCardHeaderContent>
         </SectionCardHeader>
 
-        <div className="grid gap-3 flex-1 grid-cols-3">
-          <Card className="flex-1 col-span-2">
-            <CardToolbar>27 images</CardToolbar>
+        <div className="grid flex-1 grid-cols-3 gap-3">
+          <Card className="col-span-2 flex-1">
+            <CardToolbar>{data.length}</CardToolbar>
 
             <CardContent className="flex-1">aaa</CardContent>
 
@@ -142,14 +156,14 @@ export default function Page() {
                 </SelectContent>
               </Select>
 
-              <div className="inline-flex gap-2 items-center">
-                <Button variant="ghost" size="icon-sm">
+              <div className="inline-flex items-center gap-2">
+                <Button size="icon-sm" variant="ghost">
                   <ChevronLeftIcon />
                 </Button>
 
                 <span className="font-mono">1</span>
 
-                <Button variant="ghost" size="icon-sm">
+                <Button size="icon-sm" variant="ghost">
                   <ChevronRightIcon />
                 </Button>
               </div>
