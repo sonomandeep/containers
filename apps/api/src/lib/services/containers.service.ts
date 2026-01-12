@@ -4,6 +4,7 @@ import type {
   ContainerMetrics,
   ContainerPort,
   ContainerState,
+  EnvironmentVariable,
   LaunchContainerInput,
   ServiceResponse,
 } from "@containers/shared";
@@ -84,12 +85,16 @@ export async function listContainers(): Promise<Array<Container>> {
 
   const result = await Promise.all(
     items.map(async (item) => {
+      const container = docker.getContainer(item.Id);
+      const inspect = await container.inspect();
+      const envs = getContainerEnvs(inspect);
+
       let metrics: ContainerMetrics | undefined;
       if (item.State === "running") {
         metrics = await getContainerMetrics(item.Id);
       }
 
-      return formatContainerInfo(item, metrics);
+      return formatContainerInfo(item, envs, metrics);
     })
   );
 
@@ -98,6 +103,7 @@ export async function listContainers(): Promise<Array<Container>> {
 
 function formatContainerInfo(
   info: Dockerode.ContainerInfo,
+  envs: Array<EnvironmentVariable>,
   metrics?: ContainerMetrics | undefined
 ): Container {
   return {
@@ -107,6 +113,7 @@ function formatContainerInfo(
     state: info.State as ContainerState,
     status: info.Status,
     ports: getPorts(info.Ports),
+    envs,
     metrics,
     created: info.Created,
     host: os.hostname(),
@@ -115,6 +122,7 @@ function formatContainerInfo(
 
 function formatContainerInspectInfo(
   info: Dockerode.ContainerInspectInfo,
+  envs: Array<EnvironmentVariable>,
   metrics?: ContainerMetrics | undefined
 ): Container {
   return {
@@ -136,10 +144,25 @@ function formatContainerInspectInfo(
             }));
       }
     ),
+    envs,
     metrics,
     created: new Date(info.Created).getTime() / 1000,
     host: os.hostname(),
   };
+}
+
+function getContainerEnvs(
+  inspect: Dockerode.ContainerInspectInfo
+): Array<EnvironmentVariable> {
+  const items = inspect.Config.Env.map((item) => {
+    const [key, ...value] = item.split("=");
+    return {
+      key,
+      value: value.join("="),
+    };
+  });
+
+  return items;
 }
 
 async function getContainerMetrics(id: string) {
@@ -260,9 +283,10 @@ export async function stopContainer(
     const container = docker.getContainer(input.containerId);
     await container.stop();
     const info = await container.inspect();
+    const envs = getContainerEnvs(info);
 
     return {
-      data: formatContainerInspectInfo(info),
+      data: formatContainerInspectInfo(info, envs),
       error: null,
     };
   } catch (error) {
@@ -308,10 +332,11 @@ export async function startContainer(
     const container = docker.getContainer(input.containerId);
     await container.start();
     const info = await container.inspect();
+    const envs = getContainerEnvs(info);
     const metrics = await getContainerMetrics(container.id);
 
     return {
-      data: formatContainerInspectInfo(info, metrics),
+      data: formatContainerInspectInfo(info, envs, metrics),
       error: null,
     };
   } catch (error) {
@@ -357,10 +382,11 @@ export async function restartContainer(
     const container = docker.getContainer(input.containerId);
     await container.restart();
     const info = await container.inspect();
+    const envs = getContainerEnvs(info);
     const metrics = await getContainerMetrics(container.id);
 
     return {
-      data: formatContainerInspectInfo(info, metrics),
+      data: formatContainerInspectInfo(info, envs, metrics),
       error: null,
     };
   } catch (error) {

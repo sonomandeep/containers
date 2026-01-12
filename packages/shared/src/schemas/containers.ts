@@ -30,6 +30,13 @@ export const containerPortSchema = z.object({
 
 export type ContainerPort = z.infer<typeof containerPortSchema>;
 
+export const envinmentVariableSchema = z.object({
+  key: z.string().min(1).nonempty(),
+  value: z.string().min(1).nonempty(),
+});
+
+export type EnvironmentVariable = z.infer<typeof envinmentVariableSchema>;
+
 export const containerSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -38,15 +45,9 @@ export const containerSchema = z.object({
   status: z.string(),
   ports: z.array(containerPortSchema),
   metrics: containerMetricsSchema.optional(),
+  envs: z.array(envinmentVariableSchema),
   host: z.string().optional(),
   created: z.number(),
 });
 
 export type Container = z.infer<typeof containerSchema>;
-
-export const envinmentVariableSchema = z.object({
-  key: z.string().min(1).nonempty(),
-  value: z.string().min(1).nonempty(),
-});
-
-export type EnvironmentVariable = z.infer<typeof envinmentVariableSchema>;
