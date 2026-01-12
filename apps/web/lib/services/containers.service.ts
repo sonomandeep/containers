@@ -3,8 +3,8 @@
 import {
   type Container,
   containerSchema,
+  type EnvironmentVariable,
   envinmentVariableSchema,
-  EnvironmentVariable,
   type ServiceResponse,
 } from "@containers/shared";
 import { z } from "zod";

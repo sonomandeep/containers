@@ -1,5 +1,6 @@
 "use client";
 
+import type { Container } from "@containers/shared";
 import { envinmentVariableSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,7 +26,6 @@ import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { updateEnvVariables } from "@/lib/services/containers.service";
-import type { Container } from "@containers/shared";
 
 type Props = {
   container: Container;

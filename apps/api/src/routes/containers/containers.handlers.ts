@@ -13,11 +13,11 @@ import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
   ListRoute,
-  StreamRoute,
   RemoveRoute,
   RestartRoute,
   StartRoute,
   StopRoute,
+  StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
 
