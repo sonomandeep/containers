@@ -25,7 +25,6 @@ import {
   SectionCardDescription,
   SectionCardHeader,
   SectionCardHeaderContent,
-  SectionCardMeta,
   SectionCardTitle,
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
