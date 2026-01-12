@@ -490,9 +490,9 @@ export async function updateContainerEnvs(
   ServiceResponse<{ id: string; envs: Array<EnvironmentVariable> }, string>
 > {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(id, envs);
+  console.error({ id, envs }, "update container envs not implented");
 
-  return { data: { id, envs }, error: null };
+  return { data: null, error: "not implemented" };
 }
 
 const commandRegEx = /^"(.*)"$/;
