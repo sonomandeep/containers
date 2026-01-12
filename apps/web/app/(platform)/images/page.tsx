@@ -37,6 +37,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export default function Page() {
   return (
@@ -148,7 +156,19 @@ export default function Page() {
             </CardFooter>
           </Card>
 
-          <Card className="h-min">aaa</Card>
+          <Card className="h-min">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <LayersIcon />
+                </EmptyMedia>
+                <EmptyTitle>No Image Selected</EmptyTitle>
+                <EmptyDescription className="max-w-3xs">
+                  Select an image from the table to view its details.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </Card>
         </div>
       </SectionCard>
     </div>
