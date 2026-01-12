@@ -25,20 +25,24 @@ import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { updateEnvVariables } from "@/lib/services/containers.service";
+import type { Container } from "@containers/shared";
 
 type Props = {
-  id: string;
-  name: string;
+  container: Container;
   open: boolean;
   setOpen(value: boolean): void;
 };
 
-export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
+export default function EnvVariablesDialog({
+  container,
+  open,
+  setOpen,
+}: Props) {
   const form = useForm({
     resolver: zodResolver(z.object({ envs: z.array(envinmentVariableSchema) })),
     mode: "onSubmit",
     defaultValues: {
-      envs: [{ key: "", value: "" }],
+      envs: [...(container.envs || { key: "", value: "" })],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -49,7 +53,7 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
 
   const handleSubmit = (values: unknown) => {
     startTransition(async () => {
-      await updateEnvVariables(id, values);
+      await updateEnvVariables(container.id, values);
     });
   };
 
@@ -69,7 +73,9 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
             <DialogTitle className="text-sm!">
               Environment Variables
             </DialogTitle>
-            <span className="text-muted-foreground text-xs">{name}</span>
+            <span className="text-muted-foreground text-xs">
+              {container.name}
+            </span>
           </div>
         </DialogHeader>
 
@@ -79,7 +85,8 @@ export default function EnvVariablesDialog({ id, name, open, setOpen }: Props) {
               <div className="inline-flex items-center gap-2">
                 <AlertTriangleIcon className="size-3" />
                 <AlertTitle>
-                  Saving will restart <span className="font-mono">{name}</span>
+                  Saving will restart{" "}
+                  <span className="font-mono">{container.name}</span>
                   &nbsp;container.
                 </AlertTitle>
               </div>

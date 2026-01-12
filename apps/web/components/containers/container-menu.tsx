@@ -102,8 +102,7 @@ export function ContainerMenu({ container }: Props) {
       </DropdownMenu>
 
       <EnvVariablesDialog
-        id={container.id}
-        name={container.name}
+        container={container}
         open={envVariablesDialogOpen}
         setOpen={setEnvVariablesDialogOpen}
       />
