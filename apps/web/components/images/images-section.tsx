@@ -44,7 +44,12 @@ export function ImagesSection() {
   return (
     <div className="grid flex-1 grid-cols-3 gap-3">
       <Card className="col-span-2 flex-1">
-        <CardToolbar>{images.length} images</CardToolbar>
+        <CardToolbar>
+          <div className="inline-flex items-baseline gap-2">
+            <h2>Your Images</h2>
+            <span>{images.length} images</span>
+          </div>
+        </CardToolbar>
 
         <CardContent className="flex-1 p-0">
           <ImagesTable images={images} />

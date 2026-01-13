@@ -105,12 +105,6 @@ export default async function Page() {
       </SectionCard>
 
       <SectionCard className="@container min-h-0 flex-1 overflow-hidden">
-        <SectionCardHeader>
-          <SectionCardHeaderContent>
-            <SectionCardTitle>Your Images</SectionCardTitle>
-          </SectionCardHeaderContent>
-        </SectionCardHeader>
-
         <ImagesSection />
       </SectionCard>
     </div>
