@@ -14,7 +14,6 @@ export default function RootLayout({
         <main className="h-full min-h-0 w-full overflow-hidden">
           {children}
         </main>
-        {/* <Toaster /> */}
       </SidebarInset>
     </SidebarProvider>
   );
