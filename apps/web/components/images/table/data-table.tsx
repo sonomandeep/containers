@@ -4,8 +4,7 @@ import type { Image } from "@containers/shared";
 import {
   type ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  type Table as TableType,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -16,21 +15,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useImagesStore } from "@/lib/store/images.store";
+import { cn } from "@/lib/utils";
 
 type DataTableProps<TData, TValue> = {
   columns: Array<ColumnDef<TData, TValue>>;
-  data: Array<TData>;
+  table: TableType<TData>;
 };
 
-export function DataTable<TData, TValue>({
+export function ImagesTable<TData, TValue>({
   columns,
-  data,
+  table,
 }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
   const setActiveImage = useImagesStore((state) => state.setActiveImage);
 
   return (
@@ -39,7 +34,13 @@ export function DataTable<TData, TValue>({
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <TableHead className="[&_svg]:size-3" key={header.id}>
+              <TableHead
+                className={cn(
+                  "[&_svg]:size-3",
+                  header.column.id === "select" && "w-8"
+                )}
+                key={header.id}
+              >
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -63,7 +64,13 @@ export function DataTable<TData, TValue>({
               }}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell className="truncate" key={cell.id}>
+                <TableCell
+                  className={cn(
+                    "truncate",
+                    cell.column.id === "select" && "w-8"
+                  )}
+                  key={cell.id}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

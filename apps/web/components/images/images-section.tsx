@@ -1,6 +1,7 @@
 "use client";
 
 import { ContainerStateEnum, type Image } from "@containers/shared";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -9,6 +10,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,7 +20,7 @@ import {
   CardTitle,
   CardToolbar,
 } from "@/components/core/card";
-import { ImagesTable } from "@/components/images/table";
+import { ImagesTable } from "@/components/images/table/data-table";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -37,17 +39,47 @@ import {
 import { useImagesStore } from "@/lib/store/images.store";
 import { ContainerStateBadge } from "../containers/container-state-badge";
 import { MetricInfo } from "../core/metric-info";
+import { columns } from "./table/columns";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);
+  const [rowSelection, setRowSelection] = useState({});
+
+  const table = useReactTable({
+    data: images,
+    columns,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection,
+    },
+  });
 
   return (
     <div className="grid flex-1 grid-cols-3 gap-3">
       <Card className="col-span-2 flex-1">
-        <CardToolbar>{images.length} images</CardToolbar>
+        <CardToolbar>
+          <div className="inline-flex items-baseline gap-2">
+            <h2>Your Images</h2>
+            {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+              <span>
+                {table.getFilteredSelectedRowModel().rows.length}&nbsp;/&nbsp;
+                {table.getFilteredRowModel().rows.length} selected
+              </span>
+            ) : (
+              <span>{images.length} images</span>
+            )}
+          </div>
+
+          {table.getFilteredSelectedRowModel().rows.length && (
+            <Button size="icon-sm" variant="ghost">
+              <Trash2Icon />
+            </Button>
+          )}
+        </CardToolbar>
 
         <CardContent className="flex-1 p-0">
-          <ImagesTable images={images} />
+          <ImagesTable columns={columns} table={table} />
         </CardContent>
 
         <CardFooter className="justify-between">
