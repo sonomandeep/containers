@@ -26,7 +26,7 @@ export async function listImages() {
 
     result.push({
       id: image.Id.replace("sha256:", "").slice(0, 12),
-      name: image.RepoTags?.at(0) || "",
+      name: getImageName(image.RepoTags?.at(0)),
       tags: image.RepoTags || [],
       size: image.Size,
       layers: info.RootFS.Layers?.length || undefined,
@@ -35,13 +35,24 @@ export async function listImages() {
       registry: "docker.io",
       containers: relatedContainers.map((container) => ({
         id: container.Id.replace("sha256:", "").slice(0, 12),
-        name: container.Names.at(0) || "",
+        name: container.Names.at(0)?.replace("/", "") || "",
         state: container.State as ContainerState,
       })),
     });
   }
 
   return result;
+}
+
+function getImageName(value: string | undefined) {
+  if (!value) {
+    return "";
+  }
+
+  const parts = value.split("/");
+  const tag = parts.at(parts.length - 1);
+
+  return tag?.split(":").at(0) || "";
 }
 
 type PullImageInput = {
