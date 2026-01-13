@@ -4,8 +4,7 @@ import type { Image } from "@containers/shared";
 import {
   type ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  type Table as TableType,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -20,18 +19,13 @@ import { cn } from "@/lib/utils";
 
 type DataTableProps<TData, TValue> = {
   columns: Array<ColumnDef<TData, TValue>>;
-  data: Array<TData>;
+  table: TableType<TData>;
 };
 
-export function DataTable<TData, TValue>({
+export function ImagesTable<TData, TValue>({
   columns,
-  data,
+  table,
 }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
   const setActiveImage = useImagesStore((state) => state.setActiveImage);
 
   return (

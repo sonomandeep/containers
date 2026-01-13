@@ -10,8 +10,8 @@ import {
   TagsIcon,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
-import { ContainersState } from "../containers-state";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ContainersState } from "../containers-state";
 
 export const columns: Array<ColumnDef<Image>> = [
   {
