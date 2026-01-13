@@ -1,28 +1,26 @@
-import { Layers2Icon } from "lucide-react";
-import { PullImageDialog } from "@/components/images/pull/pull-image-dialog";
-import PageHeader, {
-  PageHeaderActions,
-  PageHeaderTitle,
-} from "@/components/layout/page-header";
+import { CornerDownLeftIcon, LayersIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-full w-full flex-col gap-3">
-      <PageHeader>
-        <PageHeaderTitle icon={Layers2Icon}>Images</PageHeaderTitle>
+    <div className="flex h-full min-h-0 w-full flex-col gap-3">
+      <div className="inline-flex items-center justify-between">
+        <div className="inline-flex items-center gap-2">
+          <LayersIcon className="size-3.5 opacity-80" />
+          <h1>Images</h1>
+        </div>
 
-        <PageHeaderActions>
-          <PullImageDialog />
-        </PageHeaderActions>
-      </PageHeader>
-
-      <div className="h-full w-full flex-1 rounded-md border bg-background p-3">
-        {children}
+        <Button>
+          Pull Image
+          <CornerDownLeftIcon className="size-3 opacity-60" />
+        </Button>
       </div>
+
+      <div className="min-h-0 flex-1">{children}</div>
     </div>
   );
 }

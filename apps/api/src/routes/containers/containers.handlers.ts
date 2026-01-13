@@ -1,24 +1,79 @@
+import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { listContainers } from "@/lib/agent";
 import {
   launchContainer,
+  listContainers,
   removeContainer,
+  restartContainer,
   startContainer,
   stopContainer,
-} from "@/lib/services/containers";
-import type { AppRouteHandler } from "@/lib/types";
+  updateContainerEnvs,
+} from "@/lib/services/containers.service";
+import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
   ListRoute,
   RemoveRoute,
+  RestartRoute,
   StartRoute,
   StopRoute,
+  StreamRoute,
+  UpdateEnvsRoute,
 } from "./containers.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
 
   return c.json(containers);
+};
+
+export const stream: AppSSEHandler<StreamRoute> = (c) => {
+  c.var.logger.debug("container metrics stream started");
+
+  return streamSSE(c, async (s) => {
+    let isActive = true;
+    const UPDATE_INTERVAL = 5000;
+
+    c.req.raw.signal.addEventListener("abort", () => {
+      c.var.logger.debug("client disconnected from metrics stream");
+      isActive = false;
+    });
+
+    while (isActive) {
+      try {
+        const containers = await listContainers();
+
+        await s.writeSSE({
+          data: JSON.stringify(containers),
+          event: "containers",
+          id: String(Date.now()),
+        });
+
+        await s.sleep(UPDATE_INTERVAL);
+      } catch (error) {
+        c.var.logger.error(error, "error fetching container metrics");
+
+        await s.writeSSE({
+          data: JSON.stringify({ error: "Failed to fetch metrics" }),
+          event: "error",
+          id: String(Date.now()),
+        });
+
+        await s.sleep(UPDATE_INTERVAL * 2);
+      }
+    }
+
+    c.var.logger.debug("container metrics stream ended");
+  });
+};
+
+export const updateEnvs: AppRouteHandler<UpdateEnvsRoute> = async (c) => {
+  const params = c.req.valid("param");
+  const input = c.req.valid("json");
+
+  const result = await updateContainerEnvs(params.containerId, input);
+
+  return c.json(result.data?.envs || [], HttpStatusCodes.OK);
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
@@ -64,12 +119,7 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
     );
   }
 
-  return c.json(
-    {
-      message: "container stopped",
-    },
-    HttpStatusCodes.OK
-  );
+  return c.json(result.data, HttpStatusCodes.OK);
 };
 
 export const start: AppRouteHandler<StartRoute> = async (c) => {
@@ -89,12 +139,27 @@ export const start: AppRouteHandler<StartRoute> = async (c) => {
     );
   }
 
-  return c.json(
-    {
-      message: "container started",
-    },
-    HttpStatusCodes.OK
-  );
+  return c.json(result.data, HttpStatusCodes.OK);
+};
+
+export const restart: AppRouteHandler<RestartRoute> = async (c) => {
+  const params = c.req.valid("param");
+
+  const result = await restartContainer({
+    containerId: params.containerId,
+  });
+
+  if (result.error) {
+    c.var.logger.error(result.error);
+    return c.json(
+      {
+        message: result.error.message,
+      },
+      result.error.code
+    );
+  }
+
+  return c.json(result.data, HttpStatusCodes.OK);
 };
 
 export const launch: AppRouteHandler<LaunchRoute> = async (c) => {

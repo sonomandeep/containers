@@ -1,6 +1,9 @@
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { listImages } from "@/lib/agent";
-import { pullImage, removeImages } from "@/lib/services/images";
+import {
+  listImages,
+  pullImage,
+  removeImages,
+} from "@/lib/services/images.service";
 import type { AppRouteHandler } from "@/lib/types";
 import type { ListRoute, PullRoute, RemoveRoute } from "./images.routes";
 

@@ -1,6 +1,5 @@
 "use client";
 
-import type { Image } from "@containers/shared";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -25,11 +24,11 @@ const containerStateMeta = {
 
 type ContainerStateKey = keyof typeof containerStateMeta;
 
-export function ContainersState({ state }: { state: Image["containers"] }) {
+export function ContainersState({ state }: { state: Record<string, number> }) {
   const items = (Object.keys(containerStateMeta) as Array<ContainerStateKey>)
     .map((key) => ({
       key,
-      count: state[key],
+      count: state ? state[key] : 0,
       ...containerStateMeta[key],
     }))
     .filter((item) => item.count > 0);
@@ -46,7 +45,7 @@ export function ContainersState({ state }: { state: Image["containers"] }) {
     <div className="inline-flex flex-wrap gap-2">
       {items.map(({ key, count, label, dotClass }) => (
         <Tooltip key={key}>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <Badge className="gap-1.5" variant="outline">
               <span
                 aria-hidden="true"

@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/sonner";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "Containers - Mando",
-  description: "Web docker containers platform.",
+  title: "Containers - mando.sh",
+  description: "Containers management platform.",
   icons: {
     icon: [
       {
@@ -40,20 +38,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${inter.className} ${jetbrainsMono.className}`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       lang="en"
       suppressHydrationWarning
     >
-      <body className="h-screen w-full font-sans">
+      <body>
+        <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SidebarProvider>
-            <AppSidebar />
-
-            <SidebarInset>
-              <main className="h-full w-full">{children}</main>
-              <Toaster />
-            </SidebarInset>
-          </SidebarProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

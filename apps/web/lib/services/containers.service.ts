@@ -1,6 +1,12 @@
-import type { LaunchContainerInput, ServiceResponse } from "@containers/shared";
-import { containerSchema } from "@containers/shared";
-import { updateTag } from "next/cache";
+"use server";
+
+import {
+  type Container,
+  containerSchema,
+  type EnvironmentVariable,
+  envinmentVariableSchema,
+  type ServiceResponse,
+} from "@containers/shared";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
@@ -22,108 +28,106 @@ export async function listContainers() {
   return { data, error: null };
 }
 
-const containerIdSchema = z
-  .string()
-  .min(1, { message: "Container id is required." });
+export async function startContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
+  const path = `/containers/${encodeURIComponent(id)}/start`;
 
-export const removeContainerInputSchema = z.object({
-  containerId: containerIdSchema,
-});
+  const { data, error } = await $api(path, {
+    method: "post",
+    output: containerSchema,
+  });
+  if (error) {
+    logger.error(error, "startContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while starting the container.",
+    };
+  }
 
-export type RemoveContainerInput = z.infer<typeof removeContainerInputSchema>;
+  return { data, error: null };
+}
 
-export const stopContainerInputSchema = z.object({
-  containerId: containerIdSchema,
-});
+export async function restartContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
+  const path = `/containers/${encodeURIComponent(id)}/restart`;
 
-export type StopContainerInput = z.infer<typeof stopContainerInputSchema>;
+  const { data, error } = await $api(path, {
+    method: "post",
+    output: containerSchema,
+  });
+  if (error) {
+    logger.error(error, "restartContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while restarting the container.",
+    };
+  }
 
-export const startContainerInputSchema = z.object({
-  containerId: containerIdSchema,
-});
+  return { data, error: null };
+}
 
-export type StartContainerInput = z.infer<typeof startContainerInputSchema>;
+export async function stopContainer(
+  id: string
+): Promise<ServiceResponse<Container, string>> {
+  const path = `/containers/${encodeURIComponent(id)}/stop`;
 
-export async function removeContainer(
-  input: RemoveContainerInput
-): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
-  const path = `/containers/${encodeURIComponent(input.containerId)}`;
+  const { data, error } = await $api(path, {
+    method: "post",
+    output: containerSchema,
+  });
+  if (error) {
+    logger.error(error, "stopContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while stopping the container.",
+    };
+  }
+
+  return { data, error: null };
+}
+
+export async function deleteContainer(
+  id: string
+): Promise<ServiceResponse<{ id: string }, string>> {
+  const path = `/containers/${encodeURIComponent(id)}`;
 
   const { error } = await $api(path, {
     method: "delete",
   });
-
   if (error) {
-    logger.error(error);
-    return { data: null, error };
+    logger.error(error, "deleteContainer error");
+    return {
+      data: null,
+      error: "Unexpected error while deleting the container.",
+    };
   }
 
-  updateTag("containers");
-
-  return { data: null, error: null };
+  return { data: { id }, error: null };
 }
 
-export async function stopContainer(
-  input: StopContainerInput
-): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
-  const path = `/containers/${encodeURIComponent(input.containerId)}/stop`;
+export async function updateEnvVariables(
+  id: string,
+  envs: Array<EnvironmentVariable>
+) {
+  const path = `/containers/${encodeURIComponent(id)}/envs`;
 
-  const { error } = await $api(path, {
+  const { data, error } = await $api(path, {
     method: "post",
-  });
-
-  if (error) {
-    logger.error(error);
-    return { data: null, error };
-  }
-
-  updateTag("containers");
-
-  return { data: null, error: null };
-}
-
-export async function startContainer(
-  input: StartContainerInput
-): Promise<ServiceResponse<null, { status: number; statusText: string }>> {
-  const path = `/containers/${encodeURIComponent(input.containerId)}/start`;
-
-  const { error } = await $api(path, {
-    method: "post",
-  });
-
-  if (error) {
-    logger.error(error);
-    return { data: null, error };
-  }
-
-  updateTag("containers");
-
-  return { data: null, error: null };
-}
-
-export async function launchContainer(
-  input: LaunchContainerInput
-): Promise<
-  ServiceResponse<{ id: string }, { status: number; statusText: string }>
-> {
-  const { data, error } = await $api("/containers", {
-    method: "post",
-    body: JSON.stringify(input),
+    body: JSON.stringify(envs),
+    output: z.array(envinmentVariableSchema),
     headers: {
       "content-type": "application/json",
     },
-    output: z.object({
-      message: z.string(),
-      id: z.string(),
-    }),
   });
-
   if (error) {
-    logger.error(error);
-    return { data: null, error };
+    logger.error(error, "updateEnvVariables error");
+    return {
+      data: null,
+      error: "Unexpected error while updating env variables.",
+    };
   }
 
-  updateTag("containers");
-
-  return { data: { id: data.id }, error: null };
+  return { data: { id, envs: data }, error: null };
 }

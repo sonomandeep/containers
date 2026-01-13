@@ -1,28 +1,25 @@
 import { BoxIcon } from "lucide-react";
-import { LaunchContainer } from "@/components/containers/launch";
-import PageHeader, {
-  PageHeaderActions,
-  PageHeaderTitle,
-} from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-full w-full flex-col gap-3">
-      <PageHeader>
-        <PageHeaderTitle icon={BoxIcon}>Containers</PageHeaderTitle>
+    <div className="flex h-full min-h-0 w-full flex-col gap-3">
+      <div className="inline-flex items-center justify-between">
+        <div className="inline-flex items-center gap-2">
+          <BoxIcon className="size-3.5 opacity-80" />
+          <h1>Containers</h1>
+        </div>
 
-        <PageHeaderActions>
-          <LaunchContainer />
-        </PageHeaderActions>
-      </PageHeader>
-
-      <div className="h-full w-full flex-1 rounded-md border bg-background p-3">
-        {children}
+        <Button>
+          Launch Container <span className="font-mono opacity-80">↵</span>
+        </Button>
       </div>
+
+      <div className="min-h-0 flex-1">{children}</div>
     </div>
   );
 }

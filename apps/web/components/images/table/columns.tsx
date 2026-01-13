@@ -1,180 +1,102 @@
 "use client";
 
-import type { Image } from "@containers/shared";
+import { ContainerStateEnum, type Image } from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import {
   BoxIcon,
-  CalendarIcon,
+  CpuIcon,
   HardDriveIcon,
-  HashIcon,
-  Layers2Icon,
-  TagIcon,
+  LayersIcon,
+  TagsIcon,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { formatBytes } from "@/lib/utils";
+import prettyBytes from "pretty-bytes";
 import { ContainersState } from "../containers-state";
-
-const EMPTY_CONTAINERS_STATE: Image["containers"] = {
-  running: 0,
-  paused: 0,
-  exited: 0,
-};
 
 export const columns: Array<ColumnDef<Image>> = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Select all"
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Select row"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 36,
-    minSize: 36,
-    maxSize: 36,
-  },
-  {
-    accessorKey: "id",
+    accessorKey: "name",
     header: () => (
-      <div className="inline-flex items-center gap-2">
-        <HashIcon className="size-3.5" />
-        ID
+      <div className="inline-flex items-center gap-1.5">
+        <LayersIcon />
+        Name
       </div>
     ),
     cell: ({ row }) => {
-      const id = row.getValue<string>("id");
+      const name = row.original.name;
 
-      return (
-        <Tooltip>
-          <TooltipTrigger>{id.slice(7, 19)}</TooltipTrigger>
-
-          <TooltipContent side="right">{id}</TooltipContent>
-        </Tooltip>
-      );
+      return <p>{name}</p>;
     },
-    size: 200,
   },
   {
-    id: "repository",
+    accessorKey: "tags",
     header: () => (
-      <div className="inline-flex items-center gap-2">
-        <Layers2Icon className="size-3.5" />
-        Repository
-      </div>
-    ),
-    cell: ({ row }) => {
-      const tags = row.original.repoTags;
-      const primary = tags.at(0) ?? "untagged:latest";
-
-      return (
-        <Badge className="gap-2" variant="secondary">
-          <Layers2Icon className="size-3 opacity-60" />
-          {primary}
-        </Badge>
-      );
-    },
-    size: 200,
-  },
-  {
-    accessorKey: "repoTags",
-    header: () => (
-      <div className="inline-flex items-center gap-2">
-        <TagIcon className="size-3.5" />
+      <div className="inline-flex items-center gap-1.5">
+        <TagsIcon />
         Tags
       </div>
     ),
     cell: ({ row }) => {
-      const tags = row.getValue<Array<string>>("repoTags");
+      const tags = row.original.tags;
 
-      if (!tags.length) {
-        return (
-          <Badge className="font-mono" variant="outline">
-            none
-          </Badge>
-        );
-      }
-
-      const [primary, ...rest] = tags;
-
-      return (
-        <div className="inline-flex items-center gap-2 whitespace-nowrap">
-          <Badge className="truncate font-mono" variant="outline">
-            {primary}
-          </Badge>
-
-          {rest.length > 0 && (
-            <Badge className="font-mono" variant="outline">
-              <span>+</span>
-              {rest.length}
-            </Badge>
-          )}
-        </div>
-      );
+      return <>{tags.map((tag) => tag)}</>;
     },
-    size: 200,
+  },
+  {
+    accessorKey: "architecture",
+    header: () => (
+      <div className="inline-flex items-center gap-1.5">
+        <CpuIcon />
+        Architecture
+      </div>
+    ),
+    cell: ({ row }) => {
+      const os = row.original.os;
+      const architecture = row.original.architecture;
+
+      return <p className="font-mono">{`${os}/${architecture}`}</p>;
+    },
   },
   {
     accessorKey: "size",
     header: () => (
-      <div className="inline-flex items-center gap-2">
-        <HardDriveIcon className="size-3.5" />
+      <div className="inline-flex items-center gap-1.5">
+        <HardDriveIcon />
         Size
       </div>
     ),
-    cell: ({ row }) => {
-      const size = row.getValue<number>("size");
+    cell({ row }) {
+      const sizeInBytes = row.original.size;
 
-      return <span className="font-mono">{formatBytes(size)}</span>;
+      return <p className="font-mono">{prettyBytes(sizeInBytes)}</p>;
     },
-    size: 200,
   },
   {
     accessorKey: "containers",
     header: () => (
-      <div className="inline-flex items-center gap-2">
-        <BoxIcon className="size-3.5" />
+      <div className="inline-flex items-center gap-1.5">
+        <BoxIcon />
         Containers
       </div>
     ),
-    cell: ({ row }) => {
-      const containers =
-        row.getValue<Image["containers"]>("containers") ??
-        EMPTY_CONTAINERS_STATE;
+    cell({ row }) {
+      const containers = row.original.containers;
+      const state = {
+        [ContainerStateEnum.running]: 0,
+        [ContainerStateEnum.paused]: 0,
+        [ContainerStateEnum.exited]: 0,
+      };
 
-      return <ContainersState state={containers} />;
-    },
-    size: 200,
-  },
-  {
-    accessorKey: "created",
-    header: () => (
-      <div className="inline-flex items-center gap-2">
-        <CalendarIcon className="size-3.5" />
-        Created
-      </div>
-    ),
-    cell: ({ row }) => {
-      const created = row.getValue<number>("created");
+      for (const container of containers) {
+        if (
+          container.state === ContainerStateEnum.running ||
+          container.state === ContainerStateEnum.paused ||
+          container.state === ContainerStateEnum.exited
+        ) {
+          state[container.state] += 1;
+        }
+      }
 
-      return <div>{format(created * 1000, "eee dd MMM yyyy")}</div>;
+      return <ContainersState state={state} />;
     },
-    size: 200,
   },
 ];
