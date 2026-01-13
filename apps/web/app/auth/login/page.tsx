@@ -29,7 +29,7 @@ export default function Page() {
         <span>Don’t have an account yet?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
-          href="/"
+          href="/auth/signup"
         >
           Sign Up
         </Link>
