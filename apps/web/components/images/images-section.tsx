@@ -1,5 +1,6 @@
 "use client";
 
+import { ContainerStateEnum } from "@containers/shared";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -33,9 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useImagesStore } from "@/lib/store/images.store";
-import { MetricInfo } from "../core/metric-info";
 import { ContainerStateBadge } from "../containers/container-state-badge";
-import { ContainerStateEnum } from "@containers/shared";
+import { MetricInfo } from "../core/metric-info";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);

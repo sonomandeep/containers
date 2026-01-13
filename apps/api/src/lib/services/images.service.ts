@@ -1,8 +1,48 @@
-import type { Image, ServiceResponse } from "@containers/shared";
+import type {
+  ContainerState,
+  Image,
+  ServiceResponse,
+} from "@containers/shared";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "../utils";
+
+export async function listImages() {
+  const [images, containers] = await Promise.all([
+    docker.listImages({ all: true }),
+    docker.listContainers({ all: true }),
+  ]);
+
+  const result: Array<Image> = [];
+
+  for (const image of images) {
+    const imageData = docker.getImage(image.Id);
+    const info = await imageData.inspect();
+
+    const relatedContainers = containers.filter(
+      (container) => container.ImageID === image.Id
+    );
+
+    result.push({
+      id: image.Id.replace("sha256:", "").slice(0, 12),
+      name: image.RepoTags?.at(0) || "",
+      tags: image.RepoTags || [],
+      size: image.Size,
+      layers: info.RootFS.Layers?.length || undefined,
+      os: info.Os,
+      architecture: info.Architecture,
+      registry: "docker.io",
+      containers: relatedContainers.map((container) => ({
+        id: container.Id.replace("sha256:", "").slice(0, 12),
+        name: container.Names.at(0) || "",
+        state: container.State as ContainerState,
+      })),
+    });
+  }
+
+  return result;
+}
 
 type PullImageInput = {
   registry: string;

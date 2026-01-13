@@ -1,22 +1,24 @@
 import { z } from "zod";
+import { containerStateSchema } from "./containers";
 
-export const imageContainersSchema = z.object({
-  running: z.number(),
-  paused: z.number(),
-  exited: z.number(),
+export const imageContainerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  state: containerStateSchema,
 });
 
-export type ImageContainers = z.infer<typeof imageContainersSchema>;
+export type ImageContainer = z.infer<typeof imageContainerSchema>;
 
 export const imageSchema = z.object({
   id: z.string(),
-  repoTags: z.array(z.string()),
-  repoDigests: z.array(z.string()),
-  created: z.number(),
+  name: z.string(),
+  tags: z.array(z.string()),
   size: z.number(),
-  sharedSize: z.number().optional(),
-  virtualSize: z.number().optional(),
-  containers: imageContainersSchema.optional(),
+  layers: z.number().optional(),
+  os: z.string(),
+  architecture: z.string(),
+  registry: z.string(),
+  containers: z.array(imageContainerSchema),
 });
 
 export type Image = z.infer<typeof imageSchema>;
