@@ -31,8 +31,15 @@ import {
 import REGISTRIES from "@/lib/constants/registries";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle } from "../ui/alert";
+import { useTransition } from "react";
+import { pullImage } from "@/lib/services/images.service";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
+import { useImagesStore } from "@/lib/store/images.store";
 
 export function PullImageDialog() {
+  const store = useImagesStore((state) => state);
+  const [isPending, startTransition] = useTransition();
   const form = useForm<PullImageInput>({
     resolver: zodResolver(pullImageSchema),
     defaultValues: {
@@ -42,8 +49,34 @@ export function PullImageDialog() {
     },
   });
 
-  function handleSubmit(data: PullImageInput) {
-    console.log(data);
+  function handleSubmit(input: PullImageInput) {
+    startTransition(async () => {
+      toast.promise(
+        pullImage(input).then(({ data, error }) => {
+          if (error) {
+            throw new Error(error);
+          }
+
+          if (!data) {
+            throw new Error("Unexpected error occured, try again later.");
+          }
+
+          store.setImages([...store.images, data]);
+
+          return data;
+        }),
+        {
+          loading: "Pulling image...",
+          success: (data) => (
+            <p>
+              Image <span className="font-mono">{data.name}</span> pulled
+              successfully
+            </p>
+          ),
+          error: (error) => error.message,
+        }
+      );
+    });
   }
 
   const registry = form.watch("registry");
@@ -187,9 +220,16 @@ export function PullImageDialog() {
               Cancel
             </DialogClose>
 
-            <Button type="submit">
+            <Button
+              type="submit"
+              disabled={isPending || !form.formState.isValid}
+            >
               Confirm
-              <CornerDownLeftIcon className="size-3 opacity-60" />
+              {isPending ? (
+                <Spinner className="size-3 opacity-60" />
+              ) : (
+                <CornerDownLeftIcon className="size-3 opacity-60" />
+              )}
             </Button>
           </DialogFooter>
         </form>
