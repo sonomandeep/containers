@@ -2,6 +2,7 @@
 
 import { type LoginSchemaInput, loginSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -65,10 +66,32 @@ export function LoginForm() {
         />
       </div>
 
-      <div className="w-full">
+      <div className="flex w-full flex-col gap-3">
         <Button className="w-full" type="submit">
           Login
         </Button>
+
+        <div className="flex w-full flex-col gap-1">
+          <Button className="w-full gap-1.5" variant="secondary">
+            <Image
+              alt="Github"
+              height={12}
+              src="/logos/github_light.png"
+              width={12}
+            />
+            Sign In With Github
+          </Button>
+
+          <Button className="w-full" variant="secondary">
+            <Image
+              alt="Google"
+              height={20}
+              src="/logos/google_light.png"
+              width={20}
+            />
+            Sign In With Google
+          </Button>
+        </div>
       </div>
     </form>
   );
