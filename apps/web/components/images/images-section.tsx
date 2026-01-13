@@ -64,19 +64,35 @@ export function ImagesSection() {
         </CardFooter>
       </Card>
 
-      <Card className="h-min">
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <LayersIcon />
-            </EmptyMedia>
-            <EmptyTitle>No Image Selected</EmptyTitle>
-            <EmptyDescription className="max-w-3xs">
-              Select an image from the table to view its details.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </Card>
+      <ImageDetailCard />
     </div>
+  );
+}
+
+function ImageDetailCard() {
+  const image = useImagesStore((state) => state.activeImage);
+
+  if (image === null) {
+    return <EmptyImageCard />;
+  }
+
+  return image.id;
+}
+
+function EmptyImageCard() {
+  return (
+    <Card className="h-min">
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <LayersIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Image Selected</EmptyTitle>
+          <EmptyDescription className="max-w-3xs">
+            Select an image from the table to view its details.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    </Card>
   );
 }

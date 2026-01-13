@@ -1,12 +1,12 @@
 "use client";
 
+import type { Image } from "@containers/shared";
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useImagesStore } from "@/lib/store/images.store";
 
 type DataTableProps<TData, TValue> = {
   columns: Array<ColumnDef<TData, TValue>>;
@@ -30,6 +31,7 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  const setActiveImage = useImagesStore((state) => state.setActiveImage);
 
   return (
     <Table className="table-fixed">
@@ -53,8 +55,12 @@ export function DataTable<TData, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
+              className="cursor-pointer"
               data-state={row.getIsSelected() && "selected"}
               key={row.id}
+              onClick={() => {
+                setActiveImage(row.original as Image | null);
+              }}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell className="truncate" key={cell.id}>

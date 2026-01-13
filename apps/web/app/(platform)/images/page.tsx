@@ -1,4 +1,5 @@
 import { AlertTriangleIcon, ArchiveIcon, LayersIcon } from "lucide-react";
+import prettyBytes from "pretty-bytes";
 import {
   MetricCard,
   MetricCardContent,
@@ -18,9 +19,8 @@ import {
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { ImagesSection } from "@/components/images/images-section";
-import { listImages } from "@/lib/services/images.service";
 import { ImagesStoreSync } from "@/components/images/images-store-sync";
-import prettyBytes from "pretty-bytes";
+import { listImages } from "@/lib/services/images.service";
 
 export default async function Page() {
   const { data, error } = await listImages();
