@@ -1,5 +1,6 @@
 "use client";
 
+import { ContainerStateEnum, type Image } from "@containers/shared";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -11,6 +12,7 @@ import prettyBytes from "pretty-bytes";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -35,7 +37,6 @@ import {
 import { useImagesStore } from "@/lib/store/images.store";
 import { ContainerStateBadge } from "../containers/container-state-badge";
 import { MetricInfo } from "../core/metric-info";
-import { ContainerStateEnum, Image } from "@containers/shared";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);
@@ -114,6 +115,8 @@ function ImageDetailCard() {
 
               <span className="text-muted-foreground">No Vulnerabilities</span>
             </div>
+
+            <CardDescription>{image.tags.at(0)}</CardDescription>
           </CardHeader>
 
           <div className="grid grid-cols-2 grid-rows-2 gap-3">
@@ -195,7 +198,7 @@ function getContainersState(containers: Image["containers"]) {
     }
   }
 
-  const result: Array<String> = [];
+  const result: Array<string> = [];
 
   if (state[ContainerStateEnum.running] > 0) {
     result.push(`${state[ContainerStateEnum.running]} running`);
