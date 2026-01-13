@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useImagesStore } from "@/lib/store/images.store";
+import { cn } from "@/lib/utils";
 
 type DataTableProps<TData, TValue> = {
   columns: Array<ColumnDef<TData, TValue>>;
@@ -39,7 +40,13 @@ export function DataTable<TData, TValue>({
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <TableHead className="[&_svg]:size-3" key={header.id}>
+              <TableHead
+                className={cn(
+                  "[&_svg]:size-3",
+                  header.column.id === "select" && "w-8"
+                )}
+                key={header.id}
+              >
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -63,7 +70,13 @@ export function DataTable<TData, TValue>({
               }}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell className="truncate" key={cell.id}>
+                <TableCell
+                  className={cn(
+                    "truncate",
+                    cell.column.id === "select" && "w-8"
+                  )}
+                  key={cell.id}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
