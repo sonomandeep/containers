@@ -2,7 +2,7 @@
 
 import { type PullImageInput, pullImageSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CornerDownLeftIcon } from "lucide-react";
+import { CornerDownLeftIcon, LayersIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Dialog,
@@ -15,7 +15,12 @@ import {
   DialogTrigger,
 } from "@/components/core/dialog";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -24,6 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import REGISTRIES from "@/lib/constants/registries";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertTitle } from "../ui/alert";
 
 export function PullImageDialog() {
   const form = useForm<PullImageInput>({
@@ -38,6 +45,10 @@ export function PullImageDialog() {
   function handleSubmit(data: PullImageInput) {
     console.log(data);
   }
+
+  const registry = form.watch("registry");
+  const name = form.watch("name");
+  const tag = form.watch("tag");
 
   return (
     <Dialog>
@@ -106,12 +117,69 @@ export function PullImageDialog() {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  <FieldDescription>
+                    Where the image is hosted (e.g. Docker Hub, GHCR).
+                  </FieldDescription>
+
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
                 </Field>
               )}
             />
+
+            <div className="grid grid-cols-[1fr_128px] gap-2">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Image name"
+                    />
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="tag"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Tag</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Image tag"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            {registry && name && tag && (
+              <Alert variant="info">
+                <div className="inline-flex gap-2 items-center">
+                  <LayersIcon className="size-3 opacity-60" />
+                  <AlertTitle className="font-mono">
+                    {`${registry}/${name}:${tag}`.toLowerCase()}
+                  </AlertTitle>
+                </div>
+              </Alert>
+            )}
           </DialogCard>
 
           <DialogFooter>
