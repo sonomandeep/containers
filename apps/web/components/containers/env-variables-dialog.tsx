@@ -16,12 +16,12 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+  DialogClose,
+  DialogFooter,
+} from "@/components/core/dialog";
 import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -71,16 +71,12 @@ export default function EnvVariablesDialog({
       }}
       open={open}
     >
-      <DialogContent className="gap-0! bg-neutral-100! p-0!">
+      <DialogContent>
         <DialogHeader>
-          <div className="inline-flex items-baseline gap-2 p-2">
-            <DialogTitle className="text-sm!">
-              Environment Variables
-            </DialogTitle>
-            <span className="text-muted-foreground text-xs">
-              {container.name}
-            </span>
-          </div>
+          <DialogTitle>
+            Environment Variables
+            <span>{container.name}</span>
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -158,7 +154,7 @@ export default function EnvVariablesDialog({
             </div>
           </div>
 
-          <DialogFooter className="p-2">
+          <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
               Cancel
             </DialogClose>
