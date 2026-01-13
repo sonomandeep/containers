@@ -1,16 +1,4 @@
-import {
-  AlertTriangleIcon,
-  ArchiveIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  LayersIcon,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardToolbar,
-} from "@/components/core/card";
+import { AlertTriangleIcon, ArchiveIcon, LayersIcon } from "lucide-react";
 import {
   MetricCard,
   MetricCardContent,
@@ -29,23 +17,10 @@ import {
   SectionCardTitle,
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
-import { ImagesTable } from "@/components/images/table";
-import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ImagesSection } from "@/components/images/images-section";
 import { listImages } from "@/lib/services/images.service";
+import { ImagesStoreSync } from "@/components/images/images-store-sync";
+import prettyBytes from "pretty-bytes";
 
 export default async function Page() {
   const { data, error } = await listImages();
@@ -56,6 +31,8 @@ export default async function Page() {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+      <ImagesStoreSync images={data} />
+
       <SectionCard>
         <SectionCardHeader>
           <SectionCardHeaderContent>
@@ -66,11 +43,7 @@ export default async function Page() {
           </SectionCardHeaderContent>
 
           <SectionCardMeta>
-            {(
-              data.reduce((acc, image) => acc + image.size, 0) /
-              1024 ** 3
-            ).toFixed(2)}
-            &nbsp;GB
+            {prettyBytes(data.reduce((acc, image) => acc + image.size, 0))}
           </SectionCardMeta>
         </SectionCardHeader>
 
@@ -138,55 +111,7 @@ export default async function Page() {
           </SectionCardHeaderContent>
         </SectionCardHeader>
 
-        <div className="grid flex-1 grid-cols-3 gap-3">
-          <Card className="col-span-2 flex-1">
-            <CardToolbar>{data.length} images</CardToolbar>
-
-            <CardContent className="flex-1 p-0">
-              <ImagesTable images={data} />
-            </CardContent>
-
-            <CardFooter className="justify-between">
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue data-placeholder="Select page size" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="page_size_10">10 per page</SelectItem>
-                  <SelectItem value="page_size_20">20 per page</SelectItem>
-                  <SelectItem value="page_size_50">50 per page</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="inline-flex items-center gap-2">
-                <Button size="icon-sm" variant="ghost">
-                  <ChevronLeftIcon />
-                </Button>
-
-                <span className="font-mono">1</span>
-
-                <Button size="icon-sm" variant="ghost">
-                  <ChevronRightIcon />
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-
-          <Card className="h-min">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <LayersIcon />
-                </EmptyMedia>
-                <EmptyTitle>No Image Selected</EmptyTitle>
-                <EmptyDescription className="max-w-3xs">
-                  Select an image from the table to view its details.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          </Card>
-        </div>
+        <ImagesSection />
       </SectionCard>
     </div>
   );

@@ -9,8 +9,8 @@ import {
   LayersIcon,
   TagsIcon,
 } from "lucide-react";
-import { ContainersState } from "../containers-state";
 import prettyBytes from "pretty-bytes";
+import { ContainersState } from "../containers-state";
 
 export const columns: Array<ColumnDef<Image>> = [
   {
