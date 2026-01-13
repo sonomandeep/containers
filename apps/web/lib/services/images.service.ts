@@ -3,6 +3,8 @@
 import {
   type Image,
   imageSchema,
+  type PullImageInput,
+  pullImageSchema,
   type ServiceResponse,
 } from "@containers/shared";
 import z from "zod";
@@ -26,4 +28,19 @@ export async function listImages(): Promise<
   }
 
   return { data, error: null };
+}
+
+export async function pullImage(
+  input: PullImageInput
+): Promise<ServiceResponse<Image, string>> {
+  const result = z.safeParse(pullImageSchema, input);
+
+  if (!result.success) {
+    return { data: null, error: "validation error" };
+  }
+
+  logger.debug(result.data);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  return { data: null, error: "not implemented" };
 }
