@@ -1,6 +1,7 @@
 import type {
   ContainerState,
   Image,
+  PullImageInput,
   ServiceResponse,
 } from "@containers/shared";
 import * as HttpStatusCodes from "stoker/http-status-codes";
@@ -69,12 +70,6 @@ function getImageTags(tags: Array<string>) {
   return result;
 }
 
-type PullImageInput = {
-  registry: string;
-  name: string;
-  tag: string;
-};
-
 export async function pullImage(input: PullImageInput): Promise<
   ServiceResponse<
     Image,
@@ -105,11 +100,14 @@ export async function pullImage(input: PullImageInput): Promise<
 
     const result: Image = {
       id: info.Id,
-      repoTags: info.RepoTags ?? [],
-      repoDigests: info.RepoDigests ?? [],
-      created: new Date(info.Created).valueOf() ?? 0,
+      name: getImageName(info.RepoTags.at(0)),
+      tags: getImageTags(info.RepoTags),
       size: info.Size ?? 0,
-      virtualSize: info.VirtualSize ?? 0,
+      layers: info.RootFS.Layers?.length || undefined,
+      os: info.Os,
+      architecture: info.Architecture,
+      registry: "docker.io",
+      containers: [],
     };
 
     return {
