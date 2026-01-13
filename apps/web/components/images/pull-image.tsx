@@ -3,7 +3,9 @@
 import { type PullImageInput, pullImageSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CornerDownLeftIcon, LayersIcon } from "lucide-react";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogCard,
@@ -21,6 +23,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,14 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import REGISTRIES from "@/lib/constants/registries";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertTitle } from "../ui/alert";
-import { useTransition } from "react";
-import { pullImage } from "@/lib/services/images.service";
-import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import REGISTRIES from "@/lib/constants/registries";
+import { pullImage } from "@/lib/services/images.service";
 import { useImagesStore } from "@/lib/store/images.store";
+import { Alert, AlertTitle } from "../ui/alert";
 
 export function PullImageDialog() {
   const store = useImagesStore((state) => state);
@@ -50,7 +50,7 @@ export function PullImageDialog() {
   });
 
   function handleSubmit(input: PullImageInput) {
-    startTransition(async () => {
+    startTransition(() => {
       toast.promise(
         pullImage(input).then(({ data, error }) => {
           if (error) {
@@ -119,7 +119,7 @@ export function PullImageDialog() {
                           }
 
                           const current = REGISTRIES.find(
-                            (registry) => registry.host === value
+                            (item) => item.host === value
                           );
 
                           if (!current) {
@@ -129,7 +129,7 @@ export function PullImageDialog() {
                           return (
                             <p>
                               {current.label}
-                              <span className="text-muted-foreground pl-2">
+                              <span className="pl-2 text-muted-foreground">
                                 {current.host}
                               </span>
                             </p>
@@ -138,12 +138,12 @@ export function PullImageDialog() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {REGISTRIES.map((registry) => (
-                        <SelectItem key={registry.id} value={registry.host}>
+                      {REGISTRIES.map((item) => (
+                        <SelectItem key={item.id} value={item.host}>
                           <p className="font-medium">
-                            {registry.label}
-                            <span className="font-mono font-normal text-muted-foreground pl-2">
-                              {registry.host}
+                            {item.label}
+                            <span className="pl-2 font-mono font-normal text-muted-foreground">
+                              {item.host}
                             </span>
                           </p>
                         </SelectItem>
@@ -164,15 +164,15 @@ export function PullImageDialog() {
 
             <div className="grid grid-cols-[1fr_128px] gap-2">
               <Controller
-                name="name"
                 control={form.control}
+                name="name"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Name</FieldLabel>
                     <Input
                       {...field}
-                      id={field.name}
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
                       placeholder="Image name"
                     />
 
@@ -184,15 +184,15 @@ export function PullImageDialog() {
               />
 
               <Controller
-                name="tag"
                 control={form.control}
+                name="tag"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Tag</FieldLabel>
                     <Input
                       {...field}
-                      id={field.name}
                       aria-invalid={fieldState.invalid}
+                      id={field.name}
                       placeholder="Image tag"
                     />
                     {fieldState.invalid && (
@@ -205,7 +205,7 @@ export function PullImageDialog() {
 
             {registry && name && tag && (
               <Alert variant="info">
-                <div className="inline-flex gap-2 items-center">
+                <div className="inline-flex items-center gap-2">
                   <LayersIcon className="size-3 opacity-60" />
                   <AlertTitle className="font-mono">
                     {`${registry}/${name}:${tag}`.toLowerCase()}
@@ -221,8 +221,8 @@ export function PullImageDialog() {
             </DialogClose>
 
             <Button
-              type="submit"
               disabled={isPending || !form.formState.isValid}
+              type="submit"
             >
               Confirm
               {isPending ? (

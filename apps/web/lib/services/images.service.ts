@@ -34,13 +34,23 @@ export async function pullImage(
   input: PullImageInput
 ): Promise<ServiceResponse<Image, string>> {
   const result = z.safeParse(pullImageSchema, input);
-
   if (!result.success) {
     return { data: null, error: "validation error" };
   }
 
-  logger.debug(result.data);
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  const { data, error } = await $api("/images", {
+    method: "post",
+    output: imageSchema,
+    body: JSON.stringify(result.data),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+  if (error) {
+    return { data: null, error: error.message || error.statusText };
+  }
+
+  logger.debug({ data, error }, "pull image");
 
   return { data: null, error: "not implemented" };
 }
