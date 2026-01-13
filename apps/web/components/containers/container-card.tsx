@@ -15,6 +15,7 @@ import {
   CardTitle,
   CardToolbar,
 } from "@/components/core/card";
+import { MetricInfo } from "@/components/core/metric-info";
 import { Badge } from "@/components/ui/badge";
 import { useContainersStore } from "@/lib/store/containers.store";
 import { ContainerMenu } from "./container-menu";
@@ -50,17 +51,17 @@ export function ContainerCard({ container }: Props) {
         </CardHeader>
 
         <div className="grid grid-cols-2 grid-rows-2 gap-3">
-          <ContainerMetric
+          <MetricInfo
             label="CPU"
             value={formatCpuUsage(container.id, containers)}
           />
-          <ContainerMetric
+          <MetricInfo
             label="Memory"
             sub={formatMemoryUsage(container.id, containers).sub}
             value={formatMemoryUsage(container.id, containers).percent}
           />
-          <ContainerMetric label="Network" value="-" />
-          <ContainerMetric label="Disk I/O" value="-" />
+          <MetricInfo label="Network" value="-" />
+          <MetricInfo label="Disk I/O" value="-" />
         </div>
 
         <ContainerPorts ports={container.ports} />
@@ -85,26 +86,6 @@ function ContainerActions({ container }: { container: Container }) {
         (container.state === "exited" && <StartContainer id={container.id} />)}
 
       <ContainerMenu container={container} />
-    </div>
-  );
-}
-
-function ContainerMetric({
-  label,
-  value,
-  sub = "",
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className="flex w-full flex-col">
-      <span className="text-muted-foreground">{label}</span>
-      <div className="inline-flex gap-2">
-        <p className="font-medium text-neutral-700 text-sm">{value}</p>
-        <span className="text-muted-foreground text-sm">{sub}</span>
-      </div>
     </div>
   );
 }

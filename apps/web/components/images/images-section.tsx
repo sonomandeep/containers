@@ -7,10 +7,10 @@ import {
   LayersIcon,
   Trash2Icon,
 } from "lucide-react";
+import prettyBytes from "pretty-bytes";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -33,6 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useImagesStore } from "@/lib/store/images.store";
+import { MetricInfo } from "../core/metric-info";
+import { ContainerStateBadge } from "../containers/container-state-badge";
+import { ContainerStateEnum } from "@containers/shared";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);
@@ -103,18 +106,46 @@ function ImageDetailCard() {
         </div>
       </CardToolbar>
 
-      <CardContent>
-        <CardHeader>
-          <div className="inline-flex w-full items-center justify-between">
-            <CardTitle>{image.repoTags.at(0)}</CardTitle>
-          </div>
+      <div className="flex flex-col gap-3">
+        <CardContent>
+          <CardHeader>
+            <div className="inline-flex w-full items-center justify-between">
+              <CardTitle>{image.repoTags.at(0)}</CardTitle>
 
-          <CardDescription>{image.repoTags.at(0)}</CardDescription>
-        </CardHeader>
-      </CardContent>
+              <span className="text-muted-foreground">No Vulnerabilities</span>
+            </div>
+          </CardHeader>
+
+          <div className="grid grid-cols-2 grid-rows-2 gap-3">
+            <MetricInfo label="Size" value={prettyBytes(image.size)} />
+            <MetricInfo label="Architecture" value="linux/amd64" />
+            <MetricInfo label="Layers" value="7" />
+            <MetricInfo label="Registry" value="Docker Hub" />
+          </div>
+        </CardContent>
+
+        <CardContent>
+          <CardHeader>
+            <div className="inline-flex w-full items-center justify-between">
+              <CardTitle>Containers</CardTitle>
+
+              <span className="text-muted-foreground">
+                3 running / 1 stopped
+              </span>
+            </div>
+          </CardHeader>
+
+          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-2">
+            <div className="inline-flex items-center justify-between">
+              <h3>API Gateway</h3>
+              <ContainerStateBadge state={ContainerStateEnum.running} />
+            </div>
+          </div>
+        </CardContent>
+      </div>
 
       <CardFooter className="justify-between">
-        <span>{image.size}</span>
+        <span>{prettyBytes(image.size)}</span>
         <span>core</span>
       </CardFooter>
     </Card>
