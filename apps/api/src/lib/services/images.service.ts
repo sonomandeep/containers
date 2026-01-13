@@ -27,7 +27,7 @@ export async function listImages() {
     result.push({
       id: image.Id.replace("sha256:", "").slice(0, 12),
       name: getImageName(image.RepoTags?.at(0)),
-      tags: image.RepoTags || [],
+      tags: getImageTags(image.RepoTags || []),
       size: image.Size,
       layers: info.RootFS.Layers?.length || undefined,
       os: info.Os,
@@ -53,6 +53,20 @@ function getImageName(value: string | undefined) {
   const tag = parts.at(parts.length - 1);
 
   return tag?.split(":").at(0) || "";
+}
+
+function getImageTags(tags: Array<string>) {
+  const result: Array<string> = [];
+  for (const tag of tags) {
+    const parts = tag.split("/");
+    const last = parts.at(parts.length - 1);
+
+    if (last) {
+      result.push(last);
+    }
+  }
+
+  return result;
 }
 
 type PullImageInput = {
