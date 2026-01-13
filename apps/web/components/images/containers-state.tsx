@@ -36,7 +36,7 @@ export function ContainersState({ state }: { state: Image["containers"] }) {
 
   if (!items.length) {
     return (
-      <Badge className="font-mono text-muted-foreground" variant="secondary">
+      <Badge className="font-mono text-muted-foreground" variant="outline">
         0
       </Badge>
     );

@@ -10,6 +10,7 @@ import {
   TagsIcon,
 } from "lucide-react";
 import { ContainersState } from "../containers-state";
+import prettyBytes from "pretty-bytes";
 
 export const columns: Array<ColumnDef<Image>> = [
   {
@@ -61,7 +62,7 @@ export const columns: Array<ColumnDef<Image>> = [
     cell({ row }) {
       const sizeInBytes = row.original.size;
 
-      return <p>{(sizeInBytes / 1024 ** 2).toFixed(1)} MB</p>;
+      return <p className="font-mono">{prettyBytes(sizeInBytes)}</p>;
     },
   },
   {
