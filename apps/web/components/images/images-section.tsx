@@ -1,10 +1,19 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon, LayersIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EllipsisVerticalIcon,
+  LayersIcon,
+  Trash2Icon,
+} from "lucide-react";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
   CardToolbar,
 } from "@/components/core/card";
 import { ImagesTable } from "@/components/images/table";
@@ -76,7 +85,40 @@ function ImageDetailCard() {
     return <EmptyImageCard />;
   }
 
-  return image.id;
+  return (
+    <Card className="h-min">
+      <CardToolbar>
+        <span className="font-mono">
+          {image.id.replace("sha256:", "").slice(0, 12)}
+        </span>
+
+        <div className="inline-flex items-center gap-1">
+          <Button size="icon-sm" variant="ghost">
+            <Trash2Icon />
+          </Button>
+
+          <Button size="icon-sm" variant="ghost">
+            <EllipsisVerticalIcon />
+          </Button>
+        </div>
+      </CardToolbar>
+
+      <CardContent>
+        <CardHeader>
+          <div className="inline-flex w-full items-center justify-between">
+            <CardTitle>{image.repoTags.at(0)}</CardTitle>
+          </div>
+
+          <CardDescription>{image.repoTags.at(0)}</CardDescription>
+        </CardHeader>
+      </CardContent>
+
+      <CardFooter className="justify-between">
+        <span>{image.size}</span>
+        <span>core</span>
+      </CardFooter>
+    </Card>
+  );
 }
 
 function EmptyImageCard() {
