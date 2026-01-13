@@ -1,5 +1,5 @@
-import { CornerDownLeftIcon, LayersIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LayersIcon } from "lucide-react";
+import { PullImageDialog } from "@/components/images/pull-image";
 
 export default function Layout({
   children,
@@ -14,10 +14,7 @@ export default function Layout({
           <h1>Images</h1>
         </div>
 
-        <Button>
-          Pull Image
-          <CornerDownLeftIcon className="size-3 opacity-60" />
-        </Button>
+        <PullImageDialog />
       </div>
 
       <div className="min-h-0 flex-1">{children}</div>

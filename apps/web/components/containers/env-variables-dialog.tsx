@@ -12,16 +12,17 @@ import {
 import { useTransition } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
-import { Alert, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogCard,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
-  DialogFooter,
 } from "@/components/core/dialog";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -80,12 +81,12 @@ export default function EnvVariablesDialog({
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <div className="mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3">
+          <DialogCard>
             <Alert variant="warning">
               <div className="inline-flex items-center gap-2">
                 <AlertTriangleIcon className="size-3" />
                 <AlertTitle>
-                  Saving will restart{" "}
+                  Saving will restart&nbsp;
                   <span className="font-mono">{container.name}</span>
                   &nbsp;container.
                 </AlertTitle>
@@ -152,7 +153,7 @@ export default function EnvVariablesDialog({
                 <PlusIcon /> Add Variable
               </Button>
             </div>
-          </div>
+          </DialogCard>
 
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>

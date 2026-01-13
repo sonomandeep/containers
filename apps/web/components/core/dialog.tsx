@@ -1,26 +1,40 @@
 import type { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
-  DialogContent as ShadcnDialogContent,
   Dialog as ShadcnDialog,
+  DialogClose as ShadcnDialogClose,
+  DialogContent as ShadcnDialogContent,
+  DialogFooter as ShadcnDialogFooter,
   DialogHeader as ShadcnDialogHeader,
   DialogTitle as ShadcnDialogTitle,
-  DialogFooter as ShadcnDialogFooter,
-  DialogClose as ShadcnDialogClose,
+  DialogTrigger as ShadcnDialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 export const Dialog = ShadcnDialog;
+export const DialogTrigger = ShadcnDialogTrigger;
 
 export function DialogContent({
   className,
-  size = "default",
   ...props
-}: DialogPrimitive.Popup.Props & {
-  size?: "default" | "sm";
-}) {
+}: DialogPrimitive.Popup.Props & { showCloseButton?: boolean }) {
   return (
     <ShadcnDialogContent
       className={cn("gap-0 rounded-lg bg-neutral-100 p-0", className)}
+      {...props}
+    />
+  );
+}
+
+export function DialogCard({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn(
+        "mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3",
+        className
+      )}
       {...props}
     />
   );
