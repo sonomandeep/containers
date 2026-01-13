@@ -1,6 +1,5 @@
 "use client";
 
-import type { Image } from "@containers/shared";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -25,7 +24,7 @@ const containerStateMeta = {
 
 type ContainerStateKey = keyof typeof containerStateMeta;
 
-export function ContainersState({ state }: { state: Image["containers"] }) {
+export function ContainersState({ state }: { state: Record<string, number> }) {
   const items = (Object.keys(containerStateMeta) as Array<ContainerStateKey>)
     .map((key) => ({
       key,

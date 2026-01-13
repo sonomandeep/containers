@@ -1,6 +1,6 @@
 "use client";
 
-import type { Image } from "@containers/shared";
+import { ContainerStateEnum, type Image } from "@containers/shared";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   BoxIcon,
@@ -22,8 +22,7 @@ export const columns: Array<ColumnDef<Image>> = [
       </div>
     ),
     cell: ({ row }) => {
-      const tags = row.original.repoTags;
-      const name = tags?.at(0);
+      const name = row.original.name;
 
       return <p>{name}</p>;
     },
@@ -37,19 +36,25 @@ export const columns: Array<ColumnDef<Image>> = [
       </div>
     ),
     cell: ({ row }) => {
-      const tags = row.original.repoTags as Array<string>;
+      const tags = row.original.tags;
 
       return <>{tags.map((tag) => tag)}</>;
     },
   },
   {
-    accessorKey: "arch",
+    accessorKey: "architecture",
     header: () => (
       <div className="inline-flex items-center gap-1.5">
         <CpuIcon />
         Architecture
       </div>
     ),
+    cell: ({ row }) => {
+      const os = row.original.os;
+      const architecture = row.original.architecture;
+
+      return <p className="font-mono">{`${os}/${architecture}`}</p>;
+    },
   },
   {
     accessorKey: "size",
@@ -75,8 +80,23 @@ export const columns: Array<ColumnDef<Image>> = [
     ),
     cell({ row }) {
       const containers = row.original.containers;
+      const state = {
+        [ContainerStateEnum.running]: 0,
+        [ContainerStateEnum.paused]: 0,
+        [ContainerStateEnum.exited]: 0,
+      };
 
-      return <ContainersState state={containers} />;
+      for (const container of containers) {
+        if (
+          container.state === ContainerStateEnum.running ||
+          container.state === ContainerStateEnum.paused ||
+          container.state === ContainerStateEnum.exited
+        ) {
+          state[container.state] += 1;
+        }
+      }
+
+      return <ContainersState state={state} />;
     },
   },
 ];
