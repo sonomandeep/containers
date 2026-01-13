@@ -1,6 +1,5 @@
 "use client";
 
-import { ContainerStateEnum } from "@containers/shared";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -36,6 +35,7 @@ import {
 import { useImagesStore } from "@/lib/store/images.store";
 import { ContainerStateBadge } from "../containers/container-state-badge";
 import { MetricInfo } from "../core/metric-info";
+import { ContainerStateEnum, Image } from "@containers/shared";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);
@@ -110,7 +110,7 @@ function ImageDetailCard() {
         <CardContent>
           <CardHeader>
             <div className="inline-flex w-full items-center justify-between">
-              <CardTitle>{image.repoTags.at(0)}</CardTitle>
+              <CardTitle>{image.name}</CardTitle>
 
               <span className="text-muted-foreground">No Vulnerabilities</span>
             </div>
@@ -118,8 +118,11 @@ function ImageDetailCard() {
 
           <div className="grid grid-cols-2 grid-rows-2 gap-3">
             <MetricInfo label="Size" value={prettyBytes(image.size)} />
-            <MetricInfo label="Architecture" value="linux/amd64" />
-            <MetricInfo label="Layers" value="7" />
+            <MetricInfo
+              label="Architecture"
+              value={`${image.os}/${image.architecture}`}
+            />
+            <MetricInfo label="Layers" value={String(image.layers) || "-"} />
             <MetricInfo label="Registry" value="Docker Hub" />
           </div>
         </CardContent>
@@ -130,16 +133,21 @@ function ImageDetailCard() {
               <CardTitle>Containers</CardTitle>
 
               <span className="text-muted-foreground">
-                3 running / 1 stopped
+                {getContainersState(image.containers)}
               </span>
             </div>
           </CardHeader>
 
-          <div className="flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-2">
-            <div className="inline-flex items-center justify-between">
-              <h3>API Gateway</h3>
-              <ContainerStateBadge state={ContainerStateEnum.running} />
-            </div>
+          <div className="flex flex-col gap-3">
+            {image.containers.map((container) => (
+              <div
+                className="inline-flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-2"
+                key={container.id}
+              >
+                <h3>{container.name}</h3>
+                <ContainerStateBadge state={container.state} />
+              </div>
+            ))}
           </div>
         </CardContent>
       </div>
@@ -168,4 +176,38 @@ function EmptyImageCard() {
       </Empty>
     </Card>
   );
+}
+
+function getContainersState(containers: Image["containers"]) {
+  const state = {
+    [ContainerStateEnum.running]: 0,
+    [ContainerStateEnum.paused]: 0,
+    [ContainerStateEnum.exited]: 0,
+  };
+
+  for (const container of containers) {
+    if (
+      container.state === ContainerStateEnum.running ||
+      container.state === ContainerStateEnum.paused ||
+      container.state === ContainerStateEnum.exited
+    ) {
+      state[container.state] += 1;
+    }
+  }
+
+  const result: Array<String> = [];
+
+  if (state[ContainerStateEnum.running] > 0) {
+    result.push(`${state[ContainerStateEnum.running]} running`);
+  }
+
+  if (state[ContainerStateEnum.paused] > 0) {
+    result.push(`${state[ContainerStateEnum.paused]} paused`);
+  }
+
+  if (state[ContainerStateEnum.exited] > 0) {
+    result.push(`${state[ContainerStateEnum.exited]} exited`);
+  }
+
+  return result.join(" / ");
 }
