@@ -12,16 +12,17 @@ import {
 import { useTransition } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
-import { Alert, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogCard,
   DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/core/dialog";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -71,25 +72,21 @@ export default function EnvVariablesDialog({
       }}
       open={open}
     >
-      <DialogContent className="gap-0! bg-neutral-100! p-0!">
+      <DialogContent>
         <DialogHeader>
-          <div className="inline-flex items-baseline gap-2 p-2">
-            <DialogTitle className="text-sm!">
-              Environment Variables
-            </DialogTitle>
-            <span className="text-muted-foreground text-xs">
-              {container.name}
-            </span>
-          </div>
+          <DialogTitle>
+            Environment Variables
+            <span>{container.name}</span>
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <div className="mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3">
+          <DialogCard>
             <Alert variant="warning">
               <div className="inline-flex items-center gap-2">
                 <AlertTriangleIcon className="size-3" />
                 <AlertTitle>
-                  Saving will restart{" "}
+                  Saving will restart&nbsp;
                   <span className="font-mono">{container.name}</span>
                   &nbsp;container.
                 </AlertTitle>
@@ -156,9 +153,9 @@ export default function EnvVariablesDialog({
                 <PlusIcon /> Add Variable
               </Button>
             </div>
-          </div>
+          </DialogCard>
 
-          <DialogFooter className="p-2">
+          <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
               Cancel
             </DialogClose>
