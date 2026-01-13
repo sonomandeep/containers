@@ -47,10 +47,17 @@ export async function pullImage(
     },
   });
   if (error) {
+    logger.error({ input, error }, "error while pulling image");
+    if (error.status === 404) {
+      return { data: null, error: "Image not found." };
+    }
+
+    if (error.status === 500) {
+      return { data: null, error: "Unexpected error while downloading image." };
+    }
+
     return { data: null, error: error.message || error.statusText };
   }
 
-  logger.debug({ data, error }, "pull image");
-
-  return { data: null, error: "not implemented" };
+  return { data, error: null };
 }
