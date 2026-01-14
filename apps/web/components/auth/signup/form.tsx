@@ -2,12 +2,12 @@
 
 import { type SignupSchemaInput, signupSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CornerDownLeftIcon } from "lucide-react";
 import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { CornerDownLeftIcon } from "lucide-react";
 
 export function SignupForm() {
   const form = useForm<SignupSchemaInput>({

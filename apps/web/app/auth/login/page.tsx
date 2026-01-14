@@ -1,31 +1,29 @@
 import Link from "next/link";
-import { LoginForm } from "@/components/auth/login/form";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/core/card";
-import { DialogFooter } from "@/components/core/dialog";
+  AuthCard,
+  AuthCardContent,
+  AuthCardFooter,
+  AuthCardHeader,
+  AuthCardTitle,
+} from "@/components/auth/auth-card";
+import { LoginForm } from "@/components/auth/login/form";
 import { Logo } from "@/components/core/logo";
 
 export default function Page() {
   return (
-    <Card className="pt-1.5">
-      <CardContent className="max-w-2xs">
-        <CardHeader className="w-3xs">
+    <AuthCard>
+      <AuthCardContent>
+        <AuthCardHeader>
           <div className="inline-flex w-full items-center gap-2">
             <Logo size={24} />
-            <CardTitle>
-              <h1>Login</h1>
-            </CardTitle>
+            <AuthCardTitle>Login</AuthCardTitle>
           </div>
-        </CardHeader>
+        </AuthCardHeader>
 
         <LoginForm />
-      </CardContent>
+      </AuthCardContent>
 
-      <DialogFooter className="justify-center! text-muted-foreground">
+      <AuthCardFooter>
         <span>Don’t have an account yet?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
@@ -33,7 +31,7 @@ export default function Page() {
         >
           Sign Up
         </Link>
-      </DialogFooter>
-    </Card>
+      </AuthCardFooter>
+    </AuthCard>
   );
 }
