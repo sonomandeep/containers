@@ -85,6 +85,7 @@ export function LoginForm() {
                     aria-label={
                       isPasswordVisible ? "Hide password" : "Show password"
                     }
+                    className="[&>svg]:opacity-60"
                     onClick={() => setIsPasswordVisible((value) => !value)}
                     size="icon-xs"
                     type="button"
