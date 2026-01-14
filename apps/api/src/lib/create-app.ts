@@ -3,6 +3,7 @@ import type { Schema } from "hono";
 import { requestId } from "hono/request-id";
 import { notFound, onError } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
+import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
 import type { AppBindings, AppOpenAPI } from "./types";
 
@@ -18,6 +19,8 @@ export default function createApp() {
 
   app.use(requestId());
   app.use(pinoLogger);
+
+  app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
   app.notFound(notFound);
   app.onError(onError);
