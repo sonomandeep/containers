@@ -7,6 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { CornerDownLeftIcon } from "lucide-react";
 
 export function LoginForm() {
   const form = useForm<LoginSchemaInput>({
@@ -77,6 +78,7 @@ export function LoginForm() {
       <div className="flex w-full flex-col gap-3">
         <Button className="w-full" type="submit">
           Login
+          <CornerDownLeftIcon className="size-3 opacity-60" />
         </Button>
 
         <div className="flex w-full flex-col gap-1">
