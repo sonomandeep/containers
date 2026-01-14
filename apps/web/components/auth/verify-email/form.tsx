@@ -5,6 +5,7 @@ import {
   verifyEmailSchema,
 } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CornerDownLeftIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
@@ -14,7 +15,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { CornerDownLeftIcon } from "lucide-react";
 
 export function VerifyEmailForm() {
   const form = useForm<VerifyEmailSchemaInput>({
