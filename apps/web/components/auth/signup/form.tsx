@@ -97,6 +97,7 @@ export function SignupForm() {
                 aria-invalid={fieldState.invalid}
                 autoComplete="email"
                 id={field.name}
+                inputMode="email"
                 placeholder="hello@mando.sh"
                 type="email"
               />
