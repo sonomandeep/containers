@@ -2,14 +2,22 @@
 
 import { type LoginSchemaInput, loginSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CornerDownLeftIcon } from "lucide-react";
+import { CornerDownLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const form = useForm<LoginSchemaInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -61,14 +69,28 @@ export function LoginForm() {
                   Forgot password?
                 </a>
               </div>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                autoComplete="off"
-                id={field.name}
-                placeholder="••••••••••••"
-                type="password"
-              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  autoComplete="off"
+                  id={field.name}
+                  placeholder="••••••••••••"
+                  type={isPasswordVisible ? "text" : "password"}
+                />
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    aria-label={
+                      isPasswordVisible ? "Hide password" : "Show password"
+                    }
+                    onClick={() => setIsPasswordVisible((value) => !value)}
+                    size="icon-xs"
+                    type="button"
+                  >
+                    {isPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
