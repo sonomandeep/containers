@@ -6,6 +6,8 @@ import { defaultHook } from "stoker/openapi";
 import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
 import type { AppBindings, AppOpenAPI } from "./types";
+import { cors } from "hono/cors";
+import env from "@/env";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({
@@ -19,6 +21,12 @@ export default function createApp() {
 
   app.use(requestId());
   app.use(pinoLogger);
+  app.use(
+    cors({
+      origin: env.APP_URL,
+      credentials: true,
+    })
+  );
 
   app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
