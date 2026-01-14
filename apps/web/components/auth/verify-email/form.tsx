@@ -14,6 +14,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { CornerDownLeftIcon } from "lucide-react";
 
 export function VerifyEmailForm() {
   const form = useForm<VerifyEmailSchemaInput>({
@@ -70,6 +71,7 @@ export function VerifyEmailForm() {
 
       <Button className="w-full" type="submit">
         Verify
+        <CornerDownLeftIcon className="size-3 opacity-60" />
       </Button>
     </form>
   );
