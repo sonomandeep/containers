@@ -40,6 +40,11 @@ export const loginSchema = z.object({
 });
 export type LoginSchemaInput = z.infer<typeof loginSchema>;
 
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+export type ForgotPasswordSchemaInput = z.infer<typeof forgotPasswordSchema>;
+
 export const signupSchema = z
   .object({
     firstName: firstNameSchema,
