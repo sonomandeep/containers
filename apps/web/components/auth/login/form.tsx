@@ -27,8 +27,8 @@ export function LoginForm() {
     },
   });
 
-  function handleSubmit(data: LoginSchemaInput) {
-    auth.signIn.email(data, {
+  function handleSubmit(input: LoginSchemaInput) {
+    auth.signIn.email(input, {
       onSuccess: (data) => {
         console.log(data);
       },
