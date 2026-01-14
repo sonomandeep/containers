@@ -8,13 +8,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -46,6 +46,7 @@ export function LoginForm() {
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
+                autoComplete="email"
                 id={field.name}
                 placeholder="hello@mando.sh"
                 type="email"
@@ -73,7 +74,7 @@ export function LoginForm() {
                 <InputGroupInput
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  autoComplete="off"
+                  autoComplete="current-password"
                   id={field.name}
                   placeholder="••••••••••••"
                   type={isPasswordVisible ? "text" : "password"}

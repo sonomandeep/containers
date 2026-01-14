@@ -157,8 +157,8 @@ export function SignupForm() {
                   <InputGroupButton
                     aria-label={
                       isConfirmPasswordVisible
-                        ? "Hide password"
-                        : "Show password"
+                        ? "Hide confirm password"
+                        : "Show confirm password"
                     }
                     onClick={() =>
                       setIsConfirmPasswordVisible((value) => !value)
