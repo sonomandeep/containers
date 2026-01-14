@@ -15,7 +15,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { signIn } from "@/lib/services/auth.service";
+import { auth } from "@/lib/auth";
 
 export function LoginForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -28,7 +28,14 @@ export function LoginForm() {
   });
 
   function handleSubmit(data: LoginSchemaInput) {
-    signIn(data);
+    auth.signIn.email(data, {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    });
   }
 
   return (
