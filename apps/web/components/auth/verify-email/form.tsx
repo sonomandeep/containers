@@ -43,8 +43,10 @@ export function VerifyEmailForm() {
               <InputOTP
                 aria-invalid={fieldState.invalid}
                 aria-label="Verification code"
+                autoComplete="one-time-code"
                 className="w-full"
                 containerClassName="w-full gap-3 justify-between"
+                inputMode="numeric"
                 maxLength={6}
                 onChange={field.onChange}
                 value={field.value}
