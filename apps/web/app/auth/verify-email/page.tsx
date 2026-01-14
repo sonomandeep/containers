@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   AuthCard,
   AuthCardContent,
@@ -8,6 +7,7 @@ import {
   AuthCardTitle,
 } from "@/components/auth/auth-card";
 import { VerifyEmailForm } from "@/components/auth/verify-email/form";
+import { ResendButton } from "@/components/auth/verify-email/resend-button";
 import { Logo } from "@/components/core/logo";
 
 export default function Page() {
@@ -29,12 +29,7 @@ export default function Page() {
 
       <AuthCardFooter>
         <span>Didn’t receive the email?</span>
-        <Link
-          className="underline transition-colors hover:text-foreground"
-          href="/auth/verify-email/resend"
-        >
-          Resend
-        </Link>
+        <ResendButton cooldownSeconds={60} />
       </AuthCardFooter>
     </AuthCard>
   );

@@ -51,7 +51,10 @@ export function AuthCardDescription({ children, className }: AuthCardProps) {
 export function AuthCardFooter({ children, className }: AuthCardProps) {
   return (
     <DialogFooter
-      className={cn("justify-center! text-muted-foreground", className)}
+      className={cn(
+        "justify-center! items-center text-muted-foreground",
+        className
+      )}
     >
       {children}
     </DialogFooter>
