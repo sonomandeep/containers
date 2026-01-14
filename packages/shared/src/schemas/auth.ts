@@ -53,3 +53,11 @@ export const signupSchema = z
     path: ["confirmPassword"],
   });
 export type SignupSchemaInput = z.infer<typeof signupSchema>;
+
+export const verifyEmailSchema = z.object({
+  code: z
+    .string()
+    .min(1, "Verification code is required")
+    .length(6, "Enter a 6-digit code"),
+});
+export type VerifyEmailSchemaInput = z.infer<typeof verifyEmailSchema>;
