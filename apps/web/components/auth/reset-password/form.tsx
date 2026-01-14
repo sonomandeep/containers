@@ -78,9 +78,7 @@ export function ResetPasswordForm() {
           name="confirmPassword"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Confirm New Password
-              </FieldLabel>
+              <FieldLabel htmlFor={field.name}>Confirm New Password</FieldLabel>
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -104,11 +102,7 @@ export function ResetPasswordForm() {
                     size="icon-xs"
                     type="button"
                   >
-                    {isConfirmPasswordVisible ? (
-                      <EyeOffIcon />
-                    ) : (
-                      <EyeIcon />
-                    )}
+                    {isConfirmPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
