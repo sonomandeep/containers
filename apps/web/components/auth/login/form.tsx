@@ -15,6 +15,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { signIn } from "@/lib/services/auth.service";
 
 export function LoginForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -27,8 +28,7 @@ export function LoginForm() {
   });
 
   function handleSubmit(data: LoginSchemaInput) {
-    // Do something with the form values.
-    console.log(data);
+    signIn(data);
   }
 
   return (
