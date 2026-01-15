@@ -10,8 +10,11 @@ import {
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
+import { checkAuthentication } from "@/lib/services/auth.service";
 
 export async function listContainers() {
+  await checkAuthentication();
+
   const { data, error } = await $api("/containers", {
     method: "get",
     output: z.array(containerSchema),
