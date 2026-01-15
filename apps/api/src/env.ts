@@ -11,6 +11,14 @@ const envSchema = z.object({
     .default("info"),
   APP_URL: z.url(),
   DATABASE_URL: z.url(),
+
+  // EMAIL
+  EMAIL_FROM: z.string(),
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_SECURE: z.enum(["true", "false"]).transform((val) => val === "true"),
+  SMTP_USERNAME: z.string(),
+  SMTP_PASSWORD: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;

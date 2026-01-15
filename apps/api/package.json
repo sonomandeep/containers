@@ -13,6 +13,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.10.2",
+    "nodemailer": "^7.0.12",
     "pg": "^8.16.3",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/dockerode": "^3.3.45",
+    "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.8",
     "tsx": "^4.21.0"
