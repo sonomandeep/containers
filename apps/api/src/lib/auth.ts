@@ -12,10 +12,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    autoSignIn: true,
   },
   trustedOrigins: [env.APP_URL],
   emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+
     // biome-ignore lint/suspicious/useAwait: async required but no need to await emails response
     sendVerificationEmail: async ({ user, token }) => {
       sendVerificationEmail({
