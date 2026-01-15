@@ -5,9 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { BASE_ERROR_CODES } from "better-auth";
 import { CornerDownLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
 
 export function SignupForm() {
-  const router = useRouter();
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -52,7 +52,7 @@ export function SignupForm() {
           setIsPending(false);
         },
         onSuccess: () => {
-          router.replace("/auth/verify-email");
+          setShowSuccessAlert(true);
         },
         onError: ({ error }) => {
           if (
@@ -219,6 +219,15 @@ export function SignupForm() {
 
         {form.formState.errors.root && (
           <FieldError errors={[form.formState.errors.root]} />
+        )}
+
+        {showSuccessAlert && (
+          <Alert variant="info">
+            <AlertTitle>
+              We’ve sent you a verification email. Click the link to verify your
+              account.
+            </AlertTitle>
+          </Alert>
         )}
       </div>
 
