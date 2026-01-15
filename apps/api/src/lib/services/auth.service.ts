@@ -3,17 +3,17 @@ import { emailClient } from "@/lib/email";
 
 export async function sendVerificationEmail({
   email,
-  otp,
+  token,
 }: {
   email: string;
-  otp: string;
+  token: string;
 }) {
   try {
     await emailClient.sendMail({
       from: env.EMAIL_FROM,
       to: email,
       subject: "Verify your email address",
-      html: `<p>Verification code: ${otp}</p>`,
+      html: `<p>Verification url: <a href="${env.APP_URL}/auth/verify-email?token=${token}">Verify</a></p>`,
     });
   } catch (error) {
     console.error(error, "error while sending verification email");

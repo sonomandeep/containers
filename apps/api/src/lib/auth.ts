@@ -15,15 +15,13 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
   trustedOrigins: [env.APP_URL],
-  plugins: [
-    emailOTP({
-      overrideDefaultEmailVerification: true,
-      // biome-ignore lint/suspicious/useAwait: async required but no need to await emails response
-      async sendVerificationOTP({ email, otp, type }) {
-        if (type === "email-verification") {
-          sendVerificationEmail({ email, otp });
-        }
-      },
-    }),
-  ],
+  emailVerification: {
+    // biome-ignore lint/suspicious/useAwait: async required but no need to await emails response
+    sendVerificationEmail: async ({ user, token }) => {
+      sendVerificationEmail({
+        email: user.email,
+        token,
+      });
+    },
+  },
 });
