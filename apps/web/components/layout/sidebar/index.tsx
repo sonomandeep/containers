@@ -8,6 +8,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
 import { NavMain } from "./main";
 import { NavUser } from "./user";
 
@@ -30,6 +31,8 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { data: session } = auth.useSession();
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -46,8 +49,8 @@ export function AppSidebar() {
       <SidebarFooter>
         <NavUser
           user={{
-            name: "Mando",
-            email: "hello@mando.sh",
+            name: session?.user.name || "",
+            email: session?.user.email || "",
             avatar: "https://github.com/sonomandeep.png",
           }}
         />
