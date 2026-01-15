@@ -20,7 +20,7 @@ export default function Page() {
             <AuthCardTitle>Verify email</AuthCardTitle>
           </div>
           <AuthCardDescription>
-            We sent a verification code to your email.
+            Click the button below to verify your email address.
           </AuthCardDescription>
         </AuthCardHeader>
 
