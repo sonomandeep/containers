@@ -37,10 +37,14 @@ export async function listContainers() {
 export async function startContainer(
   id: string
 ): Promise<ServiceResponse<Container, string>> {
+  const { cookies } = await checkAuthentication();
   const path = `/containers/${encodeURIComponent(id)}/start`;
 
   const { data, error } = await $api(path, {
     method: "post",
+    headers: {
+      Cookie: cookies.toString(),
+    },
     output: containerSchema,
   });
   if (error) {
@@ -57,10 +61,14 @@ export async function startContainer(
 export async function restartContainer(
   id: string
 ): Promise<ServiceResponse<Container, string>> {
+  const { cookies } = await checkAuthentication();
   const path = `/containers/${encodeURIComponent(id)}/restart`;
 
   const { data, error } = await $api(path, {
     method: "post",
+    headers: {
+      Cookie: cookies.toString(),
+    },
     output: containerSchema,
   });
   if (error) {
@@ -77,10 +85,14 @@ export async function restartContainer(
 export async function stopContainer(
   id: string
 ): Promise<ServiceResponse<Container, string>> {
+  const { cookies } = await checkAuthentication();
   const path = `/containers/${encodeURIComponent(id)}/stop`;
 
   const { data, error } = await $api(path, {
     method: "post",
+    headers: {
+      Cookie: cookies.toString(),
+    },
     output: containerSchema,
   });
   if (error) {
@@ -97,10 +109,14 @@ export async function stopContainer(
 export async function deleteContainer(
   id: string
 ): Promise<ServiceResponse<{ id: string }, string>> {
+  const { cookies } = await checkAuthentication();
   const path = `/containers/${encodeURIComponent(id)}`;
 
   const { error } = await $api(path, {
     method: "delete",
+    headers: {
+      Cookie: cookies.toString(),
+    },
   });
   if (error) {
     logger.error(error, "deleteContainer error");
