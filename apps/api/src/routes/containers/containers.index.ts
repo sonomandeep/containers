@@ -1,14 +1,12 @@
-import { cors } from "hono/cors";
 import { createRouter } from "@/lib/create-app";
+import { authMiddleware } from "@/lib/middlewares/auth.middleware";
 import * as handlers from "./containers.handlers";
 import * as routes from "./containers.routes";
 
-const allowedOrigins = new Set([
-  "http://core.internal:3000",
-  "http://localhost:3000",
-]);
+const router = createRouter();
+router.use("/containers/*", authMiddleware);
 
-const router = createRouter()
+router
   .openapi(routes.list, handlers.list)
   .openapi(routes.launch, handlers.launch)
   .openapi(routes.remove, handlers.remove)
@@ -16,19 +14,6 @@ const router = createRouter()
   .openapi(routes.start, handlers.start)
   .openapi(routes.restart, handlers.restart)
   .openapi(routes.updateEnvs, handlers.updateEnvs)
-  .get(
-    routes.stream.path,
-    cors({
-      origin: (origin) => {
-        if (!origin) {
-          return "*";
-        }
-
-        return allowedOrigins.has(origin) ? origin : null;
-      },
-      credentials: false,
-    }),
-    handlers.stream
-  );
+  .get(routes.stream.path, handlers.stream);
 
 export default router;
