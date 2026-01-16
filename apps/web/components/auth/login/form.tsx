@@ -4,6 +4,8 @@ import { type LoginSchemaInput, loginSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CornerDownLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -15,8 +17,12 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { auth } from "@/lib/auth";
 
 export function LoginForm() {
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const form = useForm<LoginSchemaInput>({
     resolver: zodResolver(loginSchema),
@@ -26,9 +32,21 @@ export function LoginForm() {
     },
   });
 
-  function handleSubmit(data: LoginSchemaInput) {
-    // Do something with the form values.
-    console.log(data);
+  function handleSubmit(input: LoginSchemaInput) {
+    auth.signIn.email(input, {
+      onRequest: () => {
+        setIsPending(true);
+      },
+      onResponse: () => {
+        setIsPending(false);
+      },
+      onSuccess: () => {
+        router.replace("/containers");
+      },
+      onError: ({ error }) => {
+        form.setError("root", { message: error.message });
+      },
+    });
   }
 
   return (
@@ -39,6 +57,7 @@ export function LoginForm() {
       <div className="flex flex-col gap-3">
         <Controller
           control={form.control}
+          disabled={isPending}
           name="email"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -59,17 +78,19 @@ export function LoginForm() {
 
         <Controller
           control={form.control}
+          disabled={isPending}
           name="password"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center">
                 <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                <a
+                <Link
                   className="ml-auto inline-block text-xs hover:underline"
                   href="/auth/forgot-password"
+                  tabIndex={-1}
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <InputGroup>
                 <InputGroupInput
@@ -88,6 +109,7 @@ export function LoginForm() {
                     className="[&>svg]:opacity-60"
                     onClick={() => setIsPasswordVisible((value) => !value)}
                     size="icon-xs"
+                    tabIndex={-1}
                     type="button"
                   >
                     {isPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
@@ -98,12 +120,20 @@ export function LoginForm() {
             </Field>
           )}
         />
+
+        {form.formState.errors.root && (
+          <FieldError errors={[form.formState.errors.root]} />
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-3">
-        <Button className="w-full" type="submit">
+        <Button className="w-full" disabled={isPending} type="submit">
           Login
-          <CornerDownLeftIcon className="size-3 opacity-60" />
+          {isPending ? (
+            <Spinner className="size-3 opacity-60" />
+          ) : (
+            <CornerDownLeftIcon className="size-3 opacity-60" />
+          )}
         </Button>
 
         <div className="flex w-full flex-col gap-1">

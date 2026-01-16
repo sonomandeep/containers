@@ -5,7 +5,7 @@ config();
 
 const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
-  API_BASE_URL: z.string().nonempty(),
+  NEXT_PUBLIC_API_URL: z.string().nonempty(),
 });
 
 export type Env = z.infer<typeof envSchema>;

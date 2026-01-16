@@ -71,6 +71,7 @@ export const signupSchema = z
 export type SignupSchemaInput = z.infer<typeof signupSchema>;
 
 export const verifyEmailSchema = z.object({
+  email: emailSchema,
   code: z
     .string()
     .min(1, "Verification code is required")

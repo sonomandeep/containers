@@ -2,10 +2,12 @@
 
 import { type SignupSchemaInput, signupSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BASE_ERROR_CODES } from "better-auth";
 import { CornerDownLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -15,8 +17,12 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { auth } from "@/lib/auth";
 
 export function SignupForm() {
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
@@ -31,9 +37,35 @@ export function SignupForm() {
     },
   });
 
-  function handleSubmit(data: SignupSchemaInput) {
-    // Do something with the form values.
-    console.log(data);
+  function handleSubmit(input: SignupSchemaInput) {
+    auth.signUp.email(
+      {
+        email: input.email,
+        name: `${input.firstName} ${input.lastName}`,
+        password: input.password,
+      },
+      {
+        onRequest: () => {
+          setIsPending(true);
+        },
+        onResponse: () => {
+          setIsPending(false);
+        },
+        onSuccess: () => {
+          setShowSuccessAlert(true);
+        },
+        onError: ({ error }) => {
+          if (
+            error.message ===
+            BASE_ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
+          ) {
+            return form.setError("email", { message: error.message });
+          }
+
+          form.setError("root", { message: error.message });
+        },
+      }
+    );
   }
 
   return (
@@ -45,6 +77,7 @@ export function SignupForm() {
         <div className="grid gap-2 sm:grid-cols-2">
           <Controller
             control={form.control}
+            disabled={isPending}
             name="firstName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
@@ -66,6 +99,7 @@ export function SignupForm() {
 
           <Controller
             control={form.control}
+            disabled={isPending}
             name="lastName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
@@ -88,6 +122,7 @@ export function SignupForm() {
 
         <Controller
           control={form.control}
+          disabled={isPending}
           name="email"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -108,6 +143,7 @@ export function SignupForm() {
 
         <Controller
           control={form.control}
+          disabled={isPending}
           name="password"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -129,6 +165,7 @@ export function SignupForm() {
                     className="[&>svg]:opacity-60"
                     onClick={() => setIsPasswordVisible((value) => !value)}
                     size="icon-xs"
+                    tabIndex={-1}
                     type="button"
                   >
                     {isPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
@@ -142,6 +179,7 @@ export function SignupForm() {
 
         <Controller
           control={form.control}
+          disabled={isPending}
           name="confirmPassword"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -167,6 +205,7 @@ export function SignupForm() {
                       setIsConfirmPasswordVisible((value) => !value)
                     }
                     size="icon-xs"
+                    tabIndex={-1}
                     type="button"
                   >
                     {isConfirmPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
@@ -177,12 +216,29 @@ export function SignupForm() {
             </Field>
           )}
         />
+
+        {form.formState.errors.root && (
+          <FieldError errors={[form.formState.errors.root]} />
+        )}
+
+        {showSuccessAlert && (
+          <Alert variant="info">
+            <AlertTitle>
+              We’ve sent you a verification email. Click the link to verify your
+              account.
+            </AlertTitle>
+          </Alert>
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-3">
-        <Button className="w-full" type="submit">
+        <Button className="w-full" disabled={isPending} type="submit">
           Sign Up
-          <CornerDownLeftIcon className="size-3 opacity-60" />
+          {isPending ? (
+            <Spinner className="size-3 opacity-60" />
+          ) : (
+            <CornerDownLeftIcon className="size-3 opacity-60" />
+          )}
         </Button>
 
         <div className="flex w-full flex-col gap-1">

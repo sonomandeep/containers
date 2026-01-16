@@ -1,8 +1,11 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Schema } from "hono";
+import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { notFound, onError } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
+import env from "@/env";
+import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
 import type { AppBindings, AppOpenAPI } from "./types";
 
@@ -18,6 +21,29 @@ export default function createApp() {
 
   app.use(requestId());
   app.use(pinoLogger);
+  app.use(
+    cors({
+      origin: env.APP_URL,
+      credentials: true,
+    })
+  );
+
+  app.use("*", async (c, next) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers });
+    if (!session) {
+      c.set("user", null);
+      c.set("session", null);
+      await next();
+      return;
+    }
+
+    c.set("user", session.user);
+    c.set("session", session.session);
+
+    await next();
+  });
+
+  app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
   app.notFound(notFound);
   app.onError(onError);

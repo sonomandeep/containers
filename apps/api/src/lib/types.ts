@@ -7,10 +7,13 @@ import type {
 } from "@hono/zod-openapi";
 import type { Context, Schema } from "hono";
 import type pino from "pino";
+import type { auth } from "./auth";
 
 export type AppBindings = {
   Variables: {
     logger: pino.Logger;
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
   };
   Bindings: {
     incoming: IncomingMessage;
