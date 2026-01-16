@@ -1,40 +1,26 @@
-FROM oven/bun:1.3.0 AS base
+FROM oven/bun:1.3.6-alpine AS base
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
   python3 \
-  python3-pip \
-  build-essential \
-  && rm -rf /var/lib/apt/lists/*
+  py3-pip \
+  build-base
 
 RUN bun install -g turbo
 
-FROM base AS pruner
+FROM base AS prepare
 COPY . .
 RUN turbo prune api --docker
 
-FROM base AS installer
-WORKDIR /app
-
-COPY --from=pruner /app/out/json/ ./
-COPY --from=pruner /app/out/bun.lock ./bun.lock
+FROM base AS builder
+COPY --from=prepare /app/out/bun.lock ./bun.lock
+COPY --from=prepare /app/out/json/ ./
 RUN bun install --frozen-lockfile
+COPY --from=prepare /app/out/full/ ./
+RUN bun turbo build
 
-COPY --from=pruner /app/out/full/ ./
-RUN bun run --cwd packages/shared build
-
-FROM oven/bun:1.3.0-slim AS runner
+FROM oven/bun:1.3.6-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-ENV PORT=80
+COPY --from=builder /app ./
 
-RUN apt-get update && apt-get install -y \
-  ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY --from=installer /app ./
-
-WORKDIR /app/apps/api
-
-EXPOSE 80
-CMD ["bun", "run", "src/index.ts"]
+CMD ["bun", "apps/api/dist/index.js"]
