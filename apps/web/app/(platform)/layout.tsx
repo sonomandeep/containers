@@ -1,14 +1,11 @@
 import { AppSidebar } from "@/components/layout/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { checkAuthentication } from "@/lib/services/auth.service";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await checkAuthentication();
-
   return (
     <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar />

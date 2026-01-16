@@ -7,6 +7,19 @@ import { logger } from "@/lib/logger";
 
 const authRedirectUrl = "/auth/login";
 
+export async function getSession() {
+  const cookieStore = await cookies();
+  const session = await auth.getSession({
+    fetchOptions: {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    },
+  });
+
+  return { ...session.data };
+}
+
 export async function checkAuthentication() {
   const cookieStore = await cookies();
   const session = await auth.getSession({
