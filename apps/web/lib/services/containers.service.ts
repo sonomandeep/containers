@@ -13,10 +13,13 @@ import { logger } from "@/lib/logger";
 import { checkAuthentication } from "@/lib/services/auth.service";
 
 export async function listContainers() {
-  await checkAuthentication();
+  const { cookies } = await checkAuthentication();
 
   const { data, error } = await $api("/containers", {
     method: "get",
+    headers: {
+      Cookie: cookies.toString(),
+    },
     output: z.array(containerSchema),
     next: {
       tags: ["containers"],

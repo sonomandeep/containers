@@ -8,11 +8,11 @@ import { logger } from "@/lib/logger";
 const authRedirectUrl = "/auth/login";
 
 export async function checkAuthentication() {
-  const cookie = await cookies();
+  const cookieStore = await cookies();
   const session = await auth.getSession({
     fetchOptions: {
       headers: {
-        Cookie: cookie.toString(),
+        Cookie: cookieStore.toString(),
       },
     },
   });
@@ -27,7 +27,5 @@ export async function checkAuthentication() {
     redirect(authRedirectUrl);
   }
 
-  logger.debug(session, "user session");
-
-  return session.data.user;
+  return { ...session.data, cookies: cookieStore };
 }
