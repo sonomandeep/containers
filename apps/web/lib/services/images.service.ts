@@ -10,12 +10,18 @@ import {
 import z from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
+import { checkAuthentication } from "./auth.service";
 
 export async function listImages(): Promise<
   ServiceResponse<Array<Image>, string>
 > {
+  const { cookies } = await checkAuthentication();
+
   const { data, error } = await $api("/images", {
     method: "get",
+    headers: {
+      Cookie: cookies.toString(),
+    },
     output: z.array(imageSchema),
     next: {
       tags: ["images"],
@@ -33,6 +39,8 @@ export async function listImages(): Promise<
 export async function pullImage(
   input: PullImageInput
 ): Promise<ServiceResponse<Image, string>> {
+  const { cookies } = await checkAuthentication();
+
   const result = z.safeParse(pullImageSchema, input);
   if (!result.success) {
     return { data: null, error: "validation error" };
@@ -40,11 +48,12 @@ export async function pullImage(
 
   const { data, error } = await $api("/images", {
     method: "post",
-    output: imageSchema,
-    body: JSON.stringify(result.data),
     headers: {
       "content-type": "application/json",
+      Cookie: cookies.toString(),
     },
+    output: imageSchema,
+    body: JSON.stringify(result.data),
   });
   if (error) {
     logger.error({ input, error }, "error while pulling image");
