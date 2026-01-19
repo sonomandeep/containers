@@ -58,7 +58,7 @@ export function ImagesSection() {
   return (
     <div className="grid flex-1 grid-cols-3 gap-3">
       <Card className="col-span-2 flex-1">
-        <CardToolbar>
+        <CardToolbar className="h-6">
           <div className="inline-flex items-baseline gap-2">
             <h2>Your Images</h2>
             {table.getFilteredSelectedRowModel().rows.length > 0 ? (
@@ -71,7 +71,7 @@ export function ImagesSection() {
             )}
           </div>
 
-          {table.getFilteredSelectedRowModel().rows.length && (
+          {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <Button size="icon-sm" variant="ghost">
               <Trash2Icon />
             </Button>
