@@ -8,6 +8,7 @@ router.use("/files/*", authMiddleware);
 
 router
   .openapi(routes.upload, handlers.upload)
-  .openapi(routes.remove, handlers.remove);
+  .openapi(routes.remove, handlers.remove)
+  .openapi(routes.getById, handlers.getById);
 
 export default router;

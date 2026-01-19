@@ -1,7 +1,11 @@
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { removeFile, uploadFile } from "@/lib/services/files.service";
+import {
+  getFileById,
+  removeFile,
+  uploadFile,
+} from "@/lib/services/files.service";
 import type { AppRouteHandler } from "@/lib/types";
-import type { RemoveRoute, UploadRoute } from "./files.routes";
+import type { GetByIdRoute, RemoveRoute, UploadRoute } from "./files.routes";
 
 export const upload: AppRouteHandler<UploadRoute> = async (c) => {
   const input = c.req.valid("form");
@@ -35,4 +39,21 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   }
 
   return c.json({ message: "file deleted" }, HttpStatusCodes.OK);
+};
+
+export const getById: AppRouteHandler<GetByIdRoute> = async (c) => {
+  const params = c.req.valid("param");
+
+  const result = await getFileById(params.fileId);
+  if (result.error || result.data === null) {
+    c.var.logger.error(result.error);
+    return c.json(
+      {
+        message: result.error.message,
+      },
+      result.error.code
+    );
+  }
+
+  return c.json(result.data, HttpStatusCodes.OK);
 };

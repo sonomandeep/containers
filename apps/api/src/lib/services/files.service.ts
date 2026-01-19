@@ -49,6 +49,10 @@ function buildStorageKey(filename: string) {
   return extension ? `${id}${extension}` : id;
 }
 
+function buildFileUrl(storageKey: string) {
+  return new URL(`/uploads/${storageKey}`, env.APP_URL).toString();
+}
+
 function isNoEntryError(error: unknown) {
   return (
     typeof error === "object" &&
@@ -114,6 +118,7 @@ export async function uploadFile(
         mimeType: record.mimeType,
         size: record.size,
         storageKey: record.storageKey,
+        url: buildFileUrl(record.storageKey),
         createdAt: record.createdAt.toISOString(),
         updatedAt: record.updatedAt.toISOString(),
       },
@@ -172,6 +177,58 @@ export async function removeFile(
 
     return {
       data: null,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+type GetFileError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+export async function getFileById(
+  fileId: string
+): Promise<ServiceResponse<StoredFile, GetFileError>> {
+  try {
+    const records = await db
+      .select()
+      .from(fileTable)
+      .where(eq(fileTable.id, fileId))
+      .limit(1);
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    return {
+      data: {
+        id: record.id,
+        name: record.name,
+        mimeType: record.mimeType,
+        size: record.size,
+        storageKey: record.storageKey,
+        url: buildFileUrl(record.storageKey),
+        createdAt: record.createdAt.toISOString(),
+        updatedAt: record.updatedAt.toISOString(),
+      } satisfies StoredFile,
       error: null,
     };
   } catch (error) {

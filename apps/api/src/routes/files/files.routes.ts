@@ -65,3 +65,24 @@ export const remove = createRoute({
 
 export type UploadRoute = typeof upload;
 export type RemoveRoute = typeof remove;
+
+export const getById = createRoute({
+  path: "/files/{fileId}",
+  method: "get",
+  tags,
+  request: {
+    params: z.object({
+      fileId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(fileSchema, "The requested file"),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "File not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+
+export type GetByIdRoute = typeof getById;

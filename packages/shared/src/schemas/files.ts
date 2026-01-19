@@ -6,6 +6,7 @@ export const fileSchema = z.object({
   mimeType: z.string(),
   size: z.number(),
   storageKey: z.string(),
+  url: z.string().url(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
