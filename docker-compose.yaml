@@ -1,5 +1,5 @@
 services:
-  postgres:
+  db:
     image: postgres:18.1-alpine3.23
     container_name: containers_db
     restart: unless-stopped
@@ -19,13 +19,14 @@ services:
     container_name: api
     restart: unless-stopped
     env_file:
-      - ./apps/api/.env.local
+      - ./apps/api/.env.prod
     ports:
       - "9999:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - api_uploads:/data/uploads
     depends_on:
-      - postgres
+      - db
     cpus: "1.0"
     mem_limit: "512m"
 
@@ -34,7 +35,7 @@ services:
     container_name: web
     restart: unless-stopped
     env_file:
-      - ./apps/web/.env.local
+      - ./apps/web/.env.prod
     ports:
       - "3000:3000"
     depends_on:
@@ -44,3 +45,4 @@ services:
 
 volumes:
   postgres_data:
+  api_uploads:
