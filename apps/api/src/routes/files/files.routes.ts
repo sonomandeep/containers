@@ -3,7 +3,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent } from "stoker/openapi/helpers";
 import { createMessageObjectSchema } from "stoker/openapi/schemas";
-import { internalServerErrorSchema } from "@/lib/constants";
+import { internalServerErrorSchema, notFoundSchema } from "@/lib/constants";
 
 const tags = ["files"];
 
@@ -41,4 +41,27 @@ export const upload = createRoute({
   },
 });
 
+export const remove = createRoute({
+  path: "/files/{fileId}",
+  method: "delete",
+  tags,
+  request: {
+    params: z.object({
+      fileId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("file deleted"),
+      "File deleted"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "File not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+
 export type UploadRoute = typeof upload;
+export type RemoveRoute = typeof remove;

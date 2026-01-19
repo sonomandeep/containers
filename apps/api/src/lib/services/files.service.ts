@@ -4,6 +4,7 @@ import path from "node:path";
 import type { ServiceResponse, StoredFile } from "@containers/shared";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { file as fileTable } from "@/db/schema";
 import env from "@/env";
@@ -46,6 +47,15 @@ function buildStorageKey(filename: string) {
   const extension = path.extname(filename);
   const id = crypto.randomUUID();
   return extension ? `${id}${extension}` : id;
+}
+
+function isNoEntryError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "ENOENT"
+  );
 }
 
 export async function uploadFile(
@@ -111,6 +121,60 @@ export async function uploadFile(
     };
   } catch (_) {
     await fs.unlink(filePath).catch(() => null);
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+type RemoveFileError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+export async function removeFile(
+  fileId: string
+): Promise<ServiceResponse<null, RemoveFileError>> {
+  try {
+    const records = await db
+      .select()
+      .from(fileTable)
+      .where(eq(fileTable.id, fileId))
+      .limit(1);
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    const filePath = path.join(env.UPLOAD_DIR, record.storageKey);
+    await fs.unlink(filePath).catch((error) => {
+      if (isNoEntryError(error)) {
+        return;
+      }
+
+      throw error;
+    });
+
+    await db.delete(fileTable).where(eq(fileTable.id, record.id));
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch (error) {
     return {
       data: null,
       error: {

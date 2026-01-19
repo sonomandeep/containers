@@ -6,6 +6,8 @@ import * as routes from "./files.routes";
 const router = createRouter();
 router.use("/files/*", authMiddleware);
 
-router.openapi(routes.upload, handlers.upload);
+router
+  .openapi(routes.upload, handlers.upload)
+  .openapi(routes.remove, handlers.remove);
 
 export default router;
