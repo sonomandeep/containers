@@ -1,11 +1,12 @@
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
 import containers from "@/routes/containers/containers.index";
+import files from "@/routes/files/files.index";
 import images from "@/routes/images/images.index";
 
 const app = createApp();
 
-const routes = [containers, images] as const;
+const routes = [containers, files, images] as const;
 
 configureOpenAPI(app);
 
