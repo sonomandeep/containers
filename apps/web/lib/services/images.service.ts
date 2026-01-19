@@ -70,3 +70,27 @@ export async function pullImage(
 
   return { data, error: null };
 }
+
+export async function removeImages(
+  input: Array<Image["id"]>
+): Promise<ServiceResponse<Array<Image["id"]>, string>> {
+  const { cookies } = await checkAuthentication();
+
+  const { error } = await $api("/images/remove", {
+    method: "post",
+    body: JSON.stringify({ images: input }),
+    headers: {
+      Cookie: cookies.toString(),
+      "content-type": "application/json",
+    },
+  });
+  if (error) {
+    logger.error(error, "removeImages error");
+    return {
+      data: null,
+      error: "Unexpected error while removing images.",
+    };
+  }
+
+  return { data: input, error: null };
+}
