@@ -1,13 +1,24 @@
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
 import containers from "@/routes/containers/containers.index";
+import files from "@/routes/files/files.index";
 import images from "@/routes/images/images.index";
+import env from "@/env";
+import { serveStatic } from "hono/bun";
 
 const app = createApp();
 
-const routes = [containers, images] as const;
+const routes = [containers, files, images] as const;
 
 configureOpenAPI(app);
+
+app.use(
+  "/uploads/*",
+  serveStatic({
+    root: env.UPLOAD_DIR,
+    rewriteRequestPath: (path) => path.replace(/^\/uploads/, ""),
+  })
+);
 
 for (const route of routes) {
   app.route("/", route);

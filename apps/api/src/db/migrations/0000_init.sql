@@ -14,6 +14,17 @@ CREATE TABLE "account" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "file" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"mime_type" text NOT NULL,
+	"size" integer NOT NULL,
+	"storage_key" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "file_storage_key_unique" UNIQUE("storage_key")
+);
+--> statement-breakpoint
 CREATE TABLE "session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"expires_at" timestamp NOT NULL,
