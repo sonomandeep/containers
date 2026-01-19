@@ -80,21 +80,18 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 );
 
-export const file = pgTable(
-  "file",
-  {
-    id: text("id").primaryKey(),
-    name: text("name").notNull(),
-    mimeType: text("mime_type").notNull(),
-    size: integer("size").notNull(),
-    storageKey: text("storage_key").notNull().unique(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  }
-);
+export const file = pgTable("file", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  storageKey: text("storage_key").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
