@@ -10,6 +10,9 @@ const envSchema = z.object({
     .enum(["trace", "debug", "info", "warn", "error", "fatal"])
     .default("info"),
   APP_URL: z.url(),
+  UPLOAD_DIR: z.string(),
+
+  // DATABASE
   DATABASE_URL: z.url(),
 
   // EMAIL
