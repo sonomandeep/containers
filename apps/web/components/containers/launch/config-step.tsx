@@ -2,7 +2,12 @@
 
 import { type ConfigStepInput, configStepSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ListPlusIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import {
+  CornerDownLeftIcon,
+  ListPlusIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { DialogCard, DialogFooter } from "@/components/core/dialog";
 import { Button } from "@/components/ui/button";
@@ -295,7 +300,10 @@ export function ConfigStep({ formState, goBack, handleSubmit }: Props) {
           Back
         </Button>
 
-        <Button type="submit">Next</Button>
+        <Button type="submit">
+          Next
+          <CornerDownLeftIcon className="size-3 opacity-60" />
+        </Button>
       </DialogFooter>
     </form>
   );

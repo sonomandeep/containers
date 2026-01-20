@@ -1,6 +1,6 @@
 "use client";
 
-import { BoxIcon, HardDriveIcon, Layers2Icon } from "lucide-react";
+import { BoxIcon, HardDriveIcon, LayersIcon } from "lucide-react";
 import { Logo } from "@/components/core/logo";
 import {
   Sidebar,
@@ -21,7 +21,7 @@ const items = [
   {
     name: "Images",
     url: "/images",
-    icon: Layers2Icon,
+    icon: LayersIcon,
   },
   {
     name: "Volumes",

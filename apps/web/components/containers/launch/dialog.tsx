@@ -106,7 +106,10 @@ export function LaunchContainer() {
 
       <DialogContent className="gap-0">
         <DialogHeader className="px-3">
-          <DialogTitle>Launch Container</DialogTitle>
+          <DialogTitle>
+            Launch Container
+            <span>Step {currentStep} of 3</span>
+          </DialogTitle>
         </DialogHeader>
 
         <Stepper
