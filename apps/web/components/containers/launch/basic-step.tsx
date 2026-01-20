@@ -50,17 +50,18 @@ const restartPolicies = [
 
 type Props = {
   handleSubmit: (input: BasicStepInput) => void;
+  formState?: BasicStepInput;
 };
 
-export function BasicStep({ handleSubmit }: Props) {
+export function BasicStep({ formState, handleSubmit }: Props) {
   const images = useImagesStore((state) => state.images);
   const form = useForm<BasicStepInput>({
     resolver: zodResolver(basicStepSchema),
     defaultValues: {
-      name: "",
-      image: "",
-      command: "",
-      restartPolicy: "no",
+      name: formState?.name || "",
+      image: formState?.image || "",
+      command: formState?.command || "",
+      restartPolicy: formState?.restartPolicy || "no",
     },
   });
 

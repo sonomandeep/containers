@@ -58,9 +58,20 @@ export function LaunchContainer() {
   function renderStepContent() {
     switch (currentStep) {
       case 1:
-        return <BasicStep handleSubmit={setBasicStepState} />;
+        return (
+          <BasicStep
+            formState={formState.basic}
+            handleSubmit={setBasicStepState}
+          />
+        );
       case 2:
-        return <ConfigStep goBack={goBack} handleSubmit={setConfigStepState} />;
+        return (
+          <ConfigStep
+            formState={formState.config}
+            goBack={goBack}
+            handleSubmit={setConfigStepState}
+          />
+        );
       case 3:
         return <p>{currentStep}</p>;
       default:

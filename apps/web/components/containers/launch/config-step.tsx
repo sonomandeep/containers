@@ -26,17 +26,18 @@ import {
 type Props = {
   goBack: () => void;
   handleSubmit: (input: ConfigStepInput) => void;
+  formState?: ConfigStepInput;
 };
 
-export function ConfigStep({ goBack, handleSubmit }: Props) {
+export function ConfigStep({ formState, goBack, handleSubmit }: Props) {
   const form = useForm<ConfigStepInput>({
     resolver: zodResolver(configStepSchema),
     defaultValues: {
-      cpu: "",
-      memory: "",
-      network: "",
-      envs: [],
-      ports: [],
+      cpu: formState?.cpu || "",
+      memory: formState?.memory || "",
+      network: formState?.network || "",
+      envs: formState?.envs || [],
+      ports: formState?.ports || [],
     },
   });
 
