@@ -1,4 +1,5 @@
-![containers](./apps/www/src/assets/hero/dashboard.jpg)
+![containers](./docs/assets/containers.png)
+_Monitoring and managing containers with the Containers UI._
 
 # containers
 
