@@ -21,6 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ContainerPortBadge } from "../container-port-badge";
 import { EnvBadge } from "../env-badge";
 import { launchContainer } from "@/lib/services/containers.service";
+import { toast } from "sonner";
 
 type Props = {
   goBack: () => void;
@@ -32,7 +33,15 @@ export function SummaryStep({ formState, goBack }: Props) {
 
   function handleSubmit() {
     startTransition(() => {
-      launchContainer({ ...formState.basic, ...formState.config });
+      toast.promise(
+        launchContainer({ ...formState.basic, ...formState.config }),
+
+        {
+          loading: "Launching container...",
+          success: "Container launched successfully",
+          error: (error) => error.message,
+        }
+      );
     });
   }
 

@@ -12,6 +12,7 @@ import { z } from "zod";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
 import { checkAuthentication } from "@/lib/services/auth.service";
+import { revalidateTag, updateTag } from "next/cache";
 
 export async function listContainers() {
   const { cookies } = await checkAuthentication();
@@ -72,6 +73,8 @@ export async function launchContainer(
       error: "Unexpected error while starting the container.",
     };
   }
+
+  updateTag("/containers");
 
   return {
     data: null,
