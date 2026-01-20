@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/stepper";
 import { BasicStep } from "./basic-step";
 import { ConfigStep } from "./config-step";
+import { SummaryStep } from "./summary-step";
 
 const steps = [
   { id: 1, label: "Basic" },
@@ -73,7 +74,12 @@ export function LaunchContainer() {
           />
         );
       case 3:
-        return <p>{currentStep}</p>;
+        return (
+          <SummaryStep
+            formState={{ basic: formState.basic!, config: formState.config! }}
+            goBack={goBack}
+          />
+        );
       default:
         return null;
     }
@@ -86,7 +92,7 @@ export function LaunchContainer() {
         <CornerDownLeftIcon className="size-3 opacity-60" />
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="gap-0">
         <DialogHeader className="px-3">
           <DialogTitle>Launch Container</DialogTitle>
         </DialogHeader>
