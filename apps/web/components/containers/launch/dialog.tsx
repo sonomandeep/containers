@@ -2,7 +2,7 @@
 
 import type { BasicStepInput, ConfigStepInput } from "@containers/shared";
 import { CornerDownLeftIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -56,11 +56,6 @@ export function LaunchContainer() {
     setCurrentStep(1);
     setOpen(false);
   }
-
-  useEffect(() => {
-    // biome-ignore lint/suspicious/noConsole: temp
-    console.log(formState);
-  }, [formState]);
 
   function renderStepContent() {
     switch (currentStep) {
