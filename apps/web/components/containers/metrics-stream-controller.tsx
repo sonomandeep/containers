@@ -20,7 +20,8 @@ export function MetricsStreamController({ containers }: Props) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: connection must start only after render
   useEffect(() => {
     const eventSource = new EventSource(
-      "http://core.internal:9999/containers/stream"
+      `${process.env.NEXT_PUBLIC_API_URL}/containers/stream`,
+      { withCredentials: true }
     );
 
     eventSource.onerror = (err) => {
