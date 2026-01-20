@@ -1,6 +1,6 @@
 "use client";
 
-import type { BasicStepInput } from "@containers/shared";
+import type { BasicStepInput, ConfigStepInput } from "@containers/shared";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +22,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { BasicStep } from "./basic-step";
+import { ConfigStep } from "./config-step";
 
 const steps = [
   { id: 1, label: "Basic" },
@@ -31,10 +32,19 @@ const steps = [
 
 export function LaunchContainer() {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [formState, setFormState] = useState<BasicStepInput>();
+  const [formState, setFormState] = useState<{
+    basic?: BasicStepInput;
+    config?: ConfigStepInput;
+  }>({});
 
   function setBasicStepState(input: BasicStepInput) {
-    setFormState((prev) => ({ ...prev, ...input }));
+    setFormState((prev) => ({ ...prev, basic: input }));
+    setCurrentStep(2);
+  }
+
+  function setConfigStepState(input: ConfigStepInput) {
+    setFormState((prev) => ({ ...prev, config: input }));
+    setCurrentStep(3);
   }
 
   useEffect(() => {
@@ -47,7 +57,7 @@ export function LaunchContainer() {
       case 1:
         return <BasicStep handleSubmit={setBasicStepState} />;
       case 2:
-        return <p>{currentStep}</p>;
+        return <ConfigStep handleSubmit={setConfigStepState} />;
       case 3:
         return <p>{currentStep}</p>;
       default:

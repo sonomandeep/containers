@@ -106,12 +106,8 @@ export const basicStepSchema = z.object({
 });
 export type BasicStepInput = z.infer<typeof basicStepSchema>;
 
-export const launchContainerSchema = z
+export const configStepSchema = z
   .object({
-    name: containerNameSchema,
-    image: imageSchema,
-    restartPolicy: restartPolicySchema,
-    command: z.string().trim().optional(),
     cpu: cpuSchema,
     memory: memorySchema,
     network: z
@@ -142,6 +138,7 @@ export const launchContainerSchema = z
         },
         { message: "Duplicate environment variable names." }
       ),
+
     ports: z
       .array(portMappingSchema)
       .optional()
@@ -169,5 +166,4 @@ export const launchContainerSchema = z
       path: ["network"],
     }
   );
-
-export type LaunchContainerInput = z.infer<typeof launchContainerSchema>;
+export type ConfigStepInput = z.infer<typeof configStepSchema>;

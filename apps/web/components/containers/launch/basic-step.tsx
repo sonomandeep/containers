@@ -190,7 +190,7 @@ export function BasicStep({ handleSubmit }: Props) {
           Cancel
         </DialogClose>
 
-        <Button type="submit">Confirm</Button>
+        <Button type="submit">Next</Button>
       </DialogFooter>
     </form>
   );
