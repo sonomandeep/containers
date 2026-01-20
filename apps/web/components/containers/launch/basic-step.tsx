@@ -2,6 +2,7 @@
 
 import { type BasicStepInput, basicStepSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CornerDownLeftIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import {
   DialogCard,
@@ -190,7 +191,10 @@ export function BasicStep({ formState, handleSubmit }: Props) {
           Cancel
         </DialogClose>
 
-        <Button type="submit">Next</Button>
+        <Button type="submit">
+          Next
+          <CornerDownLeftIcon className="size-3 opacity-60" />
+        </Button>
       </DialogFooter>
     </form>
   );
