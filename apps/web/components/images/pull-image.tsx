@@ -36,6 +36,7 @@ import REGISTRIES from "@/lib/constants/registries";
 import { pullImage } from "@/lib/services/images.service";
 import { useImagesStore } from "@/lib/store/images.store";
 import { Alert, AlertTitle } from "../ui/alert";
+import { formatImageId } from "@/lib/utils";
 
 export function PullImageDialog() {
   const store = useImagesStore((state) => state);
@@ -61,7 +62,10 @@ export function PullImageDialog() {
             throw new Error("Unexpected error occured, try again later.");
           }
 
-          store.setImages([...store.images, data]);
+          store.setImages([
+            ...store.images,
+            { ...data, id: formatImageId(data.id) },
+          ]);
 
           return data;
         }),

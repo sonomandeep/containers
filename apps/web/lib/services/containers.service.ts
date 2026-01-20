@@ -6,6 +6,7 @@ import {
   type EnvironmentVariable,
   envinmentVariableSchema,
   type ServiceResponse,
+  launchContainerSchema,
 } from "@containers/shared";
 import { z } from "zod";
 import { $api } from "@/lib/fetch";
@@ -32,6 +33,50 @@ export async function listContainers() {
   }
 
   return { data, error: null };
+}
+
+export async function launchContainer(
+  input: unknown
+): Promise<ServiceResponse<null, string>> {
+  const { cookies } = await checkAuthentication();
+
+  const validation = launchContainerSchema.safeParse(input);
+  if (!validation.success) {
+    logger.error(validation, "launchContainer - validation error");
+    return { data: null, error: "validation error" };
+  }
+
+  const { error } = await $api("/containers", {
+    method: "post",
+    body: JSON.stringify({
+      name: validation.data.name,
+      image: validation.data.image,
+      restartPolicy: validation.data.restartPolicy,
+      command: validation.data.command,
+      cpu: validation.data.cpu,
+      memory: validation.data.memory,
+      network: validation.data.network,
+      envs: validation.data.envs || [],
+      ports: validation.data.ports || [],
+    }),
+    headers: {
+      Cookie: cookies.toString(),
+      "content-type": "application/json",
+    },
+  });
+
+  if (error) {
+    logger.error(error, "launchContainer - api error");
+    return {
+      data: null,
+      error: "Unexpected error while starting the container.",
+    };
+  }
+
+  return {
+    data: null,
+    error: null,
+  };
 }
 
 export async function startContainer(

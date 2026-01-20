@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ContainerPortBadge } from "../container-port-badge";
 import { EnvBadge } from "../env-badge";
+import { launchContainer } from "@/lib/services/containers.service";
 
 type Props = {
   goBack: () => void;
@@ -28,6 +29,12 @@ type Props = {
 
 export function SummaryStep({ formState, goBack }: Props) {
   const [isPending, startTransition] = useTransition();
+
+  function handleSubmit() {
+    startTransition(() => {
+      launchContainer({ ...formState.basic, ...formState.config });
+    });
+  }
 
   return (
     <div className="w-full">
@@ -96,10 +103,10 @@ export function SummaryStep({ formState, goBack }: Props) {
 
       <DialogFooter className="px-0">
         <Button onClick={goBack} type="button" variant="outline">
-          Cancel
+          Back
         </Button>
 
-        <Button type="submit">
+        <Button type="submit" disabled={isPending} onClick={handleSubmit}>
           Confirm
           {isPending ? (
             <Spinner className="size-3" />
