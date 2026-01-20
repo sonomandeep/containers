@@ -15,13 +15,13 @@ import {
   WorkflowIcon,
 } from "lucide-react";
 import { type ReactNode, useTransition } from "react";
+import { toast } from "sonner";
 import { DialogCard, DialogFooter } from "@/components/core/dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { launchContainer } from "@/lib/services/containers.service";
 import { ContainerPortBadge } from "../container-port-badge";
 import { EnvBadge } from "../env-badge";
-import { launchContainer } from "@/lib/services/containers.service";
-import { toast } from "sonner";
 
 type Props = {
   closeDialog: () => void;
@@ -125,7 +125,7 @@ export function SummaryStep({ closeDialog, formState, goBack }: Props) {
           Back
         </Button>
 
-        <Button type="submit" disabled={isPending} onClick={handleSubmit}>
+        <Button disabled={isPending} onClick={handleSubmit} type="submit">
           Confirm
           {isPending ? (
             <Spinner className="size-3" />

@@ -35,8 +35,8 @@ import { Spinner } from "@/components/ui/spinner";
 import REGISTRIES from "@/lib/constants/registries";
 import { pullImage } from "@/lib/services/images.service";
 import { useImagesStore } from "@/lib/store/images.store";
-import { Alert, AlertTitle } from "../ui/alert";
 import { formatImageId } from "@/lib/utils";
+import { Alert, AlertTitle } from "../ui/alert";
 
 export function PullImageDialog() {
   const store = useImagesStore((state) => state);
