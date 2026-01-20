@@ -548,9 +548,7 @@ function normalizeMemory(memory?: string): number | undefined {
   return memoryMb * 1024 * 1024;
 }
 
-function normalizePorts(
-  ports?: Array<{ hostPort: string; containerPort: string }>
-): {
+function normalizePorts(ports?: Array<{ public: string; private: string }>): {
   ExposedPorts?: Record<string, object>;
   PortBindings?: Record<string, Array<{ HostPort: string }>>;
 } {
@@ -562,21 +560,21 @@ function normalizePorts(
   const portBindings: Record<string, Array<{ HostPort: string }>> = {};
 
   for (const mapping of ports) {
-    const containerPort = mapping.containerPort?.trim();
-    const hostPort = mapping.hostPort?.trim();
+    const publicPort = mapping.public?.trim();
+    const privatePort = mapping.private?.trim();
 
-    if (!(containerPort && hostPort)) {
+    if (!(publicPort && privatePort)) {
       continue;
     }
 
-    const portKey = `${containerPort}/tcp`;
+    const portKey = `${privatePort}/tcp`;
     exposedPorts[portKey] = {};
 
     if (!portBindings[portKey]) {
       portBindings[portKey] = [];
     }
 
-    portBindings[portKey].push({ HostPort: hostPort });
+    portBindings[portKey].push({ HostPort: publicPort });
   }
 
   return {

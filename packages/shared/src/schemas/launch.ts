@@ -31,8 +31,8 @@ export const envVarSchema = z.object({
 export type EnvVar = z.infer<typeof envVarSchema>;
 
 export const portMappingSchema = z.object({
-  hostPort: portSchema("Host"),
-  containerPort: portSchema("Container"),
+  public: portSchema("Public"),
+  private: portSchema("Private"),
 });
 
 export type PortMapping = z.infer<typeof portMappingSchema>;
@@ -89,22 +89,25 @@ const memorySchema = z
     { message: "Memory must be a positive number (in MB)." }
   );
 
-const restartPolicySchema = z
-  .string()
-  .refine(
-    (val): val is "no" | "always" | "on-failure" | "unless-stopped" =>
-      ["no", "always", "on-failure", "unless-stopped"].includes(val),
-    { message: "Invalid restart policy." }
-  );
+const restartPolicySchema = z.enum([
+  "no",
+  "always",
+  "on-failure",
+  "unless-stopped",
+]);
 
 const networkRegEx = /^[a-z0-9][\w.-]*$/i;
 
-export const launchContainerSchema = z
+export const basicStepSchema = z.object({
+  name: containerNameSchema,
+  image: imageSchema,
+  restartPolicy: restartPolicySchema,
+  command: z.string().trim().optional(),
+});
+export type BasicStepInput = z.infer<typeof basicStepSchema>;
+
+export const configStepSchema = z
   .object({
-    name: containerNameSchema,
-    image: imageSchema,
-    restartPolicy: restartPolicySchema,
-    command: z.string().trim().optional(),
     cpu: cpuSchema,
     memory: memorySchema,
     network: z
@@ -135,6 +138,7 @@ export const launchContainerSchema = z
         },
         { message: "Duplicate environment variable names." }
       ),
+
     ports: z
       .array(portMappingSchema)
       .optional()
@@ -144,10 +148,10 @@ export const launchContainerSchema = z
             return true;
           }
 
-          const hostPorts = ports.map((p) => p.hostPort);
-          return new Set(hostPorts).size === hostPorts.length;
+          const publicPorts = ports.map((p) => p.public);
+          return new Set(publicPorts).size === publicPorts.length;
         },
-        { message: "Duplicate host ports." }
+        { message: "Duplicate public ports." }
       ),
   })
   .refine(
@@ -162,5 +166,10 @@ export const launchContainerSchema = z
       path: ["network"],
     }
   );
+export type ConfigStepInput = z.infer<typeof configStepSchema>;
 
+export const launchContainerSchema = z.object({
+  ...basicStepSchema.shape,
+  ...configStepSchema.shape,
+});
 export type LaunchContainerInput = z.infer<typeof launchContainerSchema>;

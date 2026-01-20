@@ -39,9 +39,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { removeImages } from "@/lib/services/images.service";
 import { useImagesStore } from "@/lib/store/images.store";
 import { columns } from "./table/columns";
-import { removeImages } from "@/lib/services/images.service";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);

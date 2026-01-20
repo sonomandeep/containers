@@ -35,6 +35,7 @@ import { Spinner } from "@/components/ui/spinner";
 import REGISTRIES from "@/lib/constants/registries";
 import { pullImage } from "@/lib/services/images.service";
 import { useImagesStore } from "@/lib/store/images.store";
+import { formatImageId } from "@/lib/utils";
 import { Alert, AlertTitle } from "../ui/alert";
 
 export function PullImageDialog() {
@@ -61,7 +62,10 @@ export function PullImageDialog() {
             throw new Error("Unexpected error occured, try again later.");
           }
 
-          store.setImages([...store.images, data]);
+          store.setImages([
+            ...store.images,
+            { ...data, id: formatImageId(data.id) },
+          ]);
 
           return data;
         }),

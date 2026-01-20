@@ -1,10 +1,10 @@
+import { serveStatic } from "hono/bun";
+import env from "@/env";
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
 import containers from "@/routes/containers/containers.index";
 import files from "@/routes/files/files.index";
 import images from "@/routes/images/images.index";
-import env from "@/env";
-import { serveStatic } from "hono/bun";
 
 const app = createApp();
 
