@@ -165,14 +165,13 @@ export function BasicStep({ formState, handleSubmit }: Props) {
                       data-invalid={fieldState.invalid}
                       orientation="horizontal"
                     >
-                      <FieldContent className="items-center">
+                      <FieldContent>
                         <FieldTitle className="font-mono">
                           {policy.value}
                         </FieldTitle>
                       </FieldContent>
                       <RadioGroupItem
                         aria-invalid={fieldState.invalid}
-                        className="hidden"
                         id={policy.id}
                         value={policy.id}
                       />
