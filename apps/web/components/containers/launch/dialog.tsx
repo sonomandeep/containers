@@ -31,6 +31,7 @@ const steps = [
 ] as const;
 
 export function LaunchContainer() {
+  const [open, setOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formState, setFormState] = useState<{
     basic?: BasicStepInput;
@@ -76,6 +77,7 @@ export function LaunchContainer() {
       case 3:
         return (
           <SummaryStep
+            // biome-ignore lint/style/noNonNullAssertion: at this point all values are defined
             formState={{ basic: formState.basic!, config: formState.config! }}
             goBack={goBack}
           />
@@ -86,7 +88,16 @@ export function LaunchContainer() {
   }
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          setCurrentStep(1);
+        }
+
+        setOpen(value);
+      }}
+      open={open}
+    >
       <DialogTrigger render={<Button />}>
         Launch Container
         <CornerDownLeftIcon className="size-3 opacity-60" />
