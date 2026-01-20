@@ -89,15 +89,22 @@ const memorySchema = z
     { message: "Memory must be a positive number (in MB)." }
   );
 
-const restartPolicySchema = z
-  .string()
-  .refine(
-    (val): val is "no" | "always" | "on-failure" | "unless-stopped" =>
-      ["no", "always", "on-failure", "unless-stopped"].includes(val),
-    { message: "Invalid restart policy." }
-  );
+const restartPolicySchema = z.enum([
+  "no",
+  "always",
+  "on-failure",
+  "unless-stopped",
+]);
 
 const networkRegEx = /^[a-z0-9][\w.-]*$/i;
+
+export const basicStepSchema = z.object({
+  name: containerNameSchema,
+  image: imageSchema,
+  restartPolicy: restartPolicySchema,
+  command: z.string().trim().optional(),
+});
+export type BasicStepInput = z.infer<typeof basicStepSchema>;
 
 export const launchContainerSchema = z
   .object({
