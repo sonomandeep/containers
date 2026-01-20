@@ -37,6 +37,10 @@ export function LaunchContainer() {
     config?: ConfigStepInput;
   }>({});
 
+  function goBack() {
+    setCurrentStep((prev) => prev - 1);
+  }
+
   function setBasicStepState(input: BasicStepInput) {
     setFormState((prev) => ({ ...prev, basic: input }));
     setCurrentStep(2);
@@ -57,7 +61,7 @@ export function LaunchContainer() {
       case 1:
         return <BasicStep handleSubmit={setBasicStepState} />;
       case 2:
-        return <ConfigStep handleSubmit={setConfigStepState} />;
+        return <ConfigStep goBack={goBack} handleSubmit={setConfigStepState} />;
       case 3:
         return <p>{currentStep}</p>;
       default:

@@ -31,8 +31,8 @@ export const envVarSchema = z.object({
 export type EnvVar = z.infer<typeof envVarSchema>;
 
 export const portMappingSchema = z.object({
-  hostPort: portSchema("Host"),
-  containerPort: portSchema("Container"),
+  public: portSchema("Public"),
+  private: portSchema("Private"),
 });
 
 export type PortMapping = z.infer<typeof portMappingSchema>;
@@ -148,10 +148,10 @@ export const configStepSchema = z
             return true;
           }
 
-          const hostPorts = ports.map((p) => p.hostPort);
-          return new Set(hostPorts).size === hostPorts.length;
+          const publicPorts = ports.map((p) => p.public);
+          return new Set(publicPorts).size === publicPorts.length;
         },
-        { message: "Duplicate host ports." }
+        { message: "Duplicate public ports." }
       ),
   })
   .refine(
@@ -167,3 +167,9 @@ export const configStepSchema = z
     }
   );
 export type ConfigStepInput = z.infer<typeof configStepSchema>;
+
+export const launchContainerSchema = z.object({
+  ...basicStepSchema.shape,
+  ...configStepSchema.shape,
+});
+export type LaunchContainerInput = z.infer<typeof launchContainerSchema>;
