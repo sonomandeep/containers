@@ -19,7 +19,6 @@ import {
   StepperNav,
   StepperPanel,
   StepperTitle,
-  StepperTrigger,
 } from "@/components/ui/stepper";
 import { BasicStep } from "./basic-step";
 import { ConfigStep } from "./config-step";
@@ -93,14 +92,14 @@ export function LaunchContainer() {
                 key={step.id}
                 step={step.id}
               >
-                <StepperTrigger className="flex grow flex-col items-start justify-center gap-1">
+                <div className="flex grow flex-col items-start justify-center gap-1">
                   <StepperIndicator className="h-1 w-full rounded-full bg-border data-[state=active]:bg-primary" />
                   <div className="flex flex-col items-start gap-1">
                     <StepperTitle className="text-start group-data-[state=inactive]/step:text-muted-foreground">
                       {step.label}
                     </StepperTitle>
                   </div>
-                </StepperTrigger>
+                </div>
               </StepperItem>
             ))}
           </StepperNav>
