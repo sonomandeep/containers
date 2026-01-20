@@ -24,18 +24,28 @@ import { launchContainer } from "@/lib/services/containers.service";
 import { toast } from "sonner";
 
 type Props = {
+  closeDialog: () => void;
   goBack: () => void;
   formState: { basic: BasicStepInput; config: ConfigStepInput };
 };
 
-export function SummaryStep({ formState, goBack }: Props) {
+export function SummaryStep({ closeDialog, formState, goBack }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit() {
     startTransition(() => {
       toast.promise(
-        launchContainer({ ...formState.basic, ...formState.config }),
+        launchContainer({ ...formState.basic, ...formState.config }).then(
+          (result) => {
+            if (result.error) {
+              throw new Error(result.error);
+            }
 
+            closeDialog();
+
+            return result;
+          }
+        ),
         {
           loading: "Launching container...",
           success: "Container launched successfully",

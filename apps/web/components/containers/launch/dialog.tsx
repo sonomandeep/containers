@@ -52,6 +52,11 @@ export function LaunchContainer() {
     setCurrentStep(3);
   }
 
+  function closeDialog() {
+    setCurrentStep(1);
+    setOpen(false);
+  }
+
   useEffect(() => {
     // biome-ignore lint/suspicious/noConsole: temp
     console.log(formState);
@@ -77,6 +82,7 @@ export function LaunchContainer() {
       case 3:
         return (
           <SummaryStep
+            closeDialog={closeDialog}
             // biome-ignore lint/style/noNonNullAssertion: at this point all values are defined
             formState={{ basic: formState.basic!, config: formState.config! }}
             goBack={goBack}
