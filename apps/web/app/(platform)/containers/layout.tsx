@@ -1,5 +1,5 @@
 import { BoxIcon } from "lucide-react";
-import { LaunchContainerDialog } from "@/components/containers/launch-container";
+import { LaunchContainer } from "@/components/containers/launch/dialog";
 
 export default function Layout({
   children,
@@ -14,7 +14,7 @@ export default function Layout({
           <h1>Containers</h1>
         </div>
 
-        <LaunchContainerDialog />
+        <LaunchContainer />
       </div>
 
       <div className="min-h-0 flex-1">{children}</div>

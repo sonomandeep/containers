@@ -79,7 +79,7 @@ const steps = [
   { id: 3, label: "Summary" },
 ] as const;
 
-export function LaunchContainerDialog() {
+export function LaunchContainer() {
   const images = useImagesStore((state) => state.images);
   const [currentStep, setCurrentStep] = useState<number>(1);
 
@@ -104,7 +104,7 @@ export function LaunchContainerDialog() {
       </DialogTrigger>
 
       <DialogContent>
-        <DialogHeader>
+        <DialogHeader className="px-3">
           <DialogTitle>Launch Container</DialogTitle>
         </DialogHeader>
 
@@ -113,7 +113,7 @@ export function LaunchContainerDialog() {
           onValueChange={setCurrentStep}
           value={currentStep}
         >
-          <StepperNav className="gap-2">
+          <StepperNav className="gap-2 px-1">
             {steps.map((step) => (
               <StepperItem
                 className="relative flex-1 items-start"
