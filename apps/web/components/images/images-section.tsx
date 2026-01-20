@@ -10,7 +10,9 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { ContainerStateBadge } from "@/components/containers/container-state-badge";
 import {
   Card,
   CardContent,
@@ -20,6 +22,7 @@ import {
   CardTitle,
   CardToolbar,
 } from "@/components/core/card";
+import { MetricInfo } from "@/components/core/metric-info";
 import { ImagesTable } from "@/components/images/table/data-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,9 +40,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useImagesStore } from "@/lib/store/images.store";
-import { ContainerStateBadge } from "../containers/container-state-badge";
-import { MetricInfo } from "../core/metric-info";
 import { columns } from "./table/columns";
+import { removeImages } from "@/lib/services/images.service";
 
 export function ImagesSection() {
   const images = useImagesStore((state) => state.images);
@@ -58,7 +60,7 @@ export function ImagesSection() {
   return (
     <div className="grid flex-1 grid-cols-3 gap-3">
       <Card className="col-span-2 flex-1">
-        <CardToolbar>
+        <CardToolbar className="h-6">
           <div className="inline-flex items-baseline gap-2">
             <h2>Your Images</h2>
             {table.getFilteredSelectedRowModel().rows.length > 0 ? (
@@ -71,7 +73,7 @@ export function ImagesSection() {
             )}
           </div>
 
-          {table.getFilteredSelectedRowModel().rows.length && (
+          {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <Button size="icon-sm" variant="ghost">
               <Trash2Icon />
             </Button>
@@ -115,9 +117,41 @@ export function ImagesSection() {
 }
 
 function ImageDetailCard() {
-  const image = useImagesStore((state) => state.activeImage);
+  const [isPending, startTransition] = useTransition();
+  const store = useImagesStore((state) => state);
 
-  if (image === null) {
+  function handleRemove() {
+    const id = store.activeImage?.id;
+    if (id === undefined) {
+      return;
+    }
+
+    startTransition(() => {
+      toast.promise(
+        removeImages([id]).then((result) => {
+          if (result.error) {
+            throw new Error(result.error);
+          }
+
+          if (!result.data) {
+            throw new Error("Unexpected error occured, try again later.");
+          }
+
+          store.setImages(store.images.filter((current) => current.id !== id));
+          store.setActiveImage(null);
+
+          return result;
+        }),
+        {
+          loading: "Removing image...",
+          success: "Image removed successfully",
+          error: (error) => error.message,
+        }
+      );
+    });
+  }
+
+  if (store.activeImage === null) {
     return <EmptyImageCard />;
   }
 
@@ -125,11 +159,16 @@ function ImageDetailCard() {
     <Card className="h-min">
       <CardToolbar>
         <span className="font-mono">
-          {image.id.replace("sha256:", "").slice(0, 12)}
+          {store.activeImage.id.replace("sha256:", "").slice(0, 12)}
         </span>
 
         <div className="inline-flex items-center gap-1">
-          <Button size="icon-sm" variant="ghost">
+          <Button
+            disabled={isPending}
+            onClick={handleRemove}
+            size="icon-sm"
+            variant="ghost"
+          >
             <Trash2Icon />
           </Button>
 
@@ -143,21 +182,27 @@ function ImageDetailCard() {
         <CardContent>
           <CardHeader>
             <div className="inline-flex w-full items-center justify-between">
-              <CardTitle>{image.name}</CardTitle>
+              <CardTitle>{store.activeImage.name}</CardTitle>
 
               <span className="text-muted-foreground">No Vulnerabilities</span>
             </div>
 
-            <CardDescription>{image.tags.at(0)}</CardDescription>
+            <CardDescription>{store.activeImage.tags.at(0)}</CardDescription>
           </CardHeader>
 
           <div className="grid grid-cols-2 grid-rows-2 gap-3">
-            <MetricInfo label="Size" value={prettyBytes(image.size)} />
+            <MetricInfo
+              label="Size"
+              value={prettyBytes(store.activeImage.size)}
+            />
             <MetricInfo
               label="Architecture"
-              value={`${image.os}/${image.architecture}`}
+              value={`${store.activeImage.os}/${store.activeImage.architecture}`}
             />
-            <MetricInfo label="Layers" value={String(image.layers) || "-"} />
+            <MetricInfo
+              label="Layers"
+              value={String(store.activeImage.layers) || "-"}
+            />
             <MetricInfo label="Registry" value="Docker Hub" />
           </div>
         </CardContent>
@@ -168,13 +213,13 @@ function ImageDetailCard() {
               <CardTitle>Containers</CardTitle>
 
               <span className="text-muted-foreground">
-                {getContainersState(image.containers)}
+                {getContainersState(store.activeImage.containers)}
               </span>
             </div>
           </CardHeader>
 
           <div className="flex flex-col gap-3">
-            {image.containers.map((container) => (
+            {store.activeImage.containers.map((container) => (
               <div
                 className="inline-flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-2"
                 key={container.id}
@@ -188,7 +233,7 @@ function ImageDetailCard() {
       </div>
 
       <CardFooter className="justify-between">
-        <span>{prettyBytes(image.size)}</span>
+        <span>{prettyBytes(store.activeImage.size)}</span>
         <span>core</span>
       </CardFooter>
     </Card>

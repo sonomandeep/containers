@@ -1,135 +1,142 @@
-# Turborepo starter
+![containers](./docs/assets/containers.png)
+_Monitoring and managing containers with the Containers UI._
 
-This Turborepo starter is maintained by the Turborepo core team.
+# containers
 
-## Using this example
+Platform to monitor and manage OCI-compliant containers with a modern UI and a lightweight backend.
 
-Run the following command:
+## Architecture
+
+- `apps/api`: Hono-based API server. Talks to the Docker socket and exposes container, image, and file operations.
+- `apps/web`: Next.js frontend for the platform.
+- `packages/shared`: Shared schemas and types used by API and Web.
+
+## Requirements
+
+- Bun >= 1.3.0
+- Docker (Buildx enabled) and Docker Compose
+- PostgreSQL (via `docker-compose.yaml` or external)
+
+## Quick start (Docker Compose)
+
+1. Build images:
 
 ```sh
-npx create-turbo@latest
+docker buildx build -f apps/api/Dockerfile -t api --load .
+docker buildx build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:9999 -t web --load .
+# Replace with the public URL where the API is reachable from the web container.
 ```
 
-## What's inside?
+2. Create env files:
 
-This Turborepo includes the following packages/apps:
+- `apps/api/.env.prod`
+- `apps/web/.env.prod`
 
-### Apps and Packages
+3. Run:
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```sh
+docker compose up -d
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Web UI: http://localhost:3000  
+API: http://localhost:9999
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+## Manual run (build and run containers separately)
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+### API
 
-### Develop
+Build:
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```sh
+docker buildx build -f apps/api/Dockerfile -t api --load .
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Run:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```sh
+docker run \
+  --env-file apps/api/.env.prod \
+  -p 9999:80 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --name api \
+  api
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Web
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Build:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```sh
+docker buildx build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:9999 -t web --load .
+# Replace with the public URL where the API is reachable from the web container.
 ```
 
-## Useful Links
+Run:
 
-Learn more about the power of Turborepo:
+```sh
+docker run \
+  --env-file apps/web/.env.prod \
+  -p 3000:3000 \
+  --name web \
+  web
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## Environment variables
+
+### API (`apps/api/.env.prod`)
+
+- `NODE_ENV` (default: `development`)
+- `PORT` (default: `8080`)
+- `LOG_LEVEL` (`trace|debug|info|warn|error|fatal`, default: `info`)
+- `APP_URL`
+- `UPLOAD_DIR`
+- `DATABASE_URL`
+- `EMAIL_FROM`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_SECURE` (`true|false`)
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+
+### Web (`apps/web/.env.prod`)
+
+- `NODE_ENV` (default: `development`)
+- `NEXT_PUBLIC_API_URL`
+
+## Local development (no Docker)
+
+Install dependencies:
+
+```sh
+bun install
+```
+
+Run all apps:
+
+```sh
+bun run dev
+```
+
+## Database migrations
+
+Run Drizzle migrations from the API workspace:
+
+```sh
+cd apps/api
+bunx drizzle-kit migrate
+```
+
+## Scripts
+
+- `bun run build`: build all workspaces
+- `bun run dev`: run all dev servers
+- `bun run check`: run Ultracite checks
+- `bun run fix`: auto-fix formatting and lint issues
+
+## Contributing
+
+Issues and PRs are welcome. Keep changes focused and add context in the description. Run `bun run check` before submitting.
+
+## License
+
+Apache-2.0. See `LICENSE`.
