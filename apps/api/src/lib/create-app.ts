@@ -7,6 +7,7 @@ import { defaultHook } from "stoker/openapi";
 import env from "@/env";
 import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
+import { authMiddleware } from "./middlewares/auth.middleware";
 import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
@@ -43,7 +44,7 @@ export default function createApp() {
     await next();
   });
 
-  app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+  app.use("/containers/*", authMiddleware);
 
   app.notFound(notFound);
   app.onError(onError);

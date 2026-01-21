@@ -4,7 +4,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
   const session = c.get("session");
 
   if (!session) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ message: "Unauthorized" }, 401);
   }
 
   await next();

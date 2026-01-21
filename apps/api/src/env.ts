@@ -7,7 +7,7 @@ const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(8080),
   LOG_LEVEL: z
-    .enum(["trace", "debug", "info", "warn", "error", "fatal"])
+    .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
     .default("info"),
   APP_URL: z.url(),
   UPLOAD_DIR: z.string(),
