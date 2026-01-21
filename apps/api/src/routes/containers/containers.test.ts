@@ -1,42 +1,75 @@
-import { beforeEach, describe, expect, spyOn, test } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  jest,
+  spyOn,
+  test,
+} from "bun:test";
 import { testClient } from "hono/testing";
 import createApp from "@/lib/create-app.js";
-import * as auth from "@/lib/middlewares/auth.middleware";
+import { auth as authClient } from "@/lib/auth";
 import * as service from "@/lib/services/containers.service";
 import router from "./containers.index";
 
+const createClient = () => testClient(createApp().route("/", router));
+
+const mockSession = {
+  session: {
+    id: "session-1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: "user-1",
+    expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    token: "token-1",
+  },
+  user: {
+    id: "user-1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  },
+};
+
 describe("list containers", () => {
+  let getSessionSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    getSessionSpy = spyOn(authClient.api, "getSession").mockResolvedValue(
+      mockSession,
+    );
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test("should return unauthorized error", async () => {
-    const response = await testClient(
-      createApp().route("/", router)
-    ).containers.$get();
+    getSessionSpy.mockResolvedValueOnce(null);
+
+    const listContainersServiceSpy = spyOn(service, "listContainers");
+    listContainersServiceSpy.mockResolvedValue([]);
+
+    const response = await createClient().containers.$get();
     const result = await response.json();
 
+    expect(listContainersServiceSpy).not.toHaveBeenCalled();
     expect(response.status as number).toBe(401);
     expect(result as unknown).toEqual({ error: "Unauthorized" });
   });
 
-  describe("list containers without auth", () => {
-    beforeEach(() => {
-      const authMiddlewareSpy = spyOn(auth, "authMiddleware");
-      authMiddlewareSpy.mockImplementation(
-        async (_: unknown, next: () => Promise<void>) => {
-          await next();
-        }
-      );
-    });
+  test("should return empty containers list", async () => {
+    const listContainersServiceSpy = spyOn(service, "listContainers");
+    listContainersServiceSpy.mockResolvedValue([]);
 
-    test("should return empty containers list", async () => {
-      const listContainersServiceSpy = spyOn(service, "listContainers");
-      listContainersServiceSpy.mockImplementation(() => Promise.resolve([]));
+    const response = await createClient().containers.$get();
+    const result = await response.json();
 
-      const response = await testClient(
-        createApp().route("/", router)
-      ).containers.$get();
-      const result = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(result).toEqual([]);
-    });
+    expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+    expect(result).toEqual([]);
   });
 });
