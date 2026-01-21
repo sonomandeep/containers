@@ -12,6 +12,7 @@ import createApp from "@/lib/create-app.js";
 import * as service from "@/lib/services/containers.service";
 import { mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
+import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 const createClient = () => testClient(createApp().route("/", router));
 
@@ -37,7 +38,7 @@ describe("list containers", () => {
 
     expect(listContainersServiceSpy).not.toHaveBeenCalled();
     expect(response.status).toBe(401);
-    expect(result).toEqual({ error: "Unauthorized" });
+    expect(result).toEqual({ message: HttpStatusPhrases.UNAUTHORIZED });
   });
 
   test("should return empty containers list", async () => {
