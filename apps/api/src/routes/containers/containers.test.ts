@@ -119,4 +119,16 @@ describe("list containers", () => {
     expect(response.status).toBe(200);
     expect(result).toEqual(containers);
   });
+
+  test("should return 500 when service throws", async () => {
+    const listContainersServiceSpy = spyOn(service, "listContainers");
+    listContainersServiceSpy.mockRejectedValue(new Error("Service failed"));
+
+    const response = await createClient().containers.$get();
+    const result = await response.json();
+
+    expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(500);
+    expect(result).toMatchObject({ message: "Service failed" });
+  });
 });

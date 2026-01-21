@@ -28,6 +28,10 @@ export const list = createRoute({
       unauthorizedSchema,
       "Unauthorized"
     ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
   },
 });
 export type ListRoute = typeof list;
