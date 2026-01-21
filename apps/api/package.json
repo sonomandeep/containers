@@ -6,6 +6,7 @@
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "start": "bun run dist/index.js",
     "test": "LOG_LEVEL=silent bun test",
+    "test:coverage": "LOG_LEVEL=silent bun test --coverage",
     "test:watch": "LOG_LEVEL=silent bun test --watch"
   },
   "dependencies": {
