@@ -1,12 +1,8 @@
 import { createRouter } from "@/lib/create-app";
-import { authMiddleware } from "@/lib/middlewares/auth.middleware";
 import * as handlers from "./containers.handlers";
 import * as routes from "./containers.routes";
 
-const router = createRouter();
-router.use("/containers/*", authMiddleware);
-
-router
+const router = createRouter()
   .openapi(routes.list, handlers.list)
   .openapi(routes.launch, handlers.launch)
   .openapi(routes.remove, handlers.remove)
