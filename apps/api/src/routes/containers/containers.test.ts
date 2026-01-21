@@ -678,3 +678,149 @@ describe("restart container", () => {
     });
   });
 });
+
+describe("remove container", () => {
+  let getSessionSpy: ReturnType<typeof spyOn>;
+  const containerId = "container-1";
+
+  beforeEach(() => {
+    getSessionSpy = mockAuthSession();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("should return unauthorized error", async () => {
+    getSessionSpy.mockResolvedValueOnce(null);
+
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: null,
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: {}
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).not.toHaveBeenCalled();
+    expect(response.status).toBe(401);
+    expect(result).toEqual({ message: HttpStatusPhrases.UNAUTHORIZED });
+  });
+
+  test("should remove container without force", async () => {
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: null,
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: {}
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(removeContainerServiceSpy).toHaveBeenCalledWith({
+      containerId,
+      force: undefined,
+    });
+    expect(response.status).toBe(200);
+    expect(result).toEqual({ message: "container deleted" });
+  });
+
+  test("should remove container with force", async () => {
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: null,
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: { force: true },
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(removeContainerServiceSpy).toHaveBeenCalledWith({
+      containerId,
+      force: true,
+    });
+    expect(response.status).toBe(200);
+    expect(result).toEqual({ message: "container deleted" });
+  });
+
+  test("should return not found error", async () => {
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.NOT_FOUND,
+        code: 404,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: {}
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(404);
+    expect(result).toEqual({ message: HttpStatusPhrases.NOT_FOUND });
+  });
+
+  test("should return conflict error", async () => {
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message:
+          "Cannot delete a running container. Stop it and retry or force the removal.",
+        code: 409,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: {}
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(409);
+    expect(result).toEqual({
+      message:
+        "Cannot delete a running container. Stop it and retry or force the removal.",
+    });
+  });
+
+  test("should return internal server error", async () => {
+    const removeContainerServiceSpy = spyOn(service, "removeContainer");
+    removeContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: 500,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].$delete({
+      param: { containerId },
+      query: {}
+    });
+    const result = await response.json();
+
+    expect(removeContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(500);
+    expect(result).toEqual({
+      message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+    });
+  });
+});

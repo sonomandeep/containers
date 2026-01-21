@@ -120,6 +120,10 @@ export const remove = createRoute({
       createMessageObjectSchema("container deleted"),
       "Container deleted"
     ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Container not found"
