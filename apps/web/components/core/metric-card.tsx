@@ -7,7 +7,7 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3",
+        "flex flex-col gap-3 rounded-lg border border-card-border bg-card p-3",
         className
       )}
       {...props}
@@ -59,10 +59,7 @@ export function MetricCardValue({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
-    <span
-      className={cn("font-medium text-neutral-700", className)}
-      {...props}
-    />
+    <span className={cn("font-medium text-foreground", className)} {...props} />
   );
 }
 

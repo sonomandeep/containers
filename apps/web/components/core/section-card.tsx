@@ -7,7 +7,7 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "flex w-full flex-col gap-3 rounded-lg border border-neutral-100 bg-background p-3",
+        "flex w-full flex-col gap-3 rounded-lg border border-card-border bg-background p-3",
         className
       )}
       {...props}

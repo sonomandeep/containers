@@ -58,7 +58,7 @@ export function CardContent({
   return (
     <ShadcnCardContent
       className={cn(
-        "flex flex-col gap-4 rounded-lg border border-card-border bg-white px-3 py-3 dark:bg-black",
+        "flex flex-col gap-4 rounded-lg border border-card-border bg-background px-3 py-3",
         className
       )}
       {...props}
