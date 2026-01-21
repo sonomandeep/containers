@@ -5,7 +5,8 @@
     "dev": "bun run --hot src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "start": "bun run dist/index.js",
-    "test": "LOG_LEVEL=silent vitest"
+    "test": "LOG_LEVEL=silent bun test",
+    "test:watch": "LOG_LEVEL=silent bun test --watch"
   },
   "dependencies": {
     "@containers/shared": "workspace:*",
@@ -28,9 +29,13 @@
     "@types/dockerode": "^3.3.45",
     "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.16.0",
-    "@vitest/coverage-v8": "^4.0.17",
     "drizzle-kit": "^0.31.8",
-    "tsx": "^4.21.0",
-    "vitest": "^4.0.17"
+    "tsx": "^4.21.0"
+  },
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

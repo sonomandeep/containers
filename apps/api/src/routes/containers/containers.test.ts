@@ -1,34 +1,45 @@
+import { beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { testClient } from "hono/testing";
-import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import createApp from "@/lib/create-app.js";
-import router from "./containers.index";
 import * as auth from "@/lib/middlewares/auth.middleware";
 import * as service from "@/lib/services/containers.service";
+import router from "./containers.index";
 
 describe("list containers", () => {
-  const app = testClient(createApp().route("/", router));
-
-  it("should return empty containers list", async () => {
-    const authMiddlewareSpy = vi.spyOn(auth, "authMiddleware");
-    authMiddlewareSpy.mockImplementation(async (_, next) => {
-      await next();
-    });
-    const listContainersServiceSpy = vi.spyOn(service, "");
-
-    const response = await app.containers.$get();
+  test("should return unauthorized error", async () => {
+    const response = await testClient(
+      createApp().route("/", router)
+    ).containers.$get();
     const result = await response.json();
 
-    expect(response.status).toBe(401);
-    expectTypeOf(result).toBeArray();
-
-    authMiddlewareSpy.mockReset();
+    expect(response.status as number).toBe(401);
+    expect(result as unknown).toEqual({ error: "Unauthorized" });
   });
 
-  it("should return unauthorized error", async () => {
-    const response = await app.containers.$get();
-    const result = await response.json();
+  describe("list containers without auth", () => {
+    beforeEach(() => {
+      const authMiddlewareSpy = spyOn(auth, "authMiddleware");
+      authMiddlewareSpy.mockImplementation(
+        async (_: unknown, next: () => Promise<void>) => {
+          await next();
+        }
+      );
+    });
 
-    expect(response.status).toBe(401);
-    expect(result).toEqual({ error: "Unauthorized" });
+    test("should return empty containers list", async () => {
+      const listContainersServiceSpy = spyOn(service, "listContainers");
+      listContainersServiceSpy.mockImplementation(() => Promise.resolve([]));
+
+      const response = await testClient(
+        createApp().route("/", router)
+      ).containers.$get();
+      const result = await response.json();
+
+      expect(response.status).toBe(200);
+      // expectTypeOf(result).toBeArray();
+      expect(result).toEqual([]);
+
+      listContainersServiceSpy;
+    });
   });
 });

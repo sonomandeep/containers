@@ -8,7 +8,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node"],
+    "types": ["bun"],
     "strict": true,
     "outDir": "./dist",
     "verbatimModuleSyntax": true,
