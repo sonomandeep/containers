@@ -9,38 +9,17 @@ import {
 } from "bun:test";
 import { testClient } from "hono/testing";
 import createApp from "@/lib/create-app.js";
-import { auth as authClient } from "@/lib/auth";
 import * as service from "@/lib/services/containers.service";
+import { mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
 
 const createClient = () => testClient(createApp().route("/", router));
-
-const mockSession = {
-  session: {
-    id: "session-1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: "user-1",
-    expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-    token: "token-1",
-  },
-  user: {
-    id: "user-1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
-  },
-};
 
 describe("list containers", () => {
   let getSessionSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
-    getSessionSpy = spyOn(authClient.api, "getSession").mockResolvedValue(
-      mockSession,
-    );
+    getSessionSpy = mockAuthSession();
   });
 
   afterEach(() => {
@@ -57,8 +36,8 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).not.toHaveBeenCalled();
-    expect(response.status as number).toBe(401);
-    expect(result as unknown).toEqual({ error: "Unauthorized" });
+    expect(response.status).toBe(401);
+    expect(result).toEqual({ error: "Unauthorized" });
   });
 
   test("should return empty containers list", async () => {
