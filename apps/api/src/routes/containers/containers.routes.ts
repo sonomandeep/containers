@@ -211,6 +211,10 @@ export const restart = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container restarted"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Container not found"
