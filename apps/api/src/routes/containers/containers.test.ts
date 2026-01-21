@@ -36,10 +36,7 @@ describe("list containers", () => {
       const result = await response.json();
 
       expect(response.status).toBe(200);
-      // expectTypeOf(result).toBeArray();
       expect(result).toEqual([]);
-
-      listContainersServiceSpy;
     });
   });
 });
