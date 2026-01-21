@@ -29,7 +29,6 @@ import {
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
 
