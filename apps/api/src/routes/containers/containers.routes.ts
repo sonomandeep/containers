@@ -84,6 +84,10 @@ export const launch = createRoute({
       }),
       "Container launched"
     ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Image not found"),
     [HttpStatusCodes.CONFLICT]: jsonContent(
       createMessageObjectSchema(

@@ -8,7 +8,7 @@ import {
   test,
 } from "bun:test";
 import { testClient } from "hono/testing";
-import type { Container } from "@containers/shared";
+import type { Container, LaunchContainerInput } from "@containers/shared";
 import createApp from "@/lib/create-app";
 import * as service from "@/lib/services/containers.service";
 import { mockAuthSession } from "@/test/auth";
@@ -130,5 +130,123 @@ describe("list containers", () => {
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(500);
     expect(result).toMatchObject({ message: "Service failed" });
+  });
+});
+
+describe("launch container", () => {
+  let getSessionSpy: ReturnType<typeof spyOn>;
+  const launchPayload: LaunchContainerInput = {
+    name: "api",
+    image: "ghcr.io/containers/api:latest",
+    restartPolicy: "always",
+  };
+
+  beforeEach(() => {
+    getSessionSpy = mockAuthSession();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("should return unauthorized error", async () => {
+    getSessionSpy.mockResolvedValueOnce(null);
+
+    const launchContainerServiceSpy = spyOn(service, "launchContainer");
+    launchContainerServiceSpy.mockResolvedValue({
+      data: { id: "container-1" },
+      error: null,
+    });
+
+    const response = await createClient().containers.$post({
+      json: launchPayload,
+    });
+    const result = await response.json();
+
+    expect(launchContainerServiceSpy).not.toHaveBeenCalled();
+    expect(response.status).toBe(401);
+    expect(result).toEqual({ message: HttpStatusPhrases.UNAUTHORIZED });
+  });
+
+  test("should launch container", async () => {
+    const launchContainerServiceSpy = spyOn(service, "launchContainer");
+    launchContainerServiceSpy.mockResolvedValue({
+      data: { id: "container-1" },
+      error: null,
+    });
+
+    const response = await createClient().containers.$post({
+      json: launchPayload,
+    });
+    const result: unknown = await response.json();
+
+    expect(launchContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(launchContainerServiceSpy).toHaveBeenCalledWith(launchPayload);
+    expect(response.status).toBe(200);
+    expect(result).toEqual({ message: "container launched", id: "container-1" });
+  });
+
+  test("should return not found error", async () => {
+    const launchContainerServiceSpy = spyOn(service, "launchContainer");
+    launchContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.NOT_FOUND,
+        code: 404,
+      },
+    });
+
+    const response = await createClient().containers.$post({
+      json: launchPayload,
+    });
+    const result = await response.json();
+
+    expect(launchContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(404);
+    expect(result).toEqual({ message: HttpStatusPhrases.NOT_FOUND });
+  });
+
+  test("should return conflict error", async () => {
+    const launchContainerServiceSpy = spyOn(service, "launchContainer");
+    launchContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: "A container with the same name already exists.",
+        code: 409,
+      },
+    });
+
+    const response = await createClient().containers.$post({
+      json: launchPayload,
+    });
+    const result = await response.json();
+
+    expect(launchContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(409);
+    expect(result).toEqual({
+      message: "A container with the same name already exists.",
+    });
+  });
+
+  test("should return internal server error", async () => {
+    const launchContainerServiceSpy = spyOn(service, "launchContainer");
+    launchContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: 500,
+      },
+    });
+
+    const response = await createClient().containers.$post({
+      json: launchPayload,
+    });
+    const result = await response.json();
+
+    expect(launchContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(500);
+    expect(result).toEqual({
+      message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+    });
   });
 });
