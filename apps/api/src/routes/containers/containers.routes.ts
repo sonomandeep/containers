@@ -7,7 +7,11 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createMessageObjectSchema } from "stoker/openapi/schemas";
-import { internalServerErrorSchema, notFoundSchema } from "@/lib/constants";
+import {
+  internalServerErrorSchema,
+  notFoundSchema,
+  unauthorizedSchema,
+} from "@/lib/constants";
 
 const tags = ["containers"];
 
@@ -19,6 +23,10 @@ export const list = createRoute({
     [HttpStatusCodes.OK]: jsonContent(
       z.array(containerSchema),
       "The list of container"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
     ),
   },
 });
@@ -48,7 +56,7 @@ export const updateEnvs = createRoute({
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.array(envinmentVariableSchema),
-      "Container environment variabels"
+      "Container environment variables"
     ),
   },
 });
