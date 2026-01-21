@@ -97,9 +97,7 @@ export function SegmentedProgressBar({
         className={cn(
           "rounded-full transition-colors",
           segment,
-          isActive
-            ? cn(activeColorClass, activeClassName)
-            : cn("bg-neutral-200! dark:bg-muted/40")
+          isActive ? cn(activeColorClass, activeClassName) : cn("bg-muted!")
         )}
         key={`segment-${index}`}
       />

@@ -29,7 +29,6 @@ import {
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
 
@@ -51,31 +50,31 @@ export default async function Page() {
             <SectionCardDescription>3 node</SectionCardDescription>
           </SectionCardHeaderContent>
 
-          <SectionCardActions>
-            <ToggleGroup
-              className="gap-1 bg-neutral-50 p-0.5 font-mono"
-              defaultValue={["1h"]}
-            >
-              <ToggleGroupItem
-                className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"
-                value="1h"
-              >
-                1h
-              </ToggleGroupItem>
-              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-                4h
-              </ToggleGroupItem>
-              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-                1d
-              </ToggleGroupItem>
-              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-                7d
-              </ToggleGroupItem>
-              <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!">
-                30d
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </SectionCardActions>
+          {/* <SectionCardActions> */}
+          {/*   <ToggleGroup */}
+          {/*     className="gap-1 bg-neutral-50 p-0.5 font-mono" */}
+          {/*     defaultValue={["1h"]} */}
+          {/*   > */}
+          {/*     <ToggleGroupItem */}
+          {/*       className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!" */}
+          {/*       value="1h" */}
+          {/*     > */}
+          {/*       1h */}
+          {/*     </ToggleGroupItem> */}
+          {/*     <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"> */}
+          {/*       4h */}
+          {/*     </ToggleGroupItem> */}
+          {/*     <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"> */}
+          {/*       1d */}
+          {/*     </ToggleGroupItem> */}
+          {/*     <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"> */}
+          {/*       7d */}
+          {/*     </ToggleGroupItem> */}
+          {/*     <ToggleGroupItem className="aria-pressed:border! border! rounded-sm! border-transparent! bg-transparent aria-pressed:border-neutral-100! aria-pressed:bg-white!"> */}
+          {/*       30d */}
+          {/*     </ToggleGroupItem> */}
+          {/*   </ToggleGroup> */}
+          {/* </SectionCardActions> */}
         </SectionCardHeader>
 
         <div className="grid grid-cols-4 gap-4">
