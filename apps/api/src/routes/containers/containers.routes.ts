@@ -149,6 +149,10 @@ export const stop = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container stopped"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
       "Container not found"

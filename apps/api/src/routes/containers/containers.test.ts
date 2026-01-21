@@ -398,3 +398,135 @@ describe("start container", () => {
     });
   });
 });
+
+describe("stop container", () => {
+  let getSessionSpy: ReturnType<typeof spyOn>;
+  const containerId = "container-1";
+  const container: Container = {
+    id: containerId,
+    name: "api",
+    image: "ghcr.io/containers/api:latest",
+    state: "exited",
+    status: "exited",
+    ports: [],
+    envs: [],
+    created: 1_690_002_000,
+  };
+
+  beforeEach(() => {
+    getSessionSpy = mockAuthSession();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("should return unauthorized error", async () => {
+    getSessionSpy.mockResolvedValueOnce(null);
+
+    const stopContainerServiceSpy = spyOn(service, "stopContainer");
+    stopContainerServiceSpy.mockResolvedValue({
+      data: container,
+      error: null,
+    });
+
+    const response = await createClient().containers[":containerId"].stop.$post(
+      {
+        param: { containerId },
+      }
+    );
+    const result = await response.json();
+
+    expect(stopContainerServiceSpy).not.toHaveBeenCalled();
+    expect(response.status).toBe(401);
+    expect(result).toEqual({ message: HttpStatusPhrases.UNAUTHORIZED });
+  });
+
+  test("should stop container", async () => {
+    const stopContainerServiceSpy = spyOn(service, "stopContainer");
+    stopContainerServiceSpy.mockResolvedValue({
+      data: container,
+      error: null,
+    });
+
+    const response = await createClient().containers[":containerId"].stop.$post(
+      {
+        param: { containerId },
+      }
+    );
+    const result = await response.json();
+
+    expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(stopContainerServiceSpy).toHaveBeenCalledWith({ containerId });
+    expect(response.status).toBe(200);
+    expect(result).toEqual(container);
+  });
+
+  test("should return not found error", async () => {
+    const stopContainerServiceSpy = spyOn(service, "stopContainer");
+    stopContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.NOT_FOUND,
+        code: 404,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].stop.$post(
+      {
+        param: { containerId },
+      }
+    );
+    const result = await response.json();
+
+    expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(404);
+    expect(result).toEqual({ message: HttpStatusPhrases.NOT_FOUND });
+  });
+
+  test("should return conflict error", async () => {
+    const stopContainerServiceSpy = spyOn(service, "stopContainer");
+    stopContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: "Container is not running.",
+        code: 409,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].stop.$post(
+      {
+        param: { containerId },
+      }
+    );
+    const result = await response.json();
+
+    expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(409);
+    expect(result).toEqual({ message: "Container is not running." });
+  });
+
+  test("should return internal server error", async () => {
+    const stopContainerServiceSpy = spyOn(service, "stopContainer");
+    stopContainerServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: 500,
+      },
+    });
+
+    const response = await createClient().containers[":containerId"].stop.$post(
+      {
+        param: { containerId },
+      }
+    );
+    const result = await response.json();
+
+    expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(500);
+    expect(result).toEqual({
+      message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+    });
+  });
+});
