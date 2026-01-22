@@ -99,9 +99,12 @@ describe("listContainers", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.listContainers()).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service.listContainers().catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -119,9 +122,12 @@ describe("listContainers", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.listContainers()).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service.listContainers().catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -222,9 +228,12 @@ describe("launchContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.launchContainer({})).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service.launchContainer({}).catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -243,9 +252,12 @@ describe("launchContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.launchContainer({})).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service.launchContainer({}).catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -325,9 +337,14 @@ describe("startContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.startContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .startContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -346,9 +363,14 @@ describe("startContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.startContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .startContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -428,9 +450,14 @@ describe("restartContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.restartContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .restartContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -449,9 +476,14 @@ describe("restartContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.restartContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .restartContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -531,9 +563,14 @@ describe("stopContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.stopContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .stopContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -552,9 +589,14 @@ describe("stopContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.stopContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .stopContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -623,9 +665,14 @@ describe("deleteContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.deleteContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .deleteContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -644,9 +691,14 @@ describe("deleteContainer", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.deleteContainer("container-1")).rejects.toThrow(
-      redirectErrorMessage
-    );
+    const error = await service
+      .deleteContainer("container-1")
+      .catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
