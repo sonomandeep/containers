@@ -5,8 +5,7 @@ import { setupServiceMocks } from "@/lib/test/mocks";
 
 process.env.NEXT_PUBLIC_API_URL ??= "http://localhost";
 
-const { apiMock, redirectMock, cookieStore, authClient } =
-  setupServiceMocks();
+const { apiMock, redirectMock, cookieStore, authClient } = setupServiceMocks();
 
 const service = await import("./containers.service");
 
@@ -74,7 +73,11 @@ describe("list containers", () => {
 
   test("returns error when api responds with error", async () => {
     const getSessionSpy = mockAuthSession(authClient);
-    const apiError = new Error("api error");
+    const apiError = {
+      message: "api error",
+      status: 500,
+      statusText: "Internal Server Error",
+    };
 
     apiMock.mockResolvedValue({ data: [], error: apiError });
 
@@ -94,7 +97,9 @@ describe("list containers", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.listContainers()).rejects.toThrow(redirectErrorMessage);
+    await expect(service.listContainers()).rejects.toThrow(
+      redirectErrorMessage
+    );
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
@@ -112,7 +117,9 @@ describe("list containers", () => {
       throw new Error(redirectErrorMessage);
     });
 
-    await expect(service.listContainers()).rejects.toThrow(redirectErrorMessage);
+    await expect(service.listContainers()).rejects.toThrow(
+      redirectErrorMessage
+    );
 
     expect(getSessionSpy).toHaveBeenCalledTimes(1);
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");

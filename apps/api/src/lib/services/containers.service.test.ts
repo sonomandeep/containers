@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, jest, mock, spyOn, test } from "bun:test";
+import os from "node:os";
 import type { Container, LaunchContainerInput } from "@containers/shared";
 import type Dockerode from "dockerode";
-import os from "node:os";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
