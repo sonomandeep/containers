@@ -4,6 +4,7 @@ import { createAuthClientMock } from "@/lib/test/auth";
 export type ServiceMocks = {
   apiMock: ReturnType<typeof jest.fn>;
   redirectMock: ReturnType<typeof jest.fn>;
+  updateTagMock: ReturnType<typeof jest.fn>;
   cookieStore: {
     toString: () => string;
   };
@@ -13,6 +14,7 @@ export type ServiceMocks = {
 export const setupServiceMocks = (): ServiceMocks => {
   const apiMock = jest.fn();
   const redirectMock = jest.fn();
+  const updateTagMock = jest.fn();
   const cookieStore = {
     toString: () => "session=token",
   };
@@ -30,6 +32,9 @@ export const setupServiceMocks = (): ServiceMocks => {
   mock.module("next/navigation", () => ({
     redirect: redirectMock,
   }));
+  mock.module("next/cache", () => ({
+    updateTag: updateTagMock,
+  }));
 
-  return { apiMock, redirectMock, cookieStore, authClient };
+  return { apiMock, redirectMock, updateTagMock, cookieStore, authClient };
 };
