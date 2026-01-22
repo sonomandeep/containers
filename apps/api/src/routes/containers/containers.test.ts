@@ -7,13 +7,13 @@ import {
   spyOn,
   test,
 } from "bun:test";
-import { testClient } from "hono/testing";
 import type { Container, LaunchContainerInput } from "@containers/shared";
+import { testClient } from "hono/testing";
+import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import createApp from "@/lib/create-app";
 import * as service from "@/lib/services/containers.service";
 import { mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
-import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 const createClient = () => testClient(createApp().route("/", router));
 
@@ -183,7 +183,10 @@ describe("launch container", () => {
     expect(launchContainerServiceSpy).toHaveBeenCalledTimes(1);
     expect(launchContainerServiceSpy).toHaveBeenCalledWith(launchPayload);
     expect(response.status).toBe(200);
-    expect(result).toEqual({ message: "container launched", id: "container-1" });
+    expect(result).toEqual({
+      message: "container launched",
+      id: "container-1",
+    });
   });
 
   test("should return not found error", async () => {
@@ -296,11 +299,11 @@ describe("start container", () => {
       error: null,
     });
 
-    const response = await createClient().containers[":containerId"].start.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].start.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(startContainerServiceSpy).not.toHaveBeenCalled();
@@ -315,11 +318,11 @@ describe("start container", () => {
       error: null,
     });
 
-    const response = await createClient().containers[":containerId"].start.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].start.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(startContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -338,11 +341,11 @@ describe("start container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].start.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].start.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(startContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -360,11 +363,11 @@ describe("start container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].start.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].start.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(startContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -384,11 +387,11 @@ describe("start container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].start.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].start.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(startContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -576,11 +579,11 @@ describe("restart container", () => {
       error: null,
     });
 
-    const response = await createClient().containers[":containerId"].restart.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].restart.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(restartContainerServiceSpy).not.toHaveBeenCalled();
@@ -595,11 +598,11 @@ describe("restart container", () => {
       error: null,
     });
 
-    const response = await createClient().containers[":containerId"].restart.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].restart.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(restartContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -618,11 +621,11 @@ describe("restart container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].restart.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].restart.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(restartContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -640,11 +643,11 @@ describe("restart container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].restart.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].restart.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(restartContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -664,11 +667,11 @@ describe("restart container", () => {
       },
     });
 
-    const response = await createClient().containers[":containerId"].restart.$post(
-      {
-        param: { containerId },
-      }
-    );
+    const response = await createClient().containers[
+      ":containerId"
+    ].restart.$post({
+      param: { containerId },
+    });
     const result = await response.json();
 
     expect(restartContainerServiceSpy).toHaveBeenCalledTimes(1);
@@ -702,7 +705,7 @@ describe("remove container", () => {
 
     const response = await createClient().containers[":containerId"].$delete({
       param: { containerId },
-      query: {}
+      query: {},
     });
     const result = await response.json();
 
@@ -720,7 +723,7 @@ describe("remove container", () => {
 
     const response = await createClient().containers[":containerId"].$delete({
       param: { containerId },
-      query: {}
+      query: {},
     });
     const result = await response.json();
 
@@ -767,7 +770,7 @@ describe("remove container", () => {
 
     const response = await createClient().containers[":containerId"].$delete({
       param: { containerId },
-      query: {}
+      query: {},
     });
     const result = await response.json();
 
@@ -789,7 +792,7 @@ describe("remove container", () => {
 
     const response = await createClient().containers[":containerId"].$delete({
       param: { containerId },
-      query: {}
+      query: {},
     });
     const result = await response.json();
 
@@ -813,7 +816,7 @@ describe("remove container", () => {
 
     const response = await createClient().containers[":containerId"].$delete({
       param: { containerId },
-      query: {}
+      query: {},
     });
     const result = await response.json();
 
