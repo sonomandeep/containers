@@ -562,3 +562,95 @@ describe("stopContainer", () => {
     expect(updateTagMock).not.toHaveBeenCalled();
   });
 });
+
+describe("deleteContainer", () => {
+  test("deletes container and returns id when api succeeds", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const containerId = "container/with space";
+
+    apiMock.mockResolvedValue({ error: null });
+
+    const result = await service.deleteContainer(containerId);
+
+    expect(getSessionSpy).toHaveBeenCalledWith({
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).toHaveBeenCalledWith(
+      "/containers/container%2Fwith%20space",
+      {
+        method: "delete",
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      }
+    );
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: { id: containerId }, error: null });
+  });
+
+  test("returns error when api responds with error", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const apiError = {
+      message: "api error",
+      status: 500,
+      statusText: "Internal Server Error",
+    };
+
+    apiMock.mockResolvedValue({ error: apiError });
+
+    const result = await service.deleteContainer("container-1");
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).toHaveBeenCalledTimes(1);
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unexpected error while deleting the container.",
+    });
+  });
+
+  test("redirects when session is missing", async () => {
+    const redirectErrorMessage = "NEXT_REDIRECT";
+    const getSessionSpy = mockAuthSession(authClient, null);
+
+    redirectMock.mockImplementation(() => {
+      throw new Error(redirectErrorMessage);
+    });
+
+    await expect(service.deleteContainer("container-1")).rejects.toThrow(
+      redirectErrorMessage
+    );
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith("/auth/login");
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+  });
+
+  test("redirects when session has an error", async () => {
+    const redirectErrorMessage = "NEXT_REDIRECT";
+    const getSessionSpy = mockAuthSessionError(
+      authClient,
+      new Error("Auth failed")
+    );
+
+    redirectMock.mockImplementation(() => {
+      throw new Error(redirectErrorMessage);
+    });
+
+    await expect(service.deleteContainer("container-1")).rejects.toThrow(
+      redirectErrorMessage
+    );
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith("/auth/login");
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+  });
+});
