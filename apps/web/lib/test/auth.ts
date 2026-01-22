@@ -60,9 +60,18 @@ export const createAuthClientMock = (): AuthClientMock => ({
 
 export const mockAuthSession = (
   authClient: AuthClientMock,
-  session: MockSession = createMockSession()
+  session: MockSession | null = createMockSession()
 ) =>
   spyOn(authClient, "getSession").mockResolvedValue({
     data: session,
     error: null,
+  });
+
+export const mockAuthSessionError = (
+  authClient: AuthClientMock,
+  error: unknown
+) =>
+  spyOn(authClient, "getSession").mockResolvedValue({
+    data: null,
+    error,
   });
