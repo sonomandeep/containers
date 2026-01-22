@@ -7,11 +7,11 @@ const isDev = env.NODE_ENV !== "production";
 
 export const logger = isDev
   ? pino(
-      { level: "debug" },
+      { level: env.LOG_LEVEL || "debug" },
       pinoPretty({
         colorize: true,
         translateTime: "HH:MM:ss",
         ignore: "pid,hostname",
       })
     )
-  : pino({ level: isDev ? "debug" : "info" });
+  : pino({ level: env.LOG_LEVEL });

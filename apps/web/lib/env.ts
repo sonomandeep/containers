@@ -5,6 +5,9 @@ config();
 
 const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
+  LOG_LEVEL: z
+    .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
+    .default("info"),
   NEXT_PUBLIC_API_URL: z.string().nonempty(),
 });
 
