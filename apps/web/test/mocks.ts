@@ -1,5 +1,5 @@
 import { jest, mock } from "bun:test";
-import { createAuthClientMock } from "@/lib/test/auth";
+import { createAuthClientMock } from "@/test/auth";
 
 export type ServiceMocks = {
   apiMock: ReturnType<typeof jest.fn>;

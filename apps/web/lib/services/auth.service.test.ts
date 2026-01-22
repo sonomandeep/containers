@@ -3,8 +3,8 @@ import {
   createMockSession,
   mockAuthSession,
   mockAuthSessionError,
-} from "@/lib/test/auth";
-import { setupServiceMocks } from "@/lib/test/mocks";
+} from "@/test/auth";
+import { setupServiceMocks } from "@/test/mocks";
 
 process.env.NEXT_PUBLIC_API_URL ??= "http://localhost";
 
