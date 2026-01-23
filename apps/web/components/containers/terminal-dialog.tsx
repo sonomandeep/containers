@@ -28,15 +28,15 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && terminal) {
       fitAddon.fit();
       terminal.open(ref.current);
       terminal.write("Hello from term $ ");
     }
 
-    return () => {
-      terminal.dispose();
-    };
+    //   return () => {
+    //     terminal.dispose();
+    //   };
   }, [ref.current]);
 
   return (
@@ -54,8 +54,8 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <DialogCard className="w-2xl overflow-hidden border-none bg-black p-2">
-          <div className="h-full" ref={ref} />
+        <DialogCard className="aspect-video w-2xl overflow-hidden border-none bg-black p-2">
+          <div ref={ref} />
         </DialogCard>
       </DialogContent>
     </Dialog>
