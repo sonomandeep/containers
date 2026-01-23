@@ -22,6 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { launchContainer } from "@/lib/services/containers.service";
 import { ContainerPortBadge } from "../container-port-badge";
 import { EnvBadge } from "../env-badge";
+import { useImagesStore } from "@/lib/store/images.store";
 
 type Props = {
   closeDialog: () => void;
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export function SummaryStep({ closeDialog, formState, goBack }: Props) {
+  const images = useImagesStore((state) => state.images);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit() {
@@ -64,7 +66,11 @@ export function SummaryStep({ closeDialog, formState, goBack }: Props) {
           </Info>
 
           <Info icon={LayersIcon} label="Image">
-            {formState.basic.image || "-"}
+            {images
+              .find((image) => image.id === formState.basic.image)
+              ?.tags.at(0) ||
+              formState.basic.image ||
+              "-"}
           </Info>
 
           <Info icon={TerminalIcon} label="Command">
