@@ -28,13 +28,15 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
   useEffect(() => {
-    if (!ref.current) {
-      return;
+    if (ref.current) {
+      fitAddon.fit();
+      terminal.open(ref.current);
+      terminal.write("Hello from term $ ");
     }
 
-    fitAddon.fit();
-    terminal.open(ref.current);
-    terminal.write("Hello from term $ ");
+    return () => {
+      terminal.dispose();
+    };
   }, [ref.current]);
 
   return (
