@@ -20,9 +20,9 @@ import { DialogCard, DialogFooter } from "@/components/core/dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { launchContainer } from "@/lib/services/containers.service";
+import { useImagesStore } from "@/lib/store/images.store";
 import { ContainerPortBadge } from "../container-port-badge";
 import { EnvBadge } from "../env-badge";
-import { useImagesStore } from "@/lib/store/images.store";
 
 type Props = {
   closeDialog: () => void;

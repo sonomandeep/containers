@@ -1,6 +1,9 @@
 "use client";
 
 import type { Container } from "@containers/shared";
+import { FitAddon } from "@xterm/addon-fit";
+import { Terminal } from "@xterm/xterm";
+import { useEffect, useRef } from "react";
 import {
   Dialog,
   DialogCard,
@@ -8,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/core/dialog";
+import "@xterm/xterm/css/xterm.css";
 
 type Props = {
   container: Container;
@@ -15,7 +19,24 @@ type Props = {
   setOpen(value: boolean): void;
 };
 
+const terminal = new Terminal();
+const fitAddon = new FitAddon();
+terminal.loadAddon(fitAddon);
+
 export default function TerminalDialog({ container, open, setOpen }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    fitAddon.fit();
+    terminal.open(ref.current);
+    terminal.write("Hello from term $ ");
+  }, [ref.current]);
+
   return (
     <Dialog
       onOpenChange={(value) => {
@@ -23,7 +44,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       }}
       open={open}
     >
-      <DialogContent className="pb-2">
+      <DialogContent className="w-min max-w-none! pb-2">
         <DialogHeader>
           <DialogTitle>
             Remote Terminal
@@ -31,8 +52,8 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <DialogCard>
-          <div>hello</div>
+        <DialogCard className="w-2xl overflow-hidden border-none bg-black p-2">
+          <div className="h-full" ref={ref} />
         </DialogCard>
       </DialogContent>
     </Dialog>
