@@ -21,7 +21,7 @@ export function AlertDialogContent({
 }) {
   return (
     <ShadcnAlertDialogContent
-      className={cn("gap-0 rounded-lg bg-neutral-100 p-0", className)}
+      className={cn("gap-0 rounded-lg bg-card p-0", className)}
       size={size}
       {...props}
     />

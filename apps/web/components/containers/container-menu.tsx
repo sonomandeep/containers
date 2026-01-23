@@ -167,7 +167,7 @@ function DeleteAlertDialog({
         </AlertDialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3">
+          <div className="mx-2 flex flex-col gap-3 rounded-lg border border-card-border bg-background p-3">
             <Alert variant="destructive">
               <div className="inline-flex items-center gap-2">
                 <AlertCircleIcon className="size-3" />

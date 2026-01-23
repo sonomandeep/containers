@@ -19,7 +19,7 @@ export function DialogContent({
 }: DialogPrimitive.Popup.Props & { showCloseButton?: boolean }) {
   return (
     <ShadcnDialogContent
-      className={cn("gap-0 rounded-lg bg-neutral-100 p-0", className)}
+      className={cn("gap-0 rounded-lg bg-card p-0", className)}
       {...props}
     />
   );
@@ -32,7 +32,7 @@ export function DialogCard({
   return (
     <div
       className={cn(
-        "mx-2 flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-3",
+        "mx-2 flex flex-col gap-3 rounded-lg border border-card-border bg-background p-3",
         className
       )}
       {...props}
