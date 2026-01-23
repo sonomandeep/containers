@@ -1,3 +1,4 @@
+import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
@@ -185,3 +186,21 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
     HttpStatusCodes.OK
   );
 };
+
+export const terminal = upgradeWebSocket((c) => {
+  const logger = c.var.logger;
+  const containerId = c.req.param("containerId");
+
+  return {
+    onOpen(event) {
+      logger.debug(event, `new client: ${containerId}`);
+    },
+    onMessage(event, ws) {
+      logger.debug(`Message from client: ${event.data}`);
+      ws.send("Hello from server!");
+    },
+    onClose: () => {
+      logger.debug("Connection closed");
+    },
+  };
+});

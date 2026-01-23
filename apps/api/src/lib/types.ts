@@ -35,6 +35,10 @@ export type AppSSEHandler<R extends RouteConfig> = (
   c: Context<AppBindings, R["path"]>
 ) => Response | Promise<Response>;
 
+export type AppWebSocketHandler<R extends RouteConfig> = (
+  c: Context<AppBindings, R["path"]>
+) => void;
+
 export type ZodSchema =
   | z.core.$ZodUnion
   | z.core.$ZodObject

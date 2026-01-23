@@ -10,6 +10,7 @@ const router = createRouter()
   .openapi(routes.start, handlers.start)
   .openapi(routes.restart, handlers.restart)
   .openapi(routes.updateEnvs, handlers.updateEnvs)
+  .get("/containers/:containerId/terminal", handlers.terminal)
   .get(routes.stream.path, handlers.stream);
 
 export default router;
