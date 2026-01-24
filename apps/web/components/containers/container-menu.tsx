@@ -3,6 +3,8 @@
 import { type Container, ContainerStateEnum } from "@containers/shared";
 import {
   AlertCircleIcon,
+  CheckIcon,
+  CopyIcon,
   CornerDownLeftIcon,
   EllipsisVerticalIcon,
   FileTextIcon,
@@ -131,6 +133,18 @@ function DeleteAlertDialog({
   const [containerName, setContainerName] = useState("");
   const [isPending, startTransition] = useTransition();
   const store = useContainersStore((state) => state);
+  const [copied, setCopied] = useState(false);
+
+  async function copyToClipboard() {
+    try {
+      await navigator.clipboard.writeText(name);
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 500);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -181,7 +195,22 @@ function DeleteAlertDialog({
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="name">
-                    Type <span className="font-mono">{name}</span> to confirm
+                    Type
+                    <Button
+                      className="inline-flex items-center gap-1.5"
+                      onClick={copyToClipboard}
+                      size="sm"
+                      type="button"
+                      variant="secondary"
+                    >
+                      {name}
+                      {copied ? (
+                        <CheckIcon className="size-2.5" />
+                      ) : (
+                        <CopyIcon className="size-2.5" />
+                      )}
+                    </Button>
+                    to confirm
                   </FieldLabel>
                   <Input
                     autoComplete="off"
