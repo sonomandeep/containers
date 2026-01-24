@@ -3,6 +3,7 @@
 import { type Container, ContainerStateEnum } from "@containers/shared";
 import {
   AlertCircleIcon,
+  CopyIcon,
   CornerDownLeftIcon,
   EllipsisVerticalIcon,
   FileTextIcon,
@@ -181,7 +182,16 @@ function DeleteAlertDialog({
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="name">
-                    Type <span className="font-mono">{name}</span> to confirm
+                    Type
+                    <Button
+                      className="inline-flex items-center gap-1.5"
+                      size="sm"
+                      variant="secondary"
+                    >
+                      {name}
+                      <CopyIcon className="size-2.5" />
+                    </Button>
+                    to confirm
                   </FieldLabel>
                   <Input
                     autoComplete="off"
