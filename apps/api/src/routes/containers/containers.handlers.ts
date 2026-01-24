@@ -21,6 +21,8 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
+import { startTerminal } from "@/lib/services/terminal.service";
+import type { Terminal } from "bun";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
@@ -190,14 +192,38 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
 export const terminal = upgradeWebSocket((c) => {
   const logger = c.var.logger;
   const containerId = c.req.param("containerId");
+  let term: Terminal | null;
+
+  function onData(_: Terminal, data: Uint8Array<ArrayBuffer>) {
+    logger.debug(
+      { term, data: new TextDecoder("utf-8").decode(data) },
+      "new data from pty"
+    );
+  }
 
   return {
-    onOpen(event) {
+    onOpen(event, ws) {
       logger.debug(event, `new client: ${containerId}`);
+      const { data, error } = startTerminal(onData);
+
+      if (error) {
+        logger.error(error, "error opening terminal");
+        ws.close();
+      }
+
+      term = data;
     },
     onMessage(event, ws) {
-      logger.debug(`Message from client: ${event.data}`);
-      ws.send("Hello from server!");
+      if (term === null) {
+        return ws.close();
+      }
+
+      const payload = JSON.parse(event.data);
+
+      logger.debug(payload, "message from client");
+      if (payload.type === "input") {
+        term.write(payload.data);
+      }
     },
     onClose: () => {
       logger.debug("Connection closed");
