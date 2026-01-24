@@ -2,12 +2,18 @@
 
 import { type LoginSchemaInput, loginSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CornerDownLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  CornerDownLeftIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -23,6 +29,7 @@ import { auth } from "@/lib/auth";
 export function LoginForm() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
+  const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const form = useForm<LoginSchemaInput>({
     resolver: zodResolver(loginSchema),
@@ -36,6 +43,7 @@ export function LoginForm() {
     auth.signIn.email(input, {
       onRequest: () => {
         setIsPending(true);
+        setIsEmailNotVerified(false);
       },
       onResponse: () => {
         setIsPending(false);
@@ -44,6 +52,10 @@ export function LoginForm() {
         router.replace("/containers");
       },
       onError: ({ error }) => {
+        if (error.code === "EMAIL_NOT_VERIFIED") {
+          return setIsEmailNotVerified(true);
+        }
+
         form.setError("root", { message: error.message });
       },
     });
@@ -123,6 +135,15 @@ export function LoginForm() {
 
         {form.formState.errors.root && (
           <FieldError errors={[form.formState.errors.root]} />
+        )}
+
+        {isEmailNotVerified && (
+          <Alert variant="destructive">
+            <div className="inline-flex items-center gap-2">
+              <AlertCircleIcon className="size-3" />
+              <AlertTitle>Email not verified. Check your inbox.</AlertTitle>
+            </div>
+          </Alert>
         )}
       </div>
 
