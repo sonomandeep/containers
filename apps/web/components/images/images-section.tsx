@@ -222,7 +222,7 @@ function ImageDetailCard() {
             <div className="flex flex-col gap-3">
               {store.activeImage.containers.map((container) => (
                 <div
-                  className="inline-flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-2"
+                  className="inline-flex items-center justify-between rounded-lg border border-card-border bg-card p-2"
                   key={container.id}
                 >
                   <h3>{container.name}</h3>
