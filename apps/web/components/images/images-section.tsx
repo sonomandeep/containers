@@ -207,29 +207,31 @@ function ImageDetailCard() {
           </div>
         </CardContent>
 
-        <CardContent>
-          <CardHeader>
-            <div className="inline-flex w-full items-center justify-between">
-              <CardTitle>Containers</CardTitle>
+        {store.activeImage.containers.length > 0 && (
+          <CardContent>
+            <CardHeader>
+              <div className="inline-flex w-full items-center justify-between">
+                <CardTitle>Containers</CardTitle>
 
-              <span className="text-muted-foreground">
-                {getContainersState(store.activeImage.containers)}
-              </span>
-            </div>
-          </CardHeader>
-
-          <div className="flex flex-col gap-3">
-            {store.activeImage.containers.map((container) => (
-              <div
-                className="inline-flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-2"
-                key={container.id}
-              >
-                <h3>{container.name}</h3>
-                <ContainerStateBadge state={container.state} />
+                <span className="text-muted-foreground">
+                  {getContainersState(store.activeImage.containers)}
+                </span>
               </div>
-            ))}
-          </div>
-        </CardContent>
+            </CardHeader>
+
+            <div className="flex flex-col gap-3">
+              {store.activeImage.containers.map((container) => (
+                <div
+                  className="inline-flex items-center justify-between rounded-lg border border-card-border bg-card p-2"
+                  key={container.id}
+                >
+                  <h3>{container.name}</h3>
+                  <ContainerStateBadge state={container.state} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        )}
       </div>
 
       <CardFooter className="justify-between">
