@@ -26,17 +26,34 @@ terminal.loadAddon(fitAddon);
 export default function TerminalDialog({ container, open, setOpen }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
+  function onOpen() {
+    terminal.write("[connected]");
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
   useEffect(() => {
+    let socket: WebSocket | null = null;
+
     if (ref.current && terminal) {
       fitAddon.fit();
       terminal.open(ref.current);
-      terminal.write("Hello from term $ ");
+      terminal.write(`Connecting to ${container.name}...`);
+
+      socket = new WebSocket(
+        `http://paper.sh:9999/containers/${container.id}/terminal`
+      );
     }
 
-    //   return () => {
-    //     terminal.dispose();
-    //   };
+    if (socket) {
+      socket.addEventListener("open", onOpen);
+    }
+
+    return () => {
+      if (socket) {
+        socket.removeEventListener("open", onOpen);
+        socket.close();
+      }
+    };
   }, [ref.current]);
 
   return (
