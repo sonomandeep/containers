@@ -4,13 +4,15 @@ import z from "zod";
 
 export function startTerminal(
   container: string,
+  cols: number,
+  rows: number,
   onData: (terminal: Terminal, data: Uint8Array<ArrayBuffer>) => void
 ) {
   try {
     const proc = spawn(["docker", "exec", "-it", container, "bash"], {
       terminal: {
-        cols: 71,
-        rows: 24,
+        cols: cols,
+        rows: rows,
         data: onData,
       },
     });

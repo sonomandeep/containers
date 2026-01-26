@@ -192,6 +192,8 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
 export const terminal = upgradeWebSocket((c) => {
   const logger = c.var.logger;
   const containerId = c.req.param("containerId");
+  const cols = c.req.query("cols");
+  const rows = c.req.query("rows");
   let term: Terminal | null;
 
   function onData(_: Terminal, data: Uint8Array<ArrayBuffer>) {}
@@ -199,13 +201,18 @@ export const terminal = upgradeWebSocket((c) => {
   return {
     onOpen(event, ws) {
       logger.debug(event, `new client: ${containerId}`);
-      const { data, error } = startTerminal(containerId, (_, data) => {
-        logger.debug(
-          { term, data: new TextDecoder("utf-8").decode(data) },
-          "new data from pty"
-        );
-        ws.send(data);
-      });
+      const { data, error } = startTerminal(
+        containerId,
+        Number(cols) || 80,
+        Number(rows) || 24,
+        (_, data) => {
+          logger.debug(
+            { term, data: new TextDecoder("utf-8").decode(data) },
+            "new data from pty"
+          );
+          ws.send(data);
+        }
+      );
 
       if (error) {
         logger.error(error, "error opening terminal");
