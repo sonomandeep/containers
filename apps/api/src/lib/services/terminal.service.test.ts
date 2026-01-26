@@ -65,7 +65,10 @@ describe("validateTerminalAccess", () => {
   test("returns not found when docker reports missing container", async () => {
     const container = {
       inspect: () => {
-        throw { message: "Not Found", statusCode: HttpStatusCodes.NOT_FOUND };
+        const error = new Error("Not Found");
+        return Object.assign(error, {
+          statusCode: HttpStatusCodes.NOT_FOUND,
+        });
       },
     } as unknown as Dockerode.Container;
 
