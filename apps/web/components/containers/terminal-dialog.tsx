@@ -30,6 +30,10 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
     terminal.write("[connected]");
   }
 
+  function onMessage(_: WebSocket, message: MessageEvent) {
+    terminal.write(message.data);
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
   useEffect(() => {
     let socket: WebSocket | null = null;
@@ -39,6 +43,12 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       terminal.open(ref.current);
       terminal.write(`Connecting to ${container.name}...`);
 
+      terminal.onData((data) => {
+        if (socket) {
+          socket.send(JSON.stringify({ type: "input", message: data }));
+        }
+      });
+
       socket = new WebSocket(
         `http://paper.sh:9999/containers/${container.id}/terminal`
       );
@@ -46,6 +56,11 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
 
     if (socket) {
       socket.addEventListener("open", onOpen);
+      socket.addEventListener("message", async (event) => {
+        if (event.data instanceof Blob) {
+          terminal.write(await event.data.text());
+        }
+      });
     }
 
     return () => {
