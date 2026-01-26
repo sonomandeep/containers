@@ -19,54 +19,71 @@ type Props = {
   setOpen(value: boolean): void;
 };
 
-const terminal = new Terminal();
-const fitAddon = new FitAddon();
-terminal.loadAddon(fitAddon);
+type WsMsg =
+  | { type: "data"; data: string }
+  | { type: "resize"; cols: number; rows: number }
+  | { type: "ping" };
 
 export default function TerminalDialog({ container, open, setOpen }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  function onOpen() {
-    terminal.clear();
-  }
+  const divRef = useRef<HTMLDivElement | null>(null);
+  const termRef = useRef<Terminal | null>(null);
+  const fitRef = useRef<FitAddon | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
   useEffect(() => {
-    let socket: WebSocket | null = null;
-
-    if (ref.current && terminal) {
-      fitAddon.fit();
-      terminal.open(ref.current);
-      terminal.write(`Connecting to ${container.name}...`);
-      const dimensions = fitAddon.proposeDimensions();
-
-      terminal.onData((data) => {
-        if (socket) {
-          socket.send(JSON.stringify({ type: "input", message: data }));
-        }
-      });
-
-      socket = new WebSocket(
-        `http://paper.sh:9999/containers/${container.id}/terminal?cols=${dimensions?.cols || 80}&rows=${dimensions?.rows || 24}`
-      );
+    console.log({ message: "ENTRATO", ref: divRef.current });
+    if (!divRef.current) {
+      return;
     }
 
-    if (socket) {
-      socket.addEventListener("open", onOpen);
-      socket.addEventListener("message", async (event) => {
-        if (event.data instanceof Blob) {
-          terminal.write(await event.data.text());
-        }
-      });
+    if (!open) {
+      return;
     }
 
-    return () => {
-      if (socket) {
-        socket.removeEventListener("open", onOpen);
-        socket.close();
+    const terminal = new Terminal({ cursorBlink: true, convertEol: true });
+    const fit = new FitAddon();
+    terminal.loadAddon(fit);
+
+    terminal.open(divRef.current);
+    fit.fit();
+
+    requestAnimationFrame(() => {
+      fit.fit(); // secondo tentativo, con layout stabile
+    });
+    const dimensions = fit.proposeDimensions();
+
+    termRef.current = terminal;
+    fitRef.current = fit;
+
+    const socket = new WebSocket(
+      `${process.env.NEXT_PUBLIC_API_URL}/containers/${container.id}/terminal?cols=${dimensions?.cols || 80}&rows=${dimensions?.rows || 24}`
+    );
+    socket.binaryType = "arraybuffer";
+    socketRef.current = socket;
+
+    socket.onmessage = (event) => {
+      if (event.data instanceof ArrayBuffer) {
+        terminal.write(new TextDecoder().decode(event.data));
       }
     };
-  }, [ref.current]);
+
+    const onData = terminal.onData((data) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: "input", message: data }));
+      }
+    });
+
+    socket.onopen = () => terminal.writeln("[connected]");
+    socket.onerror = () => terminal.writeln("\r\n[websocket error]");
+    socket.onclose = () => terminal.writeln("\r\n[disconnected]");
+
+    return () => {
+      onData.dispose();
+      socket.close();
+      terminal.dispose();
+    };
+  }, [open]);
 
   return (
     <Dialog
@@ -84,7 +101,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
         </DialogHeader>
 
         <DialogCard className="aspect-video w-2xl overflow-hidden border-none bg-black p-2">
-          <div ref={ref} />
+          <div className="h-full" ref={divRef} />
         </DialogCard>
       </DialogContent>
     </Dialog>
