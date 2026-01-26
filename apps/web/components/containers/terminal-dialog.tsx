@@ -28,6 +28,8 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
   const onDataDisposableRef = useRef<IDisposable | null>(null);
   const isInitializedRef = useRef(false);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastResizeRef = useRef(0);
 
   useEffect(() => {
     if (!open && isInitializedRef.current) {
@@ -51,6 +53,11 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
         resizeObserverRef.current = null;
+      }
+
+      if (resizeTimeoutRef.current !== null) {
+        clearTimeout(resizeTimeoutRef.current);
+        resizeTimeoutRef.current = null;
       }
 
       fitRef.current = null;
@@ -98,9 +105,31 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
         );
       };
 
+      const scheduleResize = () => {
+        const now = Date.now();
+        const elapsed = now - lastResizeRef.current;
+        const THROTTLE_MS = 100;
+
+        if (elapsed >= THROTTLE_MS) {
+          lastResizeRef.current = now;
+          sendResize();
+          return;
+        }
+
+        if (resizeTimeoutRef.current !== null) {
+          return;
+        }
+
+        resizeTimeoutRef.current = setTimeout(() => {
+          resizeTimeoutRef.current = null;
+          lastResizeRef.current = Date.now();
+          sendResize();
+        }, THROTTLE_MS - elapsed);
+      };
+
       requestAnimationFrame(() => {
         fit.fit();
-        sendResize();
+        scheduleResize();
       });
 
       const dimensions = fit.proposeDimensions();
@@ -126,7 +155,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       onDataDisposableRef.current = onData;
 
       const resizeObserver = new ResizeObserver(() => {
-        sendResize();
+        scheduleResize();
       });
 
       resizeObserver.observe(node);
@@ -134,7 +163,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
 
       socket.onopen = () => {
         terminal.writeln("[connected]");
-        sendResize();
+        scheduleResize();
       };
       socket.onerror = () => terminal.writeln("\r\n[websocket error]");
       socket.onclose = () => terminal.writeln("\r\n[disconnected]");
