@@ -42,7 +42,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastResizeRef = useRef(0);
 
-  const resetTerminalState = () => {
+  const resetTerminalState = useCallback(() => {
     isInitializedRef.current = false;
 
     if (onDataDisposableRef.current) {
@@ -71,13 +71,13 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
     }
 
     fitRef.current = null;
-  };
+  }, []);
 
   useEffect(() => {
     if (!open && isInitializedRef.current) {
       resetTerminalState();
     }
-  }, [open]);
+  }, [open, resetTerminalState]);
 
   const handleRef = useCallback(
     (node: HTMLDivElement | null) => {
