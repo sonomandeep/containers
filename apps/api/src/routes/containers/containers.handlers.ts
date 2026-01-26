@@ -274,6 +274,10 @@ export const terminal = upgradeWebSocket(async (c) => {
       if (event.data.type === "input") {
         term.write(event.data.message);
       }
+
+      if (event.data.type === "resize") {
+        term.resize(event.data.cols, event.data.rows);
+      }
     },
     onClose() {
       logger.debug("Connection closed");

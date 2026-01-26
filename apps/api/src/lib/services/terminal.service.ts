@@ -96,10 +96,17 @@ export async function validateTerminalAccess(containerId: string) {
   }
 }
 
-const eventSchema = z.object({
-  type: z.literal("input"),
-  message: z.string(),
-});
+const eventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("input"),
+    message: z.string(),
+  }),
+  z.object({
+    type: z.literal("resize"),
+    cols: z.number().int().min(1),
+    rows: z.number().int().min(1),
+  }),
+]);
 
 export async function parseEvent(input: WSMessageReceive) {
   let payload: string | null = null;
