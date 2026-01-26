@@ -1,4 +1,4 @@
-import type { Terminal } from "bun";
+import type { Subprocess, Terminal } from "bun";
 import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
@@ -194,7 +194,22 @@ export const terminal = upgradeWebSocket((c) => {
   const containerId = c.req.param("containerId");
   const cols = c.req.query("cols");
   const rows = c.req.query("rows");
-  let term: Terminal | null;
+  let term: Terminal | null = null;
+  let subprocess: Subprocess | null = null;
+
+  const cleanup = () => {
+    if (term) {
+      term.close();
+      term = null;
+    }
+
+    if (subprocess) {
+      if (!subprocess.killed) {
+        subprocess.kill("SIGTERM");
+      }
+      subprocess = null;
+    }
+  };
 
   return {
     onOpen(_, ws) {
@@ -209,10 +224,12 @@ export const terminal = upgradeWebSocket((c) => {
 
       if (error) {
         logger.error(error, "error opening terminal");
+        cleanup();
         ws.close();
       }
 
-      term = data;
+      term = data?.terminal ?? null;
+      subprocess = data?.process ?? null;
     },
     async onMessage(e, ws) {
       if (term === null) {
@@ -231,9 +248,11 @@ export const terminal = upgradeWebSocket((c) => {
     },
     onClose() {
       logger.debug("Connection closed");
+      cleanup();
     },
     onError() {
       logger.debug("error in ws");
+      cleanup();
     },
   };
 });

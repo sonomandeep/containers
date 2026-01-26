@@ -1,6 +1,11 @@
-import { spawn, type Terminal } from "bun";
+import { spawn, type Subprocess, type Terminal } from "bun";
 import type { WSMessageReceive } from "hono/ws";
 import z from "zod";
+
+type TerminalSession = {
+  terminal: Terminal;
+  process: Subprocess;
+};
 
 export function startTerminal(
   container: string,
@@ -21,7 +26,10 @@ export function startTerminal(
       return { data: null, error: { message: "error opening terminal" } };
     }
 
-    return { data: proc.terminal, error: null };
+    return {
+      data: { terminal: proc.terminal, process: proc } satisfies TerminalSession,
+      error: null,
+    };
   } catch (error) {
     return { data: null, error };
   }
