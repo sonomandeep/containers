@@ -19,6 +19,17 @@ type Props = {
   setOpen(value: boolean): void;
 };
 
+type TerminalClientEvent =
+  | {
+      type: "input";
+      message: string;
+    }
+  | {
+      type: "resize";
+      cols: number;
+      rows: number;
+    };
+
 const decoder = new TextDecoder();
 
 export default function TerminalDialog({ container, open, setOpen }: Props) {
@@ -82,11 +93,38 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       termRef.current = terminal;
       fitRef.current = fit;
 
+      const sendEvent = (event: TerminalClientEvent) => {
+        const currentSocket = socketRef.current;
+        if (!currentSocket || currentSocket.readyState !== WebSocket.OPEN) {
+          return;
+        }
+
+        if (event.type === "resize") {
+          if (
+            !Number.isInteger(event.cols) ||
+            !Number.isInteger(event.rows) ||
+            event.cols <= 0 ||
+            event.rows <= 0
+          ) {
+            return;
+          }
+        }
+
+        let payload: string;
+        try {
+          payload = JSON.stringify(event);
+        } catch {
+          terminal.writeln("\r\n[client error: invalid message]");
+          currentSocket.close();
+          return;
+        }
+
+        currentSocket.send(payload);
+      };
+
       const sendResize = () => {
         const currentFit = fitRef.current;
-        const currentSocket = socketRef.current;
-
-        if (!currentFit || currentSocket?.readyState !== WebSocket.OPEN) {
+        if (!currentFit) {
           return;
         }
 
@@ -96,13 +134,11 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
           return;
         }
 
-        currentSocket.send(
-          JSON.stringify({
-            type: "resize",
-            cols: dimensions.cols,
-            rows: dimensions.rows,
-          })
-        );
+        sendEvent({
+          type: "resize",
+          cols: dimensions.cols,
+          rows: dimensions.rows,
+        });
       };
 
       const scheduleResize = () => {
@@ -147,9 +183,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       };
 
       const onData = terminal.onData((data) => {
-        if (socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({ type: "input", message: data }));
-        }
+        sendEvent({ type: "input", message: data });
       });
 
       onDataDisposableRef.current = onData;
