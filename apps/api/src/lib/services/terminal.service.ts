@@ -14,13 +14,16 @@ export function startTerminal(
   onData: (terminal: Terminal, data: Uint8Array<ArrayBuffer>) => void
 ) {
   try {
-    const proc = spawn(["docker", "exec", "-it", container, "bash"], {
-      terminal: {
-        cols,
-        rows,
-        data: onData,
-      },
-    });
+    const proc = spawn(
+      ["docker", "exec", "-it", container, "sh", "-lc", "exec bash || exec sh"],
+      {
+        terminal: {
+          cols,
+          rows,
+          data: onData,
+        },
+      }
+    );
 
     if (!proc?.terminal) {
       return { data: null, error: { message: "error opening terminal" } };
