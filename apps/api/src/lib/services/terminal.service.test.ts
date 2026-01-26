@@ -157,9 +157,7 @@ describe("parseEvent", () => {
 
   test("returns unsupported input type for unknown payloads", async () => {
     const payload = new Uint8Array([1, 2, 3]);
-    const result = await service.parseEvent(
-      payload as unknown as ArrayBuffer
-    );
+    const result = await service.parseEvent(payload as unknown as ArrayBuffer);
 
     expect(result).toEqual({
       data: null,

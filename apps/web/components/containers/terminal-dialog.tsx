@@ -99,15 +99,13 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
           return;
         }
 
-        if (event.type === "resize") {
-          if (
-            !Number.isInteger(event.cols) ||
-            !Number.isInteger(event.rows) ||
+        if (
+          event.type === "resize" &&
+          (!(Number.isInteger(event.cols) && Number.isInteger(event.rows)) ||
             event.cols <= 0 ||
-            event.rows <= 0
-          ) {
-            return;
-          }
+            event.rows <= 0)
+        ) {
+          return;
         }
 
         let payload: string;

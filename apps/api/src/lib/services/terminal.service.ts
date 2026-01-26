@@ -1,6 +1,6 @@
-import { spawn, type Subprocess, type Terminal } from "bun";
-import * as HttpStatusCodes from "stoker/http-status-codes";
+import { type Subprocess, spawn, type Terminal } from "bun";
 import type { WSMessageReceive } from "hono/ws";
+import * as HttpStatusCodes from "stoker/http-status-codes";
 import z from "zod";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "@/lib/utils";
@@ -43,7 +43,10 @@ export function startTerminal(
     }
 
     return {
-      data: { terminal: proc.terminal, process: proc } satisfies TerminalSession,
+      data: {
+        terminal: proc.terminal,
+        process: proc,
+      } satisfies TerminalSession,
       error: null,
     };
   } catch (error) {
@@ -74,16 +77,17 @@ export async function validateTerminalAccess(containerId: string) {
       error: null,
     };
   } catch (error) {
-    if (isDockerodeError(error)) {
-      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
-        return {
-          data: null,
-          error: {
-            message: "Container not found",
-            code: HttpStatusCodes.NOT_FOUND,
-          } satisfies TerminalAccessError,
-        };
-      }
+    if (
+      isDockerodeError(error) &&
+      error.statusCode === HttpStatusCodes.NOT_FOUND
+    ) {
+      return {
+        data: null,
+        error: {
+          message: "Container not found",
+          code: HttpStatusCodes.NOT_FOUND,
+        } satisfies TerminalAccessError,
+      };
     }
 
     return {
