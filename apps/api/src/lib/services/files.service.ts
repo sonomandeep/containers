@@ -179,7 +179,7 @@ export async function removeFile(
       data: null,
       error: null,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       data: null,
       error: {
@@ -231,7 +231,7 @@ export async function getFileById(
       } satisfies StoredFile,
       error: null,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       data: null,
       error: {

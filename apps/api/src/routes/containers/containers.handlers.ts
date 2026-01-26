@@ -1,3 +1,5 @@
+import type { Subprocess, Terminal } from "bun";
+import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
@@ -9,6 +11,11 @@ import {
   stopContainer,
   updateContainerEnvs,
 } from "@/lib/services/containers.service";
+import {
+  parseEvent,
+  startTerminal,
+  validateTerminalAccess,
+} from "@/lib/services/terminal.service";
 import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
@@ -185,3 +192,100 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
     HttpStatusCodes.OK
   );
 };
+
+export const terminal = upgradeWebSocket(async (c) => {
+  const logger = c.var.logger;
+  const containerId = c.req.param("containerId");
+  const cols = c.req.query("cols");
+  const rows = c.req.query("rows");
+  const access = await validateTerminalAccess(containerId);
+  const MAX_WS_BUFFERED_AMOUNT = 1024 * 1024;
+  let term: Terminal | null = null;
+  let subprocess: Subprocess | null = null;
+
+  const cleanup = () => {
+    if (term) {
+      term.close();
+      term = null;
+    }
+
+    if (subprocess) {
+      if (!subprocess.killed) {
+        subprocess.kill("SIGTERM");
+      }
+      subprocess = null;
+    }
+  };
+
+  return {
+    onOpen(_, ws) {
+      if (access.error) {
+        logger.warn(
+          { error: access.error, containerId },
+          "terminal access denied"
+        );
+        ws.close(1008, access.error.message);
+        return;
+      }
+
+      const { data, error } = startTerminal(
+        containerId,
+        Number(cols) || 80,
+        Number(rows) || 24,
+        (_term, arrayBuffer) => {
+          if (ws.readyState !== 1) {
+            return;
+          }
+
+          const raw = ws.raw as { bufferedAmount?: number } | undefined;
+          if (
+            raw &&
+            typeof raw.bufferedAmount === "number" &&
+            raw.bufferedAmount > MAX_WS_BUFFERED_AMOUNT
+          ) {
+            return;
+          }
+
+          ws.send(arrayBuffer);
+        }
+      );
+
+      if (error) {
+        logger.error(error, "error opening terminal");
+        cleanup();
+        ws.close();
+      }
+
+      term = data?.terminal ?? null;
+      subprocess = data?.process ?? null;
+    },
+    async onMessage(e, ws) {
+      if (term === null) {
+        return ws.close();
+      }
+
+      const event = await parseEvent(e.data);
+      if (event.error || event.data === null) {
+        logger.warn({ error: event.error }, "invalid terminal event");
+        ws.close();
+        return;
+      }
+
+      if (event.data.type === "input") {
+        term.write(event.data.message);
+      }
+
+      if (event.data.type === "resize") {
+        term.resize(event.data.cols, event.data.rows);
+      }
+    },
+    onClose() {
+      logger.debug("Connection closed");
+      cleanup();
+    },
+    onError() {
+      logger.debug("error in ws");
+      cleanup();
+    },
+  };
+});

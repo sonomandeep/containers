@@ -46,6 +46,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { deleteContainer } from "@/lib/services/containers.service";
 import { useContainersStore } from "@/lib/store/containers.store";
 import EnvVariablesDialog from "./env-variables-dialog";
+import TerminalDialog from "./terminal-dialog";
 
 type Props = {
   container: Container;
@@ -55,6 +56,7 @@ export function ContainerMenu({ container }: Props) {
   const [deleteContainerDialogOpen, setDeleteContainerDialogOpen] =
     useState(false);
   const [envVariablesDialogOpen, setEnvVariablesDialogOpen] = useState(false);
+  const [terminalDialogOpen, setTerminalDialogOpen] = useState(false);
 
   return (
     <>
@@ -85,7 +87,10 @@ export function ContainerMenu({ container }: Props) {
             <HardDriveIcon />
             Volumes
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={container.state !== ContainerStateEnum.running}
+            onClick={() => setTerminalDialogOpen(true)}
+          >
             <SquareTerminalIcon />
             Terminal
           </DropdownMenuItem>
@@ -107,6 +112,12 @@ export function ContainerMenu({ container }: Props) {
         container={container}
         open={envVariablesDialogOpen}
         setOpen={setEnvVariablesDialogOpen}
+      />
+
+      <TerminalDialog
+        container={container}
+        open={terminalDialogOpen}
+        setOpen={setTerminalDialogOpen}
       />
 
       <DeleteAlertDialog
