@@ -29,16 +29,29 @@ const eventSchema = z.object({
   message: z.string(),
 });
 
-export function parseEvent(input: WSMessageReceive) {
-  let str: string;
+export async function parseEvent(input: WSMessageReceive) {
+  let event: unknown = null;
 
-  if (input === "string") {
-    str = input;
+  if (typeof input === "string") {
+    event = JSON.parse(input);
   }
 
-  if (input === ArrayBufferLike) {
-    str = new TextDecoder().decode(input);
+  if (input instanceof Blob) {
+    event = JSON.parse(await input.text());
   }
 
-  return { data: {}, error: null };
+  if (input instanceof ArrayBuffer) {
+    event = new TextDecoder().decode(input);
+  }
+
+  const validation = eventSchema.safeParse(event);
+
+  if (!validation.success) {
+    return {
+      data: null,
+      error: "validation error",
+    };
+  }
+
+  return { data: validation.data, error: null };
 }

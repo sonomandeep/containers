@@ -21,7 +21,7 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
-import { startTerminal } from "@/lib/services/terminal.service";
+import { parseEvent, startTerminal } from "@/lib/services/terminal.service";
 import type { Terminal } from "bun";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
@@ -194,17 +194,18 @@ export const terminal = upgradeWebSocket((c) => {
   const containerId = c.req.param("containerId");
   let term: Terminal | null;
 
-  function onData(_: Terminal, data: Uint8Array<ArrayBuffer>) {
-    logger.debug(
-      { term, data: new TextDecoder("utf-8").decode(data) },
-      "new data from pty"
-    );
-  }
+  function onData(_: Terminal, data: Uint8Array<ArrayBuffer>) {}
 
   return {
     onOpen(event, ws) {
       logger.debug(event, `new client: ${containerId}`);
-      const { data, error } = startTerminal(onData);
+      const { data, error } = startTerminal((_, data) => {
+        logger.debug(
+          { term, data: new TextDecoder("utf-8").decode(data) },
+          "new data from pty"
+        );
+        ws.send(data);
+      });
 
       if (error) {
         logger.error(error, "error opening terminal");
@@ -213,16 +214,22 @@ export const terminal = upgradeWebSocket((c) => {
 
       term = data;
     },
-    onMessage(event, ws) {
+    async onMessage(e, ws) {
+      // 1. parse message
+      // 2. execute message payload
+      // 3. echo message to client
       if (term === null) {
         return ws.close();
       }
 
-      const payload = JSON.parse(event.data);
+      const event = await parseEvent(e.data);
+      if (event.error || event.data === null) {
+        throw new Error("handle validation error");
+      }
 
-      logger.debug(payload, "message from client");
-      if (payload.type === "input") {
-        term.write(payload.data);
+      logger.debug(event, "message from client");
+      if (event.data.type === "input") {
+        term.write(event.data.message);
       }
     },
     onClose: () => {
