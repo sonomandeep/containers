@@ -42,36 +42,40 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastResizeRef = useRef(0);
 
+  const resetTerminalState = () => {
+    isInitializedRef.current = false;
+
+    if (onDataDisposableRef.current) {
+      onDataDisposableRef.current.dispose();
+      onDataDisposableRef.current = null;
+    }
+
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
+
+    if (termRef.current) {
+      termRef.current.dispose();
+      termRef.current = null;
+    }
+
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect();
+      resizeObserverRef.current = null;
+    }
+
+    if (resizeTimeoutRef.current !== null) {
+      clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = null;
+    }
+
+    fitRef.current = null;
+  };
+
   useEffect(() => {
     if (!open && isInitializedRef.current) {
-      isInitializedRef.current = false;
-
-      if (onDataDisposableRef.current) {
-        onDataDisposableRef.current.dispose();
-        onDataDisposableRef.current = null;
-      }
-
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
-
-      if (termRef.current) {
-        termRef.current.dispose();
-        termRef.current = null;
-      }
-
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-        resizeObserverRef.current = null;
-      }
-
-      if (resizeTimeoutRef.current !== null) {
-        clearTimeout(resizeTimeoutRef.current);
-        resizeTimeoutRef.current = null;
-      }
-
-      fitRef.current = null;
+      resetTerminalState();
     }
   }, [open]);
 
