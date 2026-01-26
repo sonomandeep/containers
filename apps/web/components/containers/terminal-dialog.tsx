@@ -27,6 +27,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
   const socketRef = useRef<WebSocket | null>(null);
   const onDataDisposableRef = useRef<IDisposable | null>(null);
   const isInitializedRef = useRef(false);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     if (!open && isInitializedRef.current) {
@@ -45,6 +46,11 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       if (termRef.current) {
         termRef.current.dispose();
         termRef.current = null;
+      }
+
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
       }
 
       fitRef.current = null;
@@ -66,14 +72,38 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       terminal.open(node);
       fit.fit();
 
-      requestAnimationFrame(() => {
-        fit.fit();
-      });
-
-      const dimensions = fit.proposeDimensions();
       termRef.current = terminal;
       fitRef.current = fit;
 
+      const sendResize = () => {
+        const currentFit = fitRef.current;
+        const currentSocket = socketRef.current;
+
+        if (!currentFit || currentSocket?.readyState !== WebSocket.OPEN) {
+          return;
+        }
+
+        currentFit.fit();
+        const dimensions = currentFit.proposeDimensions();
+        if (!dimensions) {
+          return;
+        }
+
+        currentSocket.send(
+          JSON.stringify({
+            type: "resize",
+            cols: dimensions.cols,
+            rows: dimensions.rows,
+          })
+        );
+      };
+
+      requestAnimationFrame(() => {
+        fit.fit();
+        sendResize();
+      });
+
+      const dimensions = fit.proposeDimensions();
       const socket = new WebSocket(
         `${process.env.NEXT_PUBLIC_API_URL}/containers/${container.id}/terminal?cols=${dimensions?.cols || 80}&rows=${dimensions?.rows || 24}`
       );
@@ -95,7 +125,17 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
 
       onDataDisposableRef.current = onData;
 
-      socket.onopen = () => terminal.writeln("[connected]");
+      const resizeObserver = new ResizeObserver(() => {
+        sendResize();
+      });
+
+      resizeObserver.observe(node);
+      resizeObserverRef.current = resizeObserver;
+
+      socket.onopen = () => {
+        terminal.writeln("[connected]");
+        sendResize();
+      };
       socket.onerror = () => terminal.writeln("\r\n[websocket error]");
       socket.onclose = () => terminal.writeln("\r\n[disconnected]");
     },
