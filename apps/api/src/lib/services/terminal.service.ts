@@ -3,12 +3,13 @@ import type { WSMessageReceive } from "hono/ws";
 import z from "zod";
 
 export function startTerminal(
+  container: string,
   onData: (terminal: Terminal, data: Uint8Array<ArrayBuffer>) => void
 ) {
   try {
-    const proc = spawn(["bash"], {
+    const proc = spawn(["docker", "exec", "-it", container, "bash"], {
       terminal: {
-        cols: 80,
+        cols: 71,
         rows: 24,
         data: onData,
       },

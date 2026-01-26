@@ -199,7 +199,7 @@ export const terminal = upgradeWebSocket((c) => {
   return {
     onOpen(event, ws) {
       logger.debug(event, `new client: ${containerId}`);
-      const { data, error } = startTerminal((_, data) => {
+      const { data, error } = startTerminal(containerId, (_, data) => {
         logger.debug(
           { term, data: new TextDecoder("utf-8").decode(data) },
           "new data from pty"
