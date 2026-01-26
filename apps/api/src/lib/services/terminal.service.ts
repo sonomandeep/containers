@@ -1,10 +1,23 @@
 import { spawn, type Subprocess, type Terminal } from "bun";
+import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { WSMessageReceive } from "hono/ws";
 import z from "zod";
+import { docker } from "@/lib/agent";
+import { isDockerodeError } from "@/lib/utils";
 
 type TerminalSession = {
   terminal: Terminal;
   process: Subprocess;
+};
+
+type TerminalAccess = {
+  id: string;
+  name: string;
+};
+
+type TerminalAccessError = {
+  message: string;
+  code: number;
 };
 
 export function startTerminal(
@@ -35,6 +48,51 @@ export function startTerminal(
     };
   } catch (error) {
     return { data: null, error };
+  }
+}
+
+export async function validateTerminalAccess(containerId: string) {
+  try {
+    const container = docker.getContainer(containerId);
+    const info = await container.inspect();
+
+    if (!info.State.Running) {
+      return {
+        data: null,
+        error: {
+          message: "Container is not running",
+          code: HttpStatusCodes.CONFLICT,
+        } satisfies TerminalAccessError,
+      };
+    }
+
+    return {
+      data: {
+        id: info.Id,
+        name: info.Name?.replace("/", "") || "-",
+      } satisfies TerminalAccess,
+      error: null,
+    };
+  } catch (error) {
+    if (isDockerodeError(error)) {
+      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
+        return {
+          data: null,
+          error: {
+            message: "Container not found",
+            code: HttpStatusCodes.NOT_FOUND,
+          } satisfies TerminalAccessError,
+        };
+      }
+    }
+
+    return {
+      data: null,
+      error: {
+        message: "Internal server error",
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      } satisfies TerminalAccessError,
+    };
   }
 }
 

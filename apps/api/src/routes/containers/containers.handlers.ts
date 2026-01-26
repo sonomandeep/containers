@@ -11,7 +11,11 @@ import {
   stopContainer,
   updateContainerEnvs,
 } from "@/lib/services/containers.service";
-import { parseEvent, startTerminal } from "@/lib/services/terminal.service";
+import {
+  parseEvent,
+  startTerminal,
+  validateTerminalAccess,
+} from "@/lib/services/terminal.service";
 import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
@@ -189,11 +193,12 @@ export const launch: AppRouteHandler<LaunchRoute> = async (c) => {
   );
 };
 
-export const terminal = upgradeWebSocket((c) => {
+export const terminal = upgradeWebSocket(async (c) => {
   const logger = c.var.logger;
   const containerId = c.req.param("containerId");
   const cols = c.req.query("cols");
   const rows = c.req.query("rows");
+  const access = await validateTerminalAccess(containerId);
   let term: Terminal | null = null;
   let subprocess: Subprocess | null = null;
 
@@ -213,6 +218,15 @@ export const terminal = upgradeWebSocket((c) => {
 
   return {
     onOpen(_, ws) {
+      if (access.error) {
+        logger.warn(
+          { error: access.error, containerId },
+          "terminal access denied"
+        );
+        ws.close(1008, access.error.message);
+        return;
+      }
+
       const { data, error } = startTerminal(
         containerId,
         Number(cols) || 80,
