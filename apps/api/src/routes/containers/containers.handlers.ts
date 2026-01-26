@@ -199,6 +199,7 @@ export const terminal = upgradeWebSocket(async (c) => {
   const cols = c.req.query("cols");
   const rows = c.req.query("rows");
   const access = await validateTerminalAccess(containerId);
+  const MAX_WS_BUFFERED_AMOUNT = 1024 * 1024;
   let term: Terminal | null = null;
   let subprocess: Subprocess | null = null;
 
@@ -232,6 +233,19 @@ export const terminal = upgradeWebSocket(async (c) => {
         Number(cols) || 80,
         Number(rows) || 24,
         (_term, arrayBuffer) => {
+          if (ws.readyState !== 1) {
+            return;
+          }
+
+          const raw = ws.raw as { bufferedAmount?: number } | undefined;
+          if (
+            raw &&
+            typeof raw.bufferedAmount === "number" &&
+            raw.bufferedAmount > MAX_WS_BUFFERED_AMOUNT
+          ) {
+            return;
+          }
+
           ws.send(arrayBuffer);
         }
       );
@@ -257,7 +271,6 @@ export const terminal = upgradeWebSocket(async (c) => {
         return;
       }
 
-      logger.debug(event, "message from client");
       if (event.data.type === "input") {
         term.write(event.data.message);
       }
