@@ -27,11 +27,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   function onOpen() {
-    terminal.write("[connected]");
-  }
-
-  function onMessage(_: WebSocket, message: MessageEvent) {
-    terminal.write(message.data);
+    terminal.clear();
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to react to ref.current updates
@@ -42,6 +38,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       fitAddon.fit();
       terminal.open(ref.current);
       terminal.write(`Connecting to ${container.name}...`);
+      const dimensions = fitAddon.proposeDimensions();
 
       terminal.onData((data) => {
         if (socket) {
@@ -50,7 +47,7 @@ export default function TerminalDialog({ container, open, setOpen }: Props) {
       });
 
       socket = new WebSocket(
-        `http://paper.sh:9999/containers/${container.id}/terminal`
+        `http://paper.sh:9999/containers/${container.id}/terminal?cols=${dimensions?.cols || 80}&rows=${dimensions?.rows || 24}`
       );
     }
 
