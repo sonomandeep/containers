@@ -33,18 +33,29 @@ const eventSchema = z.object({
 });
 
 export async function parseEvent(input: WSMessageReceive) {
-  let event: unknown = null;
+  let payload: string | null = null;
 
   if (typeof input === "string") {
-    event = JSON.parse(input);
+    payload = input;
   }
 
   if (input instanceof Blob) {
-    event = JSON.parse(await input.text());
+    payload = await input.text();
   }
 
   if (input instanceof ArrayBuffer) {
-    event = new TextDecoder().decode(input);
+    payload = new TextDecoder().decode(input);
+  }
+
+  if (payload === null) {
+    return { data: null, error: "unsupported input type" };
+  }
+
+  let event: unknown;
+  try {
+    event = JSON.parse(payload);
+  } catch {
+    return { data: null, error: "invalid json" };
   }
 
   const validation = eventSchema.safeParse(event);
