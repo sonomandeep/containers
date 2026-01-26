@@ -238,7 +238,9 @@ export const terminal = upgradeWebSocket((c) => {
 
       const event = await parseEvent(e.data);
       if (event.error || event.data === null) {
-        throw new Error("handle validation error");
+        logger.warn({ error: event.error }, "invalid terminal event");
+        ws.close();
+        return;
       }
 
       logger.debug(event, "message from client");
