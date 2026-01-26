@@ -1,3 +1,4 @@
+import type { Terminal } from "bun";
 import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
@@ -10,6 +11,7 @@ import {
   stopContainer,
   updateContainerEnvs,
 } from "@/lib/services/containers.service";
+import { parseEvent, startTerminal } from "@/lib/services/terminal.service";
 import type { AppRouteHandler, AppSSEHandler } from "@/lib/types";
 import type {
   LaunchRoute,
@@ -21,8 +23,6 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
-import { parseEvent, startTerminal } from "@/lib/services/terminal.service";
-import type { Terminal } from "bun";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const containers = await listContainers();
@@ -196,21 +196,14 @@ export const terminal = upgradeWebSocket((c) => {
   const rows = c.req.query("rows");
   let term: Terminal | null;
 
-  function onData(_: Terminal, data: Uint8Array<ArrayBuffer>) {}
-
   return {
-    onOpen(event, ws) {
-      logger.debug(event, `new client: ${containerId}`);
+    onOpen(_, ws) {
       const { data, error } = startTerminal(
         containerId,
         Number(cols) || 80,
         Number(rows) || 24,
-        (_, data) => {
-          logger.debug(
-            { term, data: new TextDecoder("utf-8").decode(data) },
-            "new data from pty"
-          );
-          ws.send(data);
+        (_term, arrayBuffer) => {
+          ws.send(arrayBuffer);
         }
       );
 
@@ -222,9 +215,6 @@ export const terminal = upgradeWebSocket((c) => {
       term = data;
     },
     async onMessage(e, ws) {
-      // 1. parse message
-      // 2. execute message payload
-      // 3. echo message to client
       if (term === null) {
         return ws.close();
       }
@@ -239,8 +229,11 @@ export const terminal = upgradeWebSocket((c) => {
         term.write(event.data.message);
       }
     },
-    onClose: () => {
+    onClose() {
       logger.debug("Connection closed");
+    },
+    onError() {
+      logger.debug("error in ws");
     },
   };
 });

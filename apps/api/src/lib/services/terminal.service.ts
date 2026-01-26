@@ -1,4 +1,4 @@
-import { spawn, Terminal } from "bun";
+import { spawn, type Terminal } from "bun";
 import type { WSMessageReceive } from "hono/ws";
 import z from "zod";
 
@@ -11,8 +11,8 @@ export function startTerminal(
   try {
     const proc = spawn(["docker", "exec", "-it", container, "bash"], {
       terminal: {
-        cols: cols,
-        rows: rows,
+        cols,
+        rows,
         data: onData,
       },
     });
