@@ -1,38 +1,41 @@
 services:
-  db:
+  database:
     image: postgres:18.1-alpine3.23
-    container_name: containers_db
     restart: unless-stopped
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: containers
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_password
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     cpus: "1.0"
     mem_limit: "512m"
 
   api:
-    image: api
-    container_name: api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     env_file:
       - ./apps/api/.env.prod
     ports:
-      - "9999:80"
+      - "9999:9999"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - api_uploads:/data/uploads
     depends_on:
-      - db
+      - database
     cpus: "1.0"
     mem_limit: "512m"
 
   web:
-    image: web
-    container_name: web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     env_file:
       - ./apps/web/.env.prod
