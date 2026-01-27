@@ -19,23 +19,29 @@ Platform to monitor and manage OCI-compliant containers with a modern UI and a l
 
 ## Quick start (Docker Compose)
 
-1. Build images:
-
-```sh
-docker buildx build -f apps/api/Dockerfile -t api --load .
-docker buildx build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:9999 -t web --load .
-# Replace with the public URL where the API is reachable from the web container.
-```
-
-2. Create env files:
+1. Create env files:
 
 - `apps/api/.env.prod`
 - `apps/web/.env.prod`
 
-3. Run:
+2. (Optional) set `NEXT_PUBLIC_API_URL` for the web build.
+
+- Via shell:
 
 ```sh
-docker compose up -d
+export NEXT_PUBLIC_API_URL=http://localhost:9999
+```
+
+- Or create a root `.env` file:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:9999
+```
+
+3. Build and run:
+
+```sh
+NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:9999} docker compose up -d --build
 ```
 
 Web UI: http://localhost:3000  
@@ -56,7 +62,7 @@ Run:
 ```sh
 docker run \
   --env-file apps/api/.env.prod \
-  -p 9999:80 \
+  -p 9999:9999 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --name api \
   api
@@ -102,6 +108,8 @@ docker run \
 
 - `NODE_ENV` (default: `development`)
 - `NEXT_PUBLIC_API_URL`
+
+Note: `NEXT_PUBLIC_API_URL` is baked into the Next.js bundle at build time. When using Docker, pass it as a build arg or set it before `docker compose up -d --build`. It must be reachable from the browser (outside the Compose network), e.g. `http://localhost:9999`.
 
 ## Local development (no Docker)
 
