@@ -2,6 +2,8 @@ services:
   database:
     image: postgres:18.1-alpine3.23
     restart: unless-stopped
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: containers
       POSTGRES_USER: dev
@@ -19,7 +21,7 @@ services:
     env_file:
       - ./apps/api/.env.prod
     ports:
-      - "9999:80"
+      - "9999:9999"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - api_uploads:/data/uploads
@@ -33,12 +35,12 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://api:80
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     env_file:
       - ./apps/web/.env.prod
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - api
     cpus: "1.0"
