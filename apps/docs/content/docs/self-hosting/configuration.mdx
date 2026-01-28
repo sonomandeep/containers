@@ -1,0 +1,48 @@
+---
+title: Configuration
+description: Environment variables and core settings.
+---
+
+# Configuration
+
+Containers is configured via environment variables.
+
+## Web app (`apps/web/.env.prod`)
+
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Public URL of the API (used at build time). |
+
+> **Important:** `NEXT_PUBLIC_API_URL` is baked into the web build. Update it
+> before running `docker compose up -d --build`.
+
+## API (`apps/api/.env.prod`)
+
+| Variable | Description |
+| --- | --- |
+| `APP_URL` | Public URL of the web app (used for CORS and email callbacks). |
+| `UPLOAD_DIR` | Path to store uploaded files. |
+| `DATABASE_URL` | PostgreSQL connection string. |
+| `EMAIL_FROM` | Sender address for verification emails. |
+| `SMTP_HOST` | SMTP host. |
+| `SMTP_PORT` | SMTP port. |
+| `SMTP_SECURE` | `true` or `false`. |
+| `SMTP_USERNAME` | SMTP username. |
+| `SMTP_PASSWORD` | SMTP password. |
+| `AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED` | Enable cross-subdomain cookies. |
+| `AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN` | Cookie domain, must start with a dot. |
+
+## Cross-subdomain cookies
+
+If your web app and API are on different subdomains (e.g. `app.example.com` and
+`api.example.com`), enable cross-subdomain cookies:
+
+```
+AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED=true
+AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN=.example.com
+```
+
+## Uploads
+
+Uploads are served from the API at `/uploads`. If you need direct access, make
+sure your reverse proxy routes `/uploads` to the API service.

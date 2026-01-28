@@ -1,0 +1,25 @@
+---
+title: Storage
+description: Persist uploads and database data.
+---
+
+# Storage
+
+Docker Compose defines two persistent volumes:
+
+- `postgres_data` for PostgreSQL
+- `api_uploads` for uploaded files
+
+## Uploads
+
+Uploads are stored at the path defined by `UPLOAD_DIR` in the API container
+(default `/data/uploads`). This is backed by the `api_uploads` volume.
+
+## Backups
+
+To back up your data, snapshot both volumes:
+
+- PostgreSQL data (`postgres_data`)
+- Uploads (`api_uploads`)
+
+If you restore from backups, restart the stack after replacing the volumes.

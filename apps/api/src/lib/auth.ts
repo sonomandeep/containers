@@ -4,8 +4,7 @@ import { db } from "@/db";
 import env from "@/env";
 import { sendVerificationEmail } from "./services/auth.service";
 
-const crossSubDomainCookiesEnabled =
-  env.AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED;
+const crossSubDomainCookiesEnabled = env.AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED;
 const crossSubDomainCookiesDomain = env.AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN;
 
 export const auth = betterAuth({

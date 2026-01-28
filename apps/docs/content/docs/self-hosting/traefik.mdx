@@ -1,0 +1,31 @@
+---
+title: Traefik Routing
+description: How the reverse proxy routes the web app and API.
+---
+
+# Traefik Routing
+
+The Docker Compose setup uses Traefik to route traffic.
+
+## Host-based routing
+
+Two routers are defined via labels:
+
+- `api.example.com` → API service (port 9999)
+- `app.example.com` → Web app (port 3000)
+
+Update these hostnames in `docker-compose.yaml` to match your own domains.
+
+## Networks
+
+Both `api` and `web` services attach to the external `proxy` network so Traefik
+can reach them. Make sure the network exists:
+
+```sh
+docker network create proxy
+```
+
+## HTTPS/TLS
+
+TLS is not configured in the default compose file. For production, add HTTPS
+configuration (e.g. Let’s Encrypt) to Traefik.

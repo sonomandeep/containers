@@ -1,0 +1,77 @@
+---
+title: Docker Compose Quickstart
+description: Self-host Containers with a single docker-compose file.
+---
+
+# Docker Compose Quickstart
+
+This is the recommended way to self-host Containers.
+
+## 1) Prepare the proxy network
+
+The compose file expects an external Docker network named `proxy`:
+
+```sh
+docker network create proxy
+```
+
+## 2) Configure environment files
+
+Create these files:
+
+- `apps/api/.env.prod`
+- `apps/web/.env.prod`
+
+Also set a build-time variable for the web app:
+
+```sh
+export NEXT_PUBLIC_API_URL=http://api.example.com
+```
+
+### API environment (`apps/api/.env.prod`)
+
+Use your own values:
+
+```
+APP_URL=http://app.example.com
+UPLOAD_DIR=/data/uploads
+DATABASE_URL=postgres://dev:dev_password@database:5432/containers
+
+EMAIL_FROM="Containers <no-reply@example.com>"
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USERNAME=your_user
+SMTP_PASSWORD=your_password
+
+AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED=true
+AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN=.example.com
+```
+
+### Web environment (`apps/web/.env.prod`)
+
+```
+NEXT_PUBLIC_API_URL=http://api.example.com
+```
+
+## 3) Update hostnames in the compose file
+
+Replace the Traefik hostnames with your own:
+
+- `api.example.com`
+- `app.example.com`
+
+## 4) Start the stack
+
+```sh
+NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api.example.com} \
+  docker compose up -d --build
+```
+
+## 5) Verify
+
+- Open `http://app.example.com`
+- Open `http://api.example.com/reference` to see the API reference page
+
+> **Note on HTTPS/TLS:** The provided compose file exposes only HTTP on port 80.
+> For production, add TLS certificates and HTTPS configuration in Traefik.

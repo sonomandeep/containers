@@ -1,0 +1,16 @@
+{
+  "title": "Docs",
+  "pages": [
+    "---Overview---",
+    "index",
+    "quickstart",
+    "concepts",
+    "---Self-hosting---",
+    "self-hosting",
+    "operations",
+    "---Release & Troubleshooting---",
+    "release/known-limitations",
+    "troubleshooting/common-issues",
+    "troubleshooting/faq"
+  ]
+}

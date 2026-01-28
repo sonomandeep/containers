@@ -1,0 +1,25 @@
+---
+title: Upgrades
+description: Keep your deployment up to date.
+---
+
+# Upgrades
+
+When a new version is available, rebuild and restart the stack.
+
+## Upgrade steps
+
+```sh
+docker compose down
+docker compose up -d --build
+```
+
+## Database migrations
+
+If a release requires database migrations, follow the instructions in the
+release notes before starting the new version.
+
+## Rollbacks
+
+If an upgrade fails, return to the previous version by rebuilding with the
+older code and restarting the stack.

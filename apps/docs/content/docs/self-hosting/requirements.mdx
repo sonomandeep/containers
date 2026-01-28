@@ -1,0 +1,28 @@
+---
+title: Requirements
+description: What you need before self-hosting Containers.
+---
+
+# Requirements
+
+Before you deploy Containers, make sure you have:
+
+## Infrastructure
+
+- A Linux host with **Docker Engine** and **Docker Compose** installed.
+- Access to the Docker socket (`/var/run/docker.sock`).
+- At least 2 GB of RAM for a small install.
+
+## Services
+
+- **PostgreSQL** database
+- **SMTP** credentials for email verification
+
+## Networking
+
+- A domain or subdomains for the web app and API
+  (e.g. `app.example.com` and `api.example.com`)
+- Ability to open HTTP ports (80) on the host
+
+If you use Traefik (recommended in the Docker Compose setup), you also need an
+external Docker network called `proxy`.

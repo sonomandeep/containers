@@ -1,0 +1,28 @@
+---
+title: Backup and Restore
+description: Protect your data and recover quickly.
+---
+
+# Backup and Restore
+
+Containers data lives in two places:
+
+- PostgreSQL (`postgres_data` volume)
+- Uploads (`api_uploads` volume)
+
+## Backup
+
+To back up volumes, you can use `docker run` with a temporary container:
+
+```sh
+docker run --rm -v postgres_data:/data -v "$PWD":/backup alpine \
+  tar -czf /backup/postgres_data.tgz -C /data .
+
+docker run --rm -v api_uploads:/data -v "$PWD":/backup alpine \
+  tar -czf /backup/api_uploads.tgz -C /data .
+```
+
+## Restore
+
+Stop the stack, restore the archives into the volumes, then start the stack
+again.

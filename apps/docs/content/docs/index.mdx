@@ -1,0 +1,44 @@
+---
+title: Getting Started
+description: Monitor and manage OCI containers with a modern, self-hosted UI.
+---
+
+# Containers
+
+Containers is a self-hosted platform to monitor and manage OCI-compliant
+containers through a clean, fast interface. It connects to your Docker host,
+shows live container state and metrics, and lets you launch, stop, or remove
+containers without leaving the browser.
+
+## What you can do
+
+- Monitor containers and their status at a glance.
+- Launch new containers from existing images.
+- Start, stop, or restart workloads with one click.
+- Inspect images, pull new ones, and remove old ones.
+- Open a remote terminal for running containers.
+
+## Who it's for
+
+If you run containers on your own infrastructure and want a simple UI without
+handing control to a third party, Containers is built for you.
+
+## How it works
+
+Containers runs as a web app and an API service. The API talks to the Docker
+socket, while the web UI presents real-time state and actions. You host it
+yourself, so your data stays on your infrastructure.
+
+> **Work in progress:** Logs, volumes, and environment variable updates are
+> visible in the UI but not fully implemented yet.
+
+## Get started
+
+<Cards>
+  <Card title="Quickstart" href="/quickstart" />
+  <Card
+    title="Self-host with Docker Compose"
+    href="/self-hosting/quickstart-docker-compose"
+  />
+  <Card title="Concepts" href="/concepts" />
+</Cards>
