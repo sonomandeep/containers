@@ -3,12 +3,16 @@
   "pages": [
     "index",
     "---Product---",
-    "product",
+    "product/quickstart",
+    "product/authentication",
+    "product/containers",
+    "product/images",
     "---Self-hosting---",
     "self-hosting",
     "operations",
     "---Release & Troubleshooting---",
-    "release",
-    "troubleshooting"
+    "release/known-limitations",
+    "troubleshooting/common-issues",
+    "troubleshooting/faq"
   ]
 }
