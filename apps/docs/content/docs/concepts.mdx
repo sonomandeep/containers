@@ -1,0 +1,42 @@
+---
+title: Concepts
+description: Understand the main building blocks in Containers.
+---
+
+# Concepts
+
+This page explains the core building blocks you’ll see in Containers.
+
+## Containers
+
+A **container** is a running instance of an image. Containers can be started,
+stopped, restarted, and removed. Each container has a state (running, paused,
+exited, restarting, created).
+
+## Images
+
+An **image** is a packaged filesystem and runtime configuration. Images are used
+to create containers. You can pull new images from registries and remove images
+that are no longer needed.
+
+## States and status
+
+Containers uses Docker’s state to drive available actions:
+
+- **Running:** you can stop or restart.
+- **Paused:** you can start.
+- **Exited:** you can start or delete.
+- **Restarting:** actions are temporarily limited.
+
+## Metrics
+
+CPU and memory metrics are shown for running containers only. If a container is
+stopped, metrics appear as `-`.
+
+## Terminal
+
+The terminal opens a remote shell inside a running container. It requires the
+API to be reachable and WebSocket connections to be allowed by your network.
+
+> **Work in progress:** Logs, volumes, and environment variable updates are not
+> fully implemented yet.

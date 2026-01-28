@@ -1,0 +1,46 @@
+---
+title: Quickstart
+description: Self-host Containers in minutes.
+---
+
+# Quickstart
+
+This quickstart gets Containers running locally with Docker Compose.
+
+## 1) Prepare the host
+
+Make sure Docker Engine and Docker Compose are installed.
+
+## 2) Create the proxy network
+
+```sh
+docker network create proxy
+```
+
+## 3) Configure environment files
+
+Create:
+
+- `apps/api/.env.prod`
+- `apps/web/.env.prod`
+
+At minimum, set:
+
+- `APP_URL` (web app URL)
+- `NEXT_PUBLIC_API_URL` (API URL)
+- `DATABASE_URL`
+- SMTP credentials for email verification
+
+## 4) Start the stack
+
+```sh
+NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api.example.com} \
+  docker compose up -d --build
+```
+
+## 5) Verify
+
+Open the web app URL and make sure the UI loads.
+
+> For a complete setup guide (Traefik labels, storage, HTTPS/TLS),
+> see **Self-hosting → Docker Compose Quickstart**.

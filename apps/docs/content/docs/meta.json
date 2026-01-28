@@ -1,12 +1,10 @@
 {
   "title": "Containers",
   "pages": [
+    "---Overview---",
     "index",
-    "---Product---",
-    "product/quickstart",
-    "product/authentication",
-    "product/containers",
-    "product/images",
+    "quickstart",
+    "concepts",
     "---Self-hosting---",
     "self-hosting",
     "operations",
