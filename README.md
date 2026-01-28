@@ -103,6 +103,8 @@ docker run \
 - `SMTP_SECURE` (`true|false`)
 - `SMTP_USERNAME`
 - `SMTP_PASSWORD`
+- `AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED` (`true|false`, default: `false`)
+- `AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN` (required when enabled; must start with a dot, e.g. `.example.com`)
 
 ### Web (`apps/web/.env.prod`)
 
@@ -110,6 +112,17 @@ docker run \
 - `NEXT_PUBLIC_API_URL`
 
 Note: `NEXT_PUBLIC_API_URL` is baked into the Next.js bundle at build time. When using Docker, pass it as a build arg or set it before `docker compose up -d --build`. It must be reachable from the browser (outside the Compose network), e.g. `http://localhost:9999`.
+
+### Auth cross-subdomain cookies
+
+To share auth cookies across subdomains (e.g. `app.example.com` and `api.example.com`), set:
+
+```
+AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED=true
+AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN=.example.com
+```
+
+If disabled, no cross-subdomain cookie configuration is applied. When enabled, the domain must be a bare domain (no protocol) and start with a dot.
 
 ## Local development (no Docker)
 
