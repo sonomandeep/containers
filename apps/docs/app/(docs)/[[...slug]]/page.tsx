@@ -68,7 +68,7 @@ export async function generateMetadata(
     title: page.data.title,
     description: page.data.description,
     openGraph: {
-      images: getPageImage(page).url,
+      images: "/og.png",
     },
   };
 }
