@@ -5,7 +5,7 @@ const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  async rewrites() {
+  rewrites() {
     return [
       {
         source: "/:path*.mdx",
