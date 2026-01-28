@@ -12,7 +12,8 @@ export const metadata: Metadata = {
     default: "containers - mando.sh",
     template: "%s · containers - mando.sh",
   },
-  description: "Monitor and manage OCI containers with a modern, self-hosted UI.",
+  description:
+    "Monitor and manage OCI containers with a modern, self-hosted UI.",
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {

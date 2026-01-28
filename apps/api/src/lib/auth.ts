@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { deviceAuthorization } from "better-auth/plugins";
 import { db } from "@/db";
 import env from "@/env";
 import { sendVerificationEmail } from "./services/auth.service";
@@ -42,4 +43,9 @@ export const auth = betterAuth({
       });
     },
   },
+  plugins: [
+    deviceAuthorization({
+      verificationUri: "/device",
+    }),
+  ],
 });
