@@ -18,7 +18,7 @@ export async function GET(
   return new ImageResponse(
     <DefaultImage
       description={page.data.description}
-      site="My App"
+      site="containers"
       title={page.data.title}
     />,
     {
