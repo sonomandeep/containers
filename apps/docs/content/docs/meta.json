@@ -1,0 +1,14 @@
+{
+  "title": "Containers",
+  "pages": [
+    "index",
+    "---Product---",
+    "product",
+    "---Self-hosting---",
+    "self-hosting",
+    "operations",
+    "---Release & Troubleshooting---",
+    "release",
+    "troubleshooting"
+  ]
+}

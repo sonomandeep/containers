@@ -1,0 +1,33 @@
+---
+title: Security
+description: Recommended security practices for self-hosting.
+---
+
+# Security
+
+Containers runs with access to the Docker socket, so treat it as a privileged
+service.
+
+## HTTPS
+
+Always use HTTPS in production. Configure TLS in your reverse proxy (Traefik,
+Nginx, or similar).
+
+## Cookies and origins
+
+Set `APP_URL` to the web app URL so CORS and email callbacks work correctly. If
+you use multiple subdomains, enable cross-subdomain cookies:
+
+```
+AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED=true
+AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN=.example.com
+```
+
+## Network access
+
+Restrict access to the app and API to trusted networks where possible.
+
+## Docker socket
+
+The API requires `/var/run/docker.sock`. Anyone who can access the API can
+control Docker, so protect the API endpoint carefully.

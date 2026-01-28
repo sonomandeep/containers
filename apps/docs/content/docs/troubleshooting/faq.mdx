@@ -1,0 +1,23 @@
+---
+title: FAQ
+description: Frequently asked questions.
+---
+
+# FAQ
+
+## Can I run the API and web app on different subdomains?
+
+Yes. Use `app.example.com` for the web app and `api.example.com` for the API.
+Enable cross-subdomain cookies in the API configuration.
+
+## Do I need SMTP?
+
+Yes. Email verification is required, so SMTP must be configured.
+
+## Does Containers support Kubernetes?
+
+Not yet. The current documentation covers Docker Compose only.
+
+## Where are uploads stored?
+
+Uploads are stored in the `api_uploads` Docker volume.

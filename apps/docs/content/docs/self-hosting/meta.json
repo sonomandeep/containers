@@ -1,0 +1,11 @@
+{
+  "title": "Self-hosting",
+  "pages": [
+    "requirements",
+    "quickstart-docker-compose",
+    "configuration",
+    "traefik",
+    "storage",
+    "upgrades"
+  ]
+}

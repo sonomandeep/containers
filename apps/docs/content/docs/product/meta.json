@@ -1,0 +1,4 @@
+{
+  "title": "Product",
+  "pages": ["quickstart", "authentication", "containers", "images"]
+}

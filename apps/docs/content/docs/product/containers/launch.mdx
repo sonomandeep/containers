@@ -1,0 +1,61 @@
+---
+title: Launch a Container
+description: Use the 3-step wizard to create new containers.
+---
+
+# Launch a Container
+
+Click **Launch Container** to open the wizard. You will complete three steps:
+Basic, Config, and Summary.
+
+## Step 1: Basic
+
+**Name**  
+Unique container name. Letters, numbers, dots, dashes, and underscores are
+allowed. Must start with a letter or number.
+
+**Image**  
+Select an existing image from your host.
+
+**Command (optional)**  
+Override the default command (e.g. `node index.js`).
+
+**Restart Policy**  
+Choose how Docker restarts the container:
+
+- **No Policy**
+- **Always**
+- **On Failure**
+- **Unless Stopped**
+
+## Step 2: Config
+
+**CPU (optional)**  
+CPU cores, from `0.1` to `128`.
+
+**Memory (optional)**  
+Memory in MB (e.g. `512`).
+
+**Network (optional)**  
+Join a Docker network by name.
+
+> **Work in progress:** The network selector is currently empty. Leave this
+> field blank unless you know the network name and want to type it manually.
+
+**Environment variables (optional)**  
+Add key/value pairs. Keys must be unique and use valid variable names.
+
+**Ports (optional)**  
+Map host ports to container ports. Public ports must be unique.
+
+## Step 3: Summary
+
+Review the configuration and confirm. Containers will create and start the
+container immediately.
+
+## Common validation rules
+
+- Port values must be between `1` and `65535`.
+- Public ports cannot be duplicated.
+- Environment variable keys must be unique.
+- Port mappings are not allowed with the `host` network.

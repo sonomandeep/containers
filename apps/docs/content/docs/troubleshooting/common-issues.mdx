@@ -1,0 +1,38 @@
+---
+title: Common Issues
+description: Fix the most common problems quickly.
+---
+
+# Common Issues
+
+## I can’t sign in
+
+- Make sure your email is verified.
+- Check cross-subdomain cookies if `app.example.com` and `api.example.com` are
+  on different subdomains.
+- Verify `APP_URL` matches the web app URL.
+
+## The UI loads but data is empty
+
+- Verify `NEXT_PUBLIC_API_URL` points to the API.
+- Open `http://api.example.com/reference` to confirm the API is reachable.
+
+## Terminal does not connect
+
+- The container must be running.
+- Check if your proxy blocks WebSocket traffic.
+
+## Metrics do not update
+
+- Server-Sent Events (SSE) may be blocked by your proxy.
+- Confirm the API is reachable from the browser.
+
+## Image removal fails
+
+- Images cannot be removed while used by containers.
+- Stop and delete those containers, then retry.
+
+## Verification emails are not sent
+
+- Validate SMTP credentials in `apps/api/.env.prod`.
+- Confirm your SMTP provider allows the sender address in `EMAIL_FROM`.

@@ -1,0 +1,28 @@
+---
+title: Monitoring
+description: Observe health and troubleshoot live issues.
+---
+
+# Monitoring
+
+## Health checks
+
+- Web UI: `http://app.example.com`
+- API reference: `http://api.example.com/reference`
+
+If the API reference does not load, the API service is not reachable.
+
+## Metrics
+
+Container metrics refresh automatically. If metrics stop updating, check:
+
+- API connectivity
+- SSE support in your network/proxy
+
+## Logs
+
+The UI does not currently expose container logs. Use Docker CLI logs on the host:
+
+```sh
+docker logs <container_id>
+```
