@@ -3,52 +3,62 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"os"
 
 	"github.com/sonomandeep/containers/agent/internal/ui"
 	"github.com/spf13/viper"
 )
 
-func InitConfig() {
+func InitConfig() error {
 	viper.Reset()
 
 	configDir, err := getConfigDirPath()
 	if err != nil {
-		fmt.Printf("unable to resolve config directory: %s", err)
-		os.Exit(1)
+		return ui.Error{
+			Title:   "Unable to resolve config directory.",
+			Details: []string{err.Error()},
+			Cause:   err,
+		}
 	}
 
 	viper.SetConfigName(defaultConfigFileName)
 	viper.SetConfigType(defaultConfigFileType)
 	viper.AddConfigPath(configDir)
 
-	readConfig(getConfigFilePath(configDir))
+	return readConfig(getConfigFilePath(configDir))
 }
 
-func readConfig(filePath string) {
-	ui := ui.New()
-
+func readConfig(filePath string) error {
 	var notFound viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
 		if errors.As(err, &notFound) {
-			fmt.Println(ui.ErrorBox(
-				ui.ErrTitle.Render("Config file not found."),
-				ui.KV("Searched in", filePath),
-				"",
-				"Run "+ui.Emph.Render("agent init")+" to create a new config file.",
-			))
-			os.Exit(1)
+			return ui.Error{
+				Title: "Config file not found.",
+				Fields: []ui.Field{
+					{Label: "Searched in", Value: filePath},
+				},
+				Hints: []ui.Hint{
+					{
+						Prefix:  "Run ",
+						Command: "agent init",
+						Suffix:  " to create a new config file.",
+					},
+				},
+				Cause: err,
+			}
 		}
 
-		fmt.Println(ui.ErrorBox(
-			ui.ErrTitle.Render("Failed to read config file."),
-			ui.KV("Path", filePath),
-			"",
-			ui.Muted.Render(err.Error()),
-			"",
-			"Check permissions and YAML syntax.",
-		))
-		os.Exit(1)
+		return ui.Error{
+			Title: "Failed to read config file.",
+			Fields: []ui.Field{
+				{Label: "Path", Value: filePath},
+			},
+			Details: []string{err.Error()},
+			Hints: []ui.Hint{
+				{Text: "Check permissions and YAML syntax."},
+			},
+			Cause: err,
+		}
 	}
+
+	return nil
 }

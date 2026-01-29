@@ -30,15 +30,16 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	configFilePath := getConfigFilePath(configDirPath)
+
 	if err = os.MkdirAll(configDirPath, 0o755); err != nil {
-		return "", err
+		return configFilePath, err
 	}
 	cfg := NewConfig("https://api.paper.sh", "agent")
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
-		return "", err
+		return configFilePath, err
 	}
-	configFilePath := getConfigFilePath(configDirPath)
 
 	flags := os.O_RDWR | os.O_CREATE
 	if !overwrite {
@@ -49,12 +50,12 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 
 	file, err := os.OpenFile(configFilePath, flags, 0666)
 	if err != nil {
-		return "", err
+		return configFilePath, err
 	}
 	defer file.Close()
 
 	if _, err := file.Write(data); err != nil {
-		return "", err
+		return configFilePath, err
 	}
 
 	return configFilePath, nil
