@@ -1,4 +1,4 @@
-// Package config
+// Package config provides configuration loading and initialization.
 package config
 
 import (
