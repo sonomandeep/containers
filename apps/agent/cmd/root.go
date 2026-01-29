@@ -1,3 +1,4 @@
+// Package cmd contains the root command and subcommands for the CLI.
 package cmd
 
 import (
@@ -27,9 +28,6 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
 }
 
 func shouldSkipConfig(cmd *cobra.Command) bool {
