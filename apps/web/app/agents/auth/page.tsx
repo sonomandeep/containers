@@ -4,7 +4,7 @@ import {
   AuthCardHeader,
   AuthCardTitle,
 } from "@/components/auth/auth-card";
-import { DeviceVerificationForm } from "@/components/auth/device/form";
+import { DeviceVerificationForm } from "@/components/agents/auth/device-form";
 import { Logo } from "@/components/core/logo";
 
 export default function Page() {

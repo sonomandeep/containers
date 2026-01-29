@@ -214,15 +214,6 @@ export function DeviceVerificationForm() {
       </div>
 
       <div className="grid w-full grid-cols-2 gap-2">
-        <Button className="w-full" disabled={isBusy || isDone} type="submit">
-          Authorize
-          {action === "approve" ? (
-            <Spinner className="size-3 opacity-60" />
-          ) : (
-            <CheckIcon className="size-3 opacity-60" />
-          )}
-        </Button>
-
         <Button
           className="w-full"
           disabled={isBusy || isDone}
@@ -235,6 +226,15 @@ export function DeviceVerificationForm() {
             <Spinner className="size-3 opacity-60" />
           ) : (
             <XIcon className="size-3 opacity-60" />
+          )}
+        </Button>
+
+        <Button className="w-full" disabled={isBusy || isDone} type="submit">
+          Authorize
+          {action === "approve" ? (
+            <Spinner className="size-3 opacity-60" />
+          ) : (
+            <CheckIcon className="size-3 opacity-60" />
           )}
         </Button>
       </div>
