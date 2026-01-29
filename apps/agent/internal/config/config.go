@@ -5,22 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/sonomandeep/containers/agent/internal/ui"
 	"github.com/spf13/viper"
 )
 
-const (
-	defaultConfigDirName  = "mando.sh"
-	defaultConfigFileName = "config"
-	defaultConfigFileType = "yaml"
-)
-
 func InitConfig() {
 	viper.Reset()
 
-	configDir, err := getConfigDir()
+	configDir, err := getConfigDirPath()
 	if err != nil {
 		fmt.Printf("unable to resolve config directory: %s", err)
 		os.Exit(1)
@@ -30,7 +23,7 @@ func InitConfig() {
 	viper.SetConfigType(defaultConfigFileType)
 	viper.AddConfigPath(configDir)
 
-	readConfig(configFilePath(configDir))
+	readConfig(getConfigFilePath(configDir))
 }
 
 func readConfig(filePath string) {
@@ -58,19 +51,4 @@ func readConfig(filePath string) {
 		))
 		os.Exit(1)
 	}
-}
-
-func getConfigDir() (string, error) {
-	defaultDir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-
-	dir := filepath.Join(defaultDir, defaultConfigDirName)
-
-	return dir, nil
-}
-
-func configFilePath(configDir string) string {
-	return filepath.Join(configDir, defaultConfigFileName+"."+defaultConfigFileType)
 }
