@@ -43,6 +43,9 @@ func initConfig() {
 		if errors.As(err, &notFoundError) {
 			return
 		}
+		if errors.Is(err, os.ErrNotExist) {
+			return
+		}
 
 		fmt.Fprintln(os.Stderr, "Failed to read config:", err)
 		os.Exit(1)
@@ -69,6 +72,31 @@ func defaultConfigPath() (string, error) {
 	}
 
 	return filepath.Join(configDir, defaultConfigDirName, defaultConfigFileName), nil
+}
+
+func configFilePathForWrite() (string, error) {
+	if cfgFile != "" {
+		return cfgFile, nil
+	}
+
+	if configFile := viper.ConfigFileUsed(); configFile != "" {
+		return configFile, nil
+	}
+
+	return defaultConfigPath()
+}
+
+func ensureConfigDir(configPath string) error {
+	configDir := filepath.Dir(configPath)
+	if configDir == "." || configDir == "" {
+		return nil
+	}
+
+	if err := os.MkdirAll(configDir, 0o700); err != nil {
+		return fmt.Errorf("create config directory: %w", err)
+	}
+
+	return nil
 }
 
 func configFlagHelp() string {

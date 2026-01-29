@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -107,6 +108,10 @@ var authLoginCmd = &cobra.Command{
 
 		if token.AccessToken == "" {
 			return fmt.Errorf("authorization succeeded but no access token was returned")
+		}
+
+		if err := saveAuthCredentials(token); err != nil {
+			return fmt.Errorf("login succeeded, but failed to save credentials: %w", err)
 		}
 
 		cmd.Println(colorize("Login successful.", colorGreen, useColor))
@@ -306,6 +311,39 @@ func formatExpiresIn(seconds int) string {
 	}
 
 	return (time.Duration(seconds) * time.Second).String()
+}
+
+func saveAuthCredentials(token deviceTokenResponse) error {
+	configPath, err := configFilePathForWrite()
+	if err != nil {
+		return err
+	}
+
+	if err := ensureConfigDir(configPath); err != nil {
+		return err
+	}
+
+	viper.Set("auth.token", token.AccessToken)
+	if token.RefreshToken != "" {
+		viper.Set("auth.refresh_token", token.RefreshToken)
+	}
+	if token.TokenType != "" {
+		viper.Set("auth.token_type", token.TokenType)
+	}
+	if token.ExpiresIn > 0 {
+		expiresAt := time.Now().Add(time.Duration(token.ExpiresIn) * time.Second).UTC()
+		viper.Set("auth.expires_at", expiresAt.Format(time.RFC3339))
+	}
+
+	if err := viper.WriteConfigAs(configPath); err != nil {
+		return fmt.Errorf("write config: %w", err)
+	}
+
+	if err := os.Chmod(configPath, 0o600); err != nil && runtime.GOOS != "windows" {
+		return fmt.Errorf("set config permissions: %w", err)
+	}
+
+	return nil
 }
 
 var (
