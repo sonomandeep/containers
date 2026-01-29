@@ -1,10 +1,11 @@
+import { DeviceVerificationForm } from "@/components/agents/auth/device-form";
 import {
   AuthCard,
   AuthCardContent,
+  AuthCardDescription,
   AuthCardHeader,
   AuthCardTitle,
 } from "@/components/auth/auth-card";
-import { DeviceVerificationForm } from "@/components/agents/auth/device-form";
 import { Logo } from "@/components/core/logo";
 
 export default function Page() {
@@ -16,6 +17,9 @@ export default function Page() {
             <Logo size={24} />
             <AuthCardTitle>Device Verification</AuthCardTitle>
           </div>
+          <AuthCardDescription>
+            Approve this device to continue in your terminal.
+          </AuthCardDescription>
         </AuthCardHeader>
 
         <DeviceVerificationForm />
