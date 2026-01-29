@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -21,8 +22,6 @@ const (
 	defaultScope    = ""
 	defaultTimeout  = 10 * time.Second
 )
-
-var authLoginAuthURL string
 
 type deviceCodeRequest struct {
 	ClientID string `json:"client_id"`
@@ -64,7 +63,15 @@ var authLoginCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		useColor := shouldUseColor()
-		response, err := requestDeviceCode(authLoginAuthURL, defaultClientID, defaultScope, defaultTimeout)
+		authURL := strings.TrimSpace(viper.GetString("auth.url"))
+		clientID := strings.TrimSpace(viper.GetString("auth.client_id"))
+		scope := viper.GetString("auth.scope")
+		timeout := viper.GetDuration("auth.timeout")
+		if timeout <= 0 {
+			timeout = defaultTimeout
+		}
+
+		response, err := requestDeviceCode(authURL, clientID, scope, timeout)
 		if err != nil {
 			return err
 		}
@@ -92,7 +99,7 @@ var authLoginCmd = &cobra.Command{
 		}
 
 		stopSpinner := startSpinner(cmd.OutOrStdout(), waitingMessage, useColor)
-		token, err := pollForDeviceToken(authLoginAuthURL, defaultClientID, response.DeviceCode, response.Interval, response.ExpiresIn, defaultTimeout)
+		token, err := pollForDeviceToken(authURL, clientID, response.DeviceCode, response.Interval, response.ExpiresIn, timeout)
 		stopSpinner()
 		if err != nil {
 			return formatLoginError(err)
@@ -109,7 +116,10 @@ var authLoginCmd = &cobra.Command{
 }
 
 func init() {
-	authLoginCmd.Flags().StringVar(&authLoginAuthURL, "auth-url", defaultAuthURL, "Base URL for the auth API")
+	authLoginCmd.Flags().String("auth-url", defaultAuthURL, "Base URL for the auth API")
+	if err := viper.BindPFlag("auth.url", authLoginCmd.Flags().Lookup("auth-url")); err != nil {
+		panic(err)
+	}
 	authCmd.AddCommand(authLoginCmd)
 }
 

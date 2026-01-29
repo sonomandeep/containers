@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,6 +24,9 @@ func init() {
 }
 
 func initConfig() {
+	setDefaults()
+	enableEnvOverrides()
+
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
@@ -43,6 +47,19 @@ func initConfig() {
 		fmt.Fprintln(os.Stderr, "Failed to read config:", err)
 		os.Exit(1)
 	}
+}
+
+func setDefaults() {
+	viper.SetDefault("auth.url", defaultAuthURL)
+	viper.SetDefault("auth.client_id", defaultClientID)
+	viper.SetDefault("auth.scope", defaultScope)
+	viper.SetDefault("auth.timeout", defaultTimeout)
+}
+
+func enableEnvOverrides() {
+	viper.SetEnvPrefix("containers")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
 }
 
 func defaultConfigPath() (string, error) {
