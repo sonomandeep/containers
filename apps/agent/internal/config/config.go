@@ -4,7 +4,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -17,30 +16,39 @@ const (
 	defaultConfigFileType = "yaml"
 )
 
-func InitConfig() {
+func InitConfig() error {
+	viper.Reset()
+
 	configDir, err := getConfigDir()
 	if err != nil {
-		log.Fatalf("error reading default dir path: %s", err)
+		return fmt.Errorf("unable to resolve config directory: %w", err)
 	}
 
 	viper.SetConfigName(defaultConfigFileName)
 	viper.SetConfigType(defaultConfigFileType)
 	viper.AddConfigPath(configDir)
 
-	readConfig()
+	return readConfig(configFilePath(configDir))
 }
 
-func readConfig() {
+func readConfig(filePath string) error {
 	var fileLookupError viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
 		if errors.As(err, &fileLookupError) {
-			fmt.Fprintln(os.Stderr, "config file not found")
-			os.Exit(1)
-		} else {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
+			return fmt.Errorf(
+				"config file not found at %s. You likely haven't run `agent init` yet",
+				filePath,
+			)
 		}
+
+		return fmt.Errorf(
+			"failed to read config file at %s: %w. Check permissions and YAML syntax",
+			filePath,
+			err,
+		)
 	}
+
+	return nil
 }
 
 func getConfigDir() (string, error) {
@@ -52,4 +60,8 @@ func getConfigDir() (string, error) {
 	dir := filepath.Join(defaultDir, defaultConfigDirName)
 
 	return dir, nil
+}
+
+func configFilePath(configDir string) string {
+	return filepath.Join(configDir, defaultConfigFileName+"."+defaultConfigFileType)
 }
