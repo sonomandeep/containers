@@ -135,7 +135,7 @@ export function DeviceVerificationForm() {
 
   if (isSessionPending) {
     return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-muted-foreground text-xs">
         <Spinner className="size-3" />
         Checking your session...
       </div>
@@ -144,7 +144,7 @@ export function DeviceVerificationForm() {
 
   if (!session) {
     return (
-      <div className="text-xs text-muted-foreground">
+      <div className="text-muted-foreground text-xs">
         Redirecting to login...
       </div>
     );
