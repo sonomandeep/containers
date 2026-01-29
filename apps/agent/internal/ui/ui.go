@@ -10,22 +10,24 @@ import (
 )
 
 type UI struct {
-	Box      lipgloss.Style
-	ErrTitle lipgloss.Style
-	Label    lipgloss.Style
-	Value    lipgloss.Style
-	Emph     lipgloss.Style
-	Muted    lipgloss.Style
+	Box       lipgloss.Style
+	InfoTitle lipgloss.Style
+	ErrTitle  lipgloss.Style
+	Label     lipgloss.Style
+	Value     lipgloss.Style
+	Emph      lipgloss.Style
+	Muted     lipgloss.Style
 }
 
 func New() UI {
 	return UI{
-		Box:      lipgloss.NewStyle().Padding(1, 0),
-		ErrTitle: lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true),
-		Label:    lipgloss.NewStyle().Foreground(lipgloss.Color("244")),
-		Value:    lipgloss.NewStyle().Foreground(lipgloss.Color("252")),
-		Emph:     lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true),
-		Muted:    lipgloss.NewStyle().Foreground(lipgloss.Color("241")),
+		Box:       lipgloss.NewStyle().Padding(1, 0),
+		InfoTitle: lipgloss.NewStyle().Foreground(lipgloss.Color("12")).Bold(true),
+		ErrTitle:  lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true),
+		Label:     lipgloss.NewStyle().Foreground(lipgloss.Color("244")),
+		Value:     lipgloss.NewStyle().Foreground(lipgloss.Color("252")),
+		Emph:      lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true),
+		Muted:     lipgloss.NewStyle().Foreground(lipgloss.Color("241")),
 	}
 }
 
@@ -34,6 +36,10 @@ func (ui UI) KV(k, v string) string {
 }
 
 func (ui UI) ErrorBox(lines ...string) string {
+	return ui.Box.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+}
+
+func (ui UI) InfoBox(lines ...string) string {
 	return ui.Box.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
 }
 
