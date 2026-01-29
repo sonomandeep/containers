@@ -12,7 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -25,10 +25,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
 
 const deviceVerificationSchema = z.object({
-  userCode: z
-    .string()
-    .trim()
-    .min(1, "Enter the code from your terminal."),
+  userCode: z.string().trim().min(1, "Enter the code from your terminal."),
 });
 
 type DeviceVerificationInput = z.infer<typeof deviceVerificationSchema>;
@@ -50,10 +47,7 @@ export function DeviceVerificationForm() {
     () => searchParams.get("user_code") ?? "",
     [searchParams]
   );
-  const queryString = useMemo(
-    () => searchParams.toString(),
-    [searchParams]
-  );
+  const queryString = useMemo(() => searchParams.toString(), [searchParams]);
 
   const form = useForm<DeviceVerificationInput>({
     resolver: zodResolver(deviceVerificationSchema),
@@ -76,10 +70,10 @@ export function DeviceVerificationForm() {
     }
 
     if (!session) {
-      const callbackUrl = queryString
-        ? `${pathname}?${queryString}`
-        : pathname;
-      router.replace(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      const callbackUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(
+        `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+      );
     }
   }, [isSessionPending, pathname, queryString, router, session]);
 
@@ -182,9 +176,8 @@ export function DeviceVerificationForm() {
           <Alert variant="destructive">
             <div className="inline-flex items-center gap-2">
               <AlertCircleIcon className="size-3" />
-              <AlertTitle>Unable to authorize device</AlertTitle>
+              <AlertTitle>{requestError}</AlertTitle>
             </div>
-            <AlertDescription>{requestError}</AlertDescription>
           </Alert>
         )}
 
@@ -194,21 +187,15 @@ export function DeviceVerificationForm() {
               <BadgeCheck className="size-3" />
               <AlertTitle>Device approved</AlertTitle>
             </div>
-            <AlertDescription>
-              Device approved. You can return to your terminal.
-            </AlertDescription>
           </Alert>
         )}
 
         {result === "denied" && (
-          <Alert variant="warning">
+          <Alert variant="destructive">
             <div className="inline-flex items-center gap-2">
               <AlertTriangleIcon className="size-3" />
               <AlertTitle>Device denied</AlertTitle>
             </div>
-            <AlertDescription>
-              Device denied. You can close this tab.
-            </AlertDescription>
           </Alert>
         )}
       </div>
