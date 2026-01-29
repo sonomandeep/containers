@@ -15,7 +15,7 @@ This command is safe to run multiple times and will not overwrite an existing fi
 	Args:         cobra.NoArgs,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := config.WriteDefaultConfig(true)
+		err := config.WriteDefaultConfig(false)
 		if err != nil {
 			return err
 		}
