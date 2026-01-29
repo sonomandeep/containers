@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	cobra.OnInitialize(func() {
-		cobra.CheckErr(config.InitConfig())
-	})
+	cobra.OnInitialize(config.InitConfig)
 
 	cmd.Execute()
 }

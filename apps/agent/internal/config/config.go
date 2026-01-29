@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
 )
 
@@ -16,39 +17,76 @@ const (
 	defaultConfigFileType = "yaml"
 )
 
-func InitConfig() error {
+func InitConfig() {
 	viper.Reset()
 
 	configDir, err := getConfigDir()
 	if err != nil {
-		return fmt.Errorf("unable to resolve config directory: %w", err)
+		fmt.Printf("unable to resolve config directory: %s", err)
+		os.Exit(1)
 	}
 
 	viper.SetConfigName(defaultConfigFileName)
 	viper.SetConfigType(defaultConfigFileType)
 	viper.AddConfigPath(configDir)
 
-	return readConfig(configFilePath(configDir))
+	readConfig(configFilePath(configDir))
 }
 
-func readConfig(filePath string) error {
+func readConfig(filePath string) {
+	containerStyle := lipgloss.NewStyle().Padding(1, 0)
+
+	cmdStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("12")).
+		Bold(true)
+
+	errorStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("9")).
+		Bold(true)
+
+	pathStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("244")).
+		Italic(true)
+
+	detailStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("241"))
+
 	var fileLookupError viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
 		if errors.As(err, &fileLookupError) {
-			return fmt.Errorf(
-				"config file not found at %s. You likely haven't run `agent init` yet",
-				filePath,
+			message := lipgloss.JoinVertical(
+				lipgloss.Left,
+
+				errorStyle.Render("Config file not found."),
+				pathStyle.Render("Searched in: "+filePath),
+				"",
+				fmt.Sprintf(
+					"Run %s to create a new config file.",
+					cmdStyle.Render("agent init"),
+				),
 			)
+
+			fmt.Println(containerStyle.Render(message))
+
+			os.Exit(1)
 		}
 
-		return fmt.Errorf(
-			"failed to read config file at %s: %w. Check permissions and YAML syntax",
-			filePath,
-			err,
-		)
-	}
+		message := lipgloss.JoinVertical(
+			lipgloss.Left,
 
-	return nil
+			errorStyle.Render("Failed to read config file."),
+			pathStyle.Render("Path: "+filePath),
+			"",
+			detailStyle.Render(err.Error()),
+			"",
+			"Check permissions and YAML syntax.",
+		)
+
+		fmt.Println(containerStyle.Render(message))
+
+		os.Exit(1)
+
+	}
 }
 
 func getConfigDir() (string, error) {
