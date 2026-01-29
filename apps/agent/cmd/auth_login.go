@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -23,6 +24,8 @@ const (
 	defaultScope    = ""
 	defaultTimeout  = 10 * time.Second
 )
+
+var authLoginForce bool
 
 type deviceCodeRequest struct {
 	ClientID string `json:"client_id"`
@@ -64,6 +67,13 @@ var authLoginCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		useColor := shouldUseColor()
+		if !authLoginForce && hasStoredCredentials() {
+			if !confirmOverwrite(cmd, useColor) {
+				cmd.Println(colorize("Login aborted.", colorDim, useColor))
+				return nil
+			}
+		}
+
 		authURL := strings.TrimSpace(viper.GetString("auth.url"))
 		clientID := strings.TrimSpace(viper.GetString("auth.client_id"))
 		scope := viper.GetString("auth.scope")
@@ -122,6 +132,7 @@ var authLoginCmd = &cobra.Command{
 
 func init() {
 	authLoginCmd.Flags().String("auth-url", defaultAuthURL, "Base URL for the auth API")
+	authLoginCmd.Flags().BoolVar(&authLoginForce, "force", false, "Skip the login confirmation prompt")
 	if err := viper.BindPFlag("auth.url", authLoginCmd.Flags().Lookup("auth-url")); err != nil {
 		panic(err)
 	}
@@ -311,6 +322,27 @@ func formatExpiresIn(seconds int) string {
 	}
 
 	return (time.Duration(seconds) * time.Second).String()
+}
+
+func hasStoredCredentials() bool {
+	return strings.TrimSpace(viper.GetString("auth.token")) != "" ||
+		strings.TrimSpace(viper.GetString("auth.refresh_token")) != "" ||
+		strings.TrimSpace(viper.GetString("auth.token_type")) != "" ||
+		strings.TrimSpace(viper.GetString("auth.expires_at")) != ""
+}
+
+func confirmOverwrite(cmd *cobra.Command, useColor bool) bool {
+	cmd.Println(colorize("You are already logged in.", colorDim, useColor))
+	cmd.Print("Continue and overwrite saved credentials? [y/N]: ")
+
+	reader := bufio.NewReader(cmd.InOrStdin())
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+
+	answer := strings.ToLower(strings.TrimSpace(input))
+	return answer == "y" || answer == "yes"
 }
 
 func saveAuthCredentials(token deviceTokenResponse) error {
