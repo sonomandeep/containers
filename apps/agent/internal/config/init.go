@@ -33,25 +33,30 @@ func WriteDefaultConfig(overwrite bool) error {
 	if err = os.MkdirAll(configDirPath, 0o755); err != nil {
 		return err
 	}
-
 	cfg := NewConfig("https://api.paper.sh", "agent")
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
-
 	configFilePath := getConfigFilePath(configDirPath)
 
-	file, err := createConfigFileIfNotExists(configFilePath)
+	flags := os.O_RDWR | os.O_CREATE
+	if !overwrite {
+		flags |= os.O_EXCL
+	} else {
+		flags |= os.O_TRUNC
+	}
+
+	file, err := os.OpenFile(configFilePath, flags, 0666)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	if _, err := file.Write(data); err != nil {
 		return err
 	}
 
-	defer file.Close()
 	return nil
 }
 
@@ -68,15 +73,6 @@ func getConfigDirPath() (string, error) {
 
 func getConfigFilePath(configDirPath string) string {
 	return filepath.Join(configDirPath, defaultConfigFileName+"."+defaultConfigFileType)
-}
-
-func createConfigFileIfNotExists(path string) (*os.File, error) {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
-	}
-
-	return file, nil
 }
 
 // func WriteDefaultConfig() (string, bool, error) {
