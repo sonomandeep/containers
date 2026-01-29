@@ -45,7 +45,7 @@ export const auth = betterAuth({
   },
   plugins: [
     deviceAuthorization({
-      verificationUri: "/device",
+      verificationUri: new URL("/agents/auth", env.APP_URL).toString(),
       expiresIn: "3m",
     }),
   ],
