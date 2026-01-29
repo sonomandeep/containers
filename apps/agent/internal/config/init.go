@@ -3,6 +3,8 @@ package config
 import (
 	"os"
 	"path/filepath"
+
+	"go.yaml.in/yaml/v3"
 )
 
 const (
@@ -10,6 +12,18 @@ const (
 	defaultConfigFileName = "config"
 	defaultConfigFileType = "yaml"
 )
+
+type Config struct {
+	APIURL   string `yaml:"api_url"`
+	ClientID string `yaml:"client_id"`
+}
+
+func NewConfig(apiURL string, clientID string) *Config {
+	return &Config{
+		APIURL:   apiURL,
+		ClientID: clientID,
+	}
+}
 
 func WriteDefaultConfig(overwrite bool) error {
 	configDirPath, err := getConfigDirPath()
@@ -20,6 +34,12 @@ func WriteDefaultConfig(overwrite bool) error {
 		return err
 	}
 
+	cfg := NewConfig("https://api.paper.sh", "agent")
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
 	configFilePath := getConfigFilePath(configDirPath)
 
 	file, err := createConfigFileIfNotExists(configFilePath)
@@ -27,7 +47,7 @@ func WriteDefaultConfig(overwrite bool) error {
 		return err
 	}
 
-	if _, err := file.WriteString("test"); err != nil {
+	if _, err := file.Write(data); err != nil {
 		return err
 	}
 
