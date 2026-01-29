@@ -10,7 +10,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!(session || pathname.startsWith("/auth"))) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    const redirectUrl = new URL("/auth/login", request.url);
+    const callbackUrl = `${pathname}${request.nextUrl.search}`;
+    redirectUrl.searchParams.set("callbackUrl", callbackUrl);
+    return NextResponse.redirect(redirectUrl);
   }
 
   return NextResponse.next();

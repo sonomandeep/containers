@@ -7,7 +7,9 @@
     "start": "bun run dist/index.js",
     "test": "LOG_LEVEL=silent bun test",
     "test:coverage": "LOG_LEVEL=silent bun test --coverage",
-    "test:watch": "LOG_LEVEL=silent bun test --watch"
+    "test:watch": "LOG_LEVEL=silent bun test --watch",
+    "database:generate": "drizzle-kit generate",
+    "database:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@containers/shared": "workspace:*",
