@@ -15,7 +15,12 @@ This command is safe to run multiple times and will not overwrite an existing fi
 	Args:         cobra.NoArgs,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := config.WriteDefaultConfig(false)
+		overwrite, err := cmd.Flags().GetBool("overwrite")
+		if err != nil {
+			return nil
+		}
+
+		path, err := config.WriteDefaultConfig(overwrite)
 		if err != nil {
 			return err
 		}
@@ -33,5 +38,12 @@ This command is safe to run multiple times and will not overwrite an existing fi
 }
 
 func init() {
+	initCmd.Flags().BoolP(
+		"overwrite",
+		"o",
+		false,
+		"Overwrite existing config",
+	)
+
 	rootCmd.AddCommand(initCmd)
 }
