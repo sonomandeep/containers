@@ -60,6 +60,10 @@ func GetAuthStatus() (bool, error) {
 	return true, nil
 }
 
+func GetLoginCode() (string, string, error) {
+	return "https://app.paper.sh/agents/auth", "01234567", nil
+}
+
 func getAuthFilePath() (string, error) {
 	configDir, err := config.GetConfigDirPath()
 	if err != nil {
