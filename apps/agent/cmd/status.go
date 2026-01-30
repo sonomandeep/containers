@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/sonomandeep/containers/agent/internal/auth"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,12 @@ var statusCmd = &cobra.Command{
 
 Use this to verify whether you are logged in and which account is active.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
+		isLogged, err := auth.GetAuthStatus()
+		if err != nil {
+			fmt.Println("Error checking auth status:", err)
+		}
+
+		fmt.Println("Auth status:", isLogged)
 	},
 }
 
