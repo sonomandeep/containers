@@ -35,12 +35,8 @@ func Execute() {
 			os.Exit(1)
 		}
 
-		fmt.Println(uiKit.RenderError(ui.Error{
-			Title:   "Something went wrong.",
-			Details: []string{err.Error()},
-			Cause:   err,
-		}))
-		os.Exit(1)
+		fmt.Fprintln(os.Stderr, "error:", err)
+		os.Exit(2)
 	}
 }
 

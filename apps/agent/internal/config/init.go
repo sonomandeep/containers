@@ -11,22 +11,12 @@ const (
 	defaultConfigDirName  = "mando.sh"
 	defaultConfigFileName = "config"
 	defaultConfigFileType = "yaml"
+	defaultApiUrl = "https://api.paper.sh"
+	defaultAgentId = "agent"
 )
 
-type Config struct {
-	APIURL   string `yaml:"api_url"`
-	ClientID string `yaml:"client_id"`
-}
-
-func NewConfig(apiURL string, clientID string) *Config {
-	return &Config{
-		APIURL:   apiURL,
-		ClientID: clientID,
-	}
-}
-
 func WriteDefaultConfig(overwrite bool) (string, error) {
-	configDirPath, err := getConfigDirPath()
+	configDirPath, err := GetConfigDirPath()
 	if err != nil {
 		return "", err
 	}
@@ -35,7 +25,7 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 	if err = os.MkdirAll(configDirPath, 0o755); err != nil {
 		return configFilePath, err
 	}
-	cfg := NewConfig("https://api.paper.sh", "agent")
+	cfg := New(defaultApiUrl, defaultAgentId)
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return configFilePath, err
@@ -61,7 +51,7 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 	return configFilePath, nil
 }
 
-func getConfigDirPath() (string, error) {
+func GetConfigDirPath() (string, error) {
 	defaultDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
