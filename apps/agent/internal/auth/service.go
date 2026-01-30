@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,10 +88,17 @@ func (a auth) validate() error {
 
 func (a auth) getSession() (bool, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
+	u, err := url.Parse(config.Get().APIURL)
+	if err != nil {
+		return false, err
+	}
+
+	u.Path = "/api/auth/get-session"
+	getSessionUrl := u.String()
 
 	req, err := http.NewRequest(
 		"GET",
-		"http://paper.sh:9999/api/auth/get-session",
+		getSessionUrl,
 		nil,
 	)
 	if err != nil {

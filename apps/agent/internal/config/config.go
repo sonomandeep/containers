@@ -8,6 +8,25 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Config struct {
+	APIURL   string `yaml:"api_url"`
+	ClientID string `yaml:"client_id"`
+}
+
+func New(apiURL string, clientID string) *Config {
+	return &Config{
+		APIURL:   apiURL,
+		ClientID: clientID,
+	}
+}
+
+func Get() *Config {
+	return &Config{
+		APIURL:   viper.GetString("api_url"),
+		ClientID: viper.GetString("client_id"),
+	}
+}
+
 func InitConfig() error {
 	viper.Reset()
 
