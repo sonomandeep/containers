@@ -59,7 +59,10 @@ func GetAuthStatus() (bool, error) {
 		return false, err
 	}
 	if !isValid {
-		// TODO: remove auth file
+		if err := deleteAuthFile(path); err != nil {
+			return false, err
+		}
+
 		return false, nil
 	}
 
@@ -75,6 +78,10 @@ func getAuthFilePath() (string, error) {
 	path := filepath.Join(configDir, "auth.yaml")
 
 	return path, nil
+}
+
+func deleteAuthFile(path string) error {
+	return os.Remove(path)
 }
 
 func (a auth) validate() error {
@@ -118,7 +125,7 @@ func (a auth) getSession() (bool, error) {
 	}
 
 	if strings.TrimSpace(string(body)) == "null" {
-		return false, errors.New("sessione non valida")
+		return false, nil
 	}
 
 	var tmp map[string]any
