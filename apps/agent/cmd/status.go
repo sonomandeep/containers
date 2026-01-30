@@ -8,13 +8,10 @@ import (
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Show authentication status",
+	Long: `Show the current authentication status for the agent.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Use this to verify whether you are logged in and which account is active.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called")
 	},
