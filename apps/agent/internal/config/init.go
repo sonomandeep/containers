@@ -26,7 +26,7 @@ func NewConfig(apiURL string, clientID string) *Config {
 }
 
 func WriteDefaultConfig(overwrite bool) (string, error) {
-	configDirPath, err := getConfigDirPath()
+	configDirPath, err := GetConfigDirPath()
 	if err != nil {
 		return "", err
 	}
@@ -61,7 +61,7 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 	return configFilePath, nil
 }
 
-func getConfigDirPath() (string, error) {
+func GetConfigDirPath() (string, error) {
 	defaultDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err

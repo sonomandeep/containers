@@ -11,7 +11,7 @@ import (
 func InitConfig() error {
 	viper.Reset()
 
-	configDir, err := getConfigDirPath()
+	configDir, err := GetConfigDirPath()
 	if err != nil {
 		return ui.Error{
 			Title:   "Unable to resolve config directory.",
