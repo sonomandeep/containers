@@ -5,9 +5,20 @@ package ui
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 )
+
+var output = termenv.NewOutput(os.Stdout)
+
+func Command(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("6")).
+		Bold().
+		String()
+}
 
 type UI struct {
 	Box       lipgloss.Style
