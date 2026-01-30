@@ -22,13 +22,6 @@ type auth struct {
 }
 
 func GetAuthStatus() (bool, error) {
-	// [x] 1. leggere il file di auth
-	// [x] 2. se non presente uscire con false
-	// [x] 3. se errore uscire con errore
-	// [ ] 4. se presente il file controllare la validita del token
-	// [ ] 5. se valido ritorno true
-	// [ ] 6. se non valido cancello e ritorno false
-
 	path, err := getAuthFilePath()
 	if err != nil {
 		return false, err
