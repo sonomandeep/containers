@@ -51,9 +51,6 @@ func GetAuthStatus() (bool, error) {
 		return false, err
 	}
 
-	fmt.Println("token:", auth.Token)
-	fmt.Println("expires in:", auth.ExpiresIn)
-
 	isValid, err := auth.getSession()
 	if err != nil {
 		return false, err
