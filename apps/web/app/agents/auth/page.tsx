@@ -10,7 +10,7 @@ import { Logo } from "@/components/core/logo";
 
 export default function Page() {
   return (
-    <AuthCard>
+    <AuthCard className="pb-2">
       <AuthCardContent>
         <AuthCardHeader>
           <div className="inline-flex w-full items-center gap-2">
