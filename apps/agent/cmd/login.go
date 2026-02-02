@@ -1,18 +1,21 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	urlpkg "net/url"
 	"os"
 
 	"github.com/sonomandeep/containers/agent/internal/auth"
+	"github.com/sonomandeep/containers/agent/internal/ui"
 	"github.com/spf13/cobra"
+	"github.com/yarlson/pin"
 )
 
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Sign in to the agent",
-	Long: `Sign in to the agent with your account using device authorization.`,
+	Long:  `Sign in to the agent with your account using device authorization.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		deviceCode, err := auth.GetLoginCode()
 		if err != nil {
@@ -41,7 +44,14 @@ var loginCmd = &cobra.Command{
 		fmt.Fprintln(os.Stderr, "Open: "+loginURL)
 		fmt.Fprintln(os.Stderr, "Code: "+deviceCode.UserCode)
 		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "Waiting for authorization...")
+		spinnerMessage := ui.Muted("Waiting for confirmation...")
+		spinner := pin.New(
+			spinnerMessage,
+			pin.WithSpinnerColor(pin.ColorGray),
+			pin.WithWriter(os.Stderr),
+		)
+		cancel := spinner.Start(context.Background())
+		defer cancel()
 
 		_, err = auth.PollDeviceToken(
 			deviceCode.DeviceCode,
@@ -52,7 +62,7 @@ var loginCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Fprintln(os.Stderr, "Logged in successfully.")
+		spinner.Stop("Logged in successfully.")
 
 		return nil
 	},
