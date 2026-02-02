@@ -107,6 +107,22 @@ func GetAuthStatus() (bool, error) {
 	return true, nil
 }
 
+func Logout() (bool, error) {
+	path, err := getAuthFilePath()
+	if err != nil {
+		return false, err
+	}
+
+	if err := deleteAuthFile(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
 func GetLoginCode() (DeviceCode, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	cfg := config.Get()
