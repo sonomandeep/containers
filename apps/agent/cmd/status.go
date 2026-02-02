@@ -21,16 +21,22 @@ Use this to verify whether you are logged in and which account is active.`,
 			return err
 		}
 
-		if !isLogged {
-			cmd := ui.Command("agent auth login")
+		fmt.Fprintln(os.Stderr, "Agent Status")
+		fmt.Fprintln(os.Stderr)
 
-			fmt.Fprintln(os.Stderr, "You are not logged in.")
-			fmt.Fprintf(os.Stderr, "Run %s to authenticate.\n", cmd)
+		if !isLogged {
+			loginCmd := ui.Command("agent auth login")
+
+			fmt.Fprintln(os.Stderr, ui.Danger("✕")+" You are not logged in.")
+			fmt.Fprintln(
+				os.Stderr,
+				ui.Muted("Run ")+loginCmd+ui.Muted(" to authenticate."),
+			)
 			os.Exit(1)
 		}
 
 		// TODO: handle logged in with expire in and project name
-		fmt.Println("Auth status:", isLogged)
+		fmt.Fprintln(os.Stderr, ui.Success("✓")+" You are logged in.")
 		return nil
 	},
 }

@@ -12,7 +12,7 @@ help:
 .PHONY: build
 build:
 	@mkdir -p ${build_dir}
-	go build -o ${build_dir}/${binary_name} ${main_package_path}
+	@go build -o ${build_dir}/${binary_name} ${main_package_path}
 
 ## clean: clean up the build binaries
 .PHONY: clean
