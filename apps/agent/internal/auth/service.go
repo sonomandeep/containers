@@ -2,6 +2,7 @@
 package auth
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,15 @@ import (
 type auth struct {
 	Token     string `yaml:"token"`
 	ExpiresIn int    `yaml:"expires_in"`
+}
+
+type codeResponse struct {
+	DeviceCode              string `json:"device_code"`
+	UserCode                string `json:"user_code"`
+	VerificationURI         string `json:"verification_uri"`
+	VerificationURIComplete string `json:"verification_uri_complete"`
+	ExpiresIn               int    `json:"expires_in"`
+	Interval                int    `json:"interval"`
 }
 
 func GetAuthStatus() (bool, error) {
@@ -61,7 +71,52 @@ func GetAuthStatus() (bool, error) {
 }
 
 func GetLoginCode() (string, string, error) {
-	return "https://app.paper.sh/agents/auth", "01234567", nil
+	client := &http.Client{Timeout: 10 * time.Second}
+	u, err := url.Parse(config.Get().APIURL)
+	if err != nil {
+		return "", "", err
+	}
+
+	u.Path = "/api/auth/device/code"
+	requestURL := u.String()
+
+	payload := map[string]any{
+		"client_id": config.Get().ClientID,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return "", "", err
+	}
+
+	req, err := http.NewRequest(
+		"POST",
+		requestURL,
+		bytes.NewBuffer(jsonPayload),
+	)
+	if err != nil {
+		return "", "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", "", fmt.Errorf("status %d", resp.StatusCode)
+	}
+
+	var result codeResponse
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return "", "", err
+	}
+
+	return result.VerificationURI, result.UserCode, nil
 }
 
 func getAuthFilePath() (string, error) {
