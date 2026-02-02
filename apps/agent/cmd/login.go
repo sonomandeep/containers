@@ -53,16 +53,31 @@ var loginCmd = &cobra.Command{
 		cancel := spinner.Start(context.Background())
 		defer cancel()
 
-		_, err = auth.PollDeviceToken(
+		status, err := auth.PollDeviceToken(
 			deviceCode.DeviceCode,
 			deviceCode.Interval,
 			deviceCode.ExpiresIn,
 		)
 		if err != nil {
+			spinner.Fail("Login failed.")
 			return err
 		}
 
-		spinner.Stop("Logged in successfully.")
+		switch status {
+		case auth.DeviceAuthAuthorized:
+			spinner.Stop("Logged in successfully.")
+		case auth.DeviceAuthDenied:
+			spinner.Fail("Authorization denied.")
+			fmt.Fprintln(os.Stderr, ui.Muted("The request was not approved."))
+			os.Exit(1)
+		case auth.DeviceAuthExpired:
+			spinner.Fail("Authorization expired.")
+			fmt.Fprintln(os.Stderr, ui.Muted("The device code expired. Run `agent auth login` again."))
+			os.Exit(1)
+		default:
+			spinner.Fail("Login cancelled.")
+			os.Exit(1)
+		}
 
 		return nil
 	},

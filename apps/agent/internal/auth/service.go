@@ -30,6 +30,15 @@ const (
 	devicePollSlowdownBackoff = 5 * time.Second
 )
 
+type DeviceAuthStatus string
+
+const (
+	DeviceAuthUnknown    DeviceAuthStatus = "unknown"
+	DeviceAuthAuthorized DeviceAuthStatus = "authorized"
+	DeviceAuthDenied     DeviceAuthStatus = "denied"
+	DeviceAuthExpired    DeviceAuthStatus = "expired"
+)
+
 type DeviceCode struct {
 	DeviceCode              string `json:"device_code"`
 	UserCode                string `json:"user_code"`
@@ -158,9 +167,9 @@ func GetLoginCode() (DeviceCode, error) {
 	return result, nil
 }
 
-func PollDeviceToken(deviceCode string, initialInterval int, expiresIn int) (bool, error) {
+func PollDeviceToken(deviceCode string, initialInterval int, expiresIn int) (DeviceAuthStatus, error) {
 	if strings.TrimSpace(deviceCode) == "" {
-		return false, errors.New("missing device code")
+		return DeviceAuthUnknown, errors.New("missing device code")
 	}
 
 	pollingInterval := time.Duration(initialInterval) * time.Second
@@ -176,12 +185,12 @@ func PollDeviceToken(deviceCode string, initialInterval int, expiresIn int) (boo
 
 	for {
 		if time.Now().After(deadline) {
-			return false, errors.New("device code expired")
+			return DeviceAuthExpired, nil
 		}
 
 		result, err := requestDeviceToken(deviceCode)
 		if err != nil {
-			return false, err
+			return DeviceAuthUnknown, err
 		}
 
 		if result.AccessToken != "" {
@@ -190,9 +199,9 @@ func PollDeviceToken(deviceCode string, initialInterval int, expiresIn int) (boo
 				expires = 1
 			}
 			if err := saveAuthToken(result.AccessToken, expires); err != nil {
-				return false, err
+				return DeviceAuthUnknown, err
 			}
-			return true, nil
+			return DeviceAuthAuthorized, nil
 		}
 
 		if result.Error != "" {
@@ -201,19 +210,19 @@ func PollDeviceToken(deviceCode string, initialInterval int, expiresIn int) (boo
 			case "slow_down":
 				pollingInterval += devicePollSlowdownBackoff
 			case "access_denied":
-				return false, errors.New("access denied")
+				return DeviceAuthDenied, nil
 			case "expired_token":
-				return false, errors.New("device code expired")
+				return DeviceAuthExpired, nil
 			case "invalid_grant":
-				return false, errors.New("invalid device code or client id")
+				return DeviceAuthUnknown, errors.New("invalid device code or client id")
 			default:
 				if result.ErrorDescription != "" {
-					return false, fmt.Errorf("device token error: %s", result.ErrorDescription)
+					return DeviceAuthUnknown, fmt.Errorf("device token error: %s", result.ErrorDescription)
 				}
-				return false, fmt.Errorf("device token error: %s", result.Error)
+				return DeviceAuthUnknown, fmt.Errorf("device token error: %s", result.Error)
 			}
 		} else {
-			return false, errors.New("unexpected device token response")
+			return DeviceAuthUnknown, errors.New("unexpected device token response")
 		}
 
 		time.Sleep(pollingInterval)
