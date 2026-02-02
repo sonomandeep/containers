@@ -355,11 +355,11 @@ func (a auth) getSession() (bool, error) {
 	}
 
 	u.Path = "/api/auth/get-session"
-	getSessionUrl := u.String()
+	requestURL := u.String()
 
 	req, err := http.NewRequest(
 		"GET",
-		getSessionUrl,
+		requestURL,
 		nil,
 	)
 	if err != nil {
