@@ -19,59 +19,50 @@ This command is safe to run multiple times; use --overwrite to replace an existi
 	Args:         cobra.NoArgs,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		uiKit := ui.New()
+		printHeader := func() {
+			fmt.Fprintln(os.Stderr, "Agent Init")
+			fmt.Fprintln(os.Stderr)
+		}
+		printLocation := func(path string) {
+			if path == "" {
+				return
+			}
+			fmt.Fprintln(os.Stderr, ui.KV("Location", path))
+		}
 
 		overwrite, err := cmd.Flags().GetBool("overwrite")
 		if err != nil {
-			return ui.Error{
-				Title:   "Invalid flags.",
-				Details: []string{err.Error()},
-				Cause:   err,
-			}
+			printHeader()
+			fmt.Fprintln(os.Stderr, ui.Danger("✕")+" Invalid flags.")
+			fmt.Fprintln(os.Stderr, ui.Muted(err.Error()))
+			os.Exit(1)
 		}
 
 		path, err := config.WriteDefaultConfig(overwrite)
 		if err != nil {
-			locationFields := func(location string) []ui.Field {
-				if location == "" {
-					return nil
-				}
-				return []ui.Field{{Label: "Location", Value: location}}
-			}
-
+			printHeader()
 			if errors.Is(err, os.ErrExist) {
-				return ui.Error{
-					Title: "Config file already exists.",
-					Fields: locationFields(path),
-					Hints: []ui.Hint{
-						{
-							Prefix:  "Run ",
-							Command: "agent init --overwrite",
-							Suffix:  " to replace it.",
-						},
-					},
-					Cause: err,
-				}
+				fmt.Fprintln(os.Stderr, ui.Danger("✕")+" Config file already exists.")
+				printLocation(path)
+				fmt.Fprintln(
+					os.Stderr,
+					ui.Muted("Run ")+ui.Command("agent init --overwrite")+ui.Muted(" to replace it."),
+				)
+				os.Exit(1)
 			}
 
 			if errors.Is(err, os.ErrPermission) {
-				return ui.Error{
-					Title: "Permission denied while writing config.",
-					Fields: locationFields(path),
-					Details: []string{err.Error()},
-					Hints: []ui.Hint{
-						{Text: "Check directory permissions or run with appropriate privileges."},
-					},
-					Cause: err,
-				}
+				fmt.Fprintln(os.Stderr, ui.Danger("✕")+" Permission denied while writing config.")
+				printLocation(path)
+				fmt.Fprintln(os.Stderr, ui.Muted("Check directory permissions or run with appropriate privileges."))
+				fmt.Fprintln(os.Stderr, ui.Muted(err.Error()))
+				os.Exit(1)
 			}
 
-			return ui.Error{
-				Title: "Failed to write config file.",
-				Fields: locationFields(path),
-				Details: []string{err.Error()},
-				Cause:   err,
-			}
+			fmt.Fprintln(os.Stderr, ui.Danger("✕")+" Failed to write config file.")
+			printLocation(path)
+			fmt.Fprintln(os.Stderr, ui.Muted(err.Error()))
+			os.Exit(1)
 		}
 
 		title := "Config file created."
@@ -80,16 +71,16 @@ This command is safe to run multiple times; use --overwrite to replace an existi
 		}
 
 		lines := []string{
-			uiKit.InfoTitle.Render(title),
-			uiKit.KV("Location", path),
+			ui.InfoTitle(title),
+			ui.KV("Location", path),
 			"",
-			"Open it with " + uiKit.Emph.Render("cat "+path) + " or edit it in your editor.",
+			"Open it with " + ui.Emph("cat "+path) + " or edit it in your editor.",
 		}
 		if !overwrite {
-			lines = append(lines, uiKit.Muted.Render("Tip: re-run with --overwrite to regenerate the file."))
+			lines = append(lines, ui.Muted("Tip: re-run with --overwrite to regenerate the file."))
 		}
 
-		fmt.Println(uiKit.InfoBox(lines...))
+		fmt.Println(ui.InfoBox(lines...))
 
 		return nil
 	},

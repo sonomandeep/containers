@@ -3,8 +3,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/sonomandeep/containers/agent/internal/ui"
 	"github.com/spf13/viper"
 )
 
@@ -32,11 +32,7 @@ func InitConfig() error {
 
 	configDir, err := GetConfigDirPath()
 	if err != nil {
-		return ui.Error{
-			Title:   "Unable to resolve config directory.",
-			Details: []string{err.Error()},
-			Cause:   err,
-		}
+		return fmt.Errorf("unable to resolve config directory: %w", err)
 	}
 
 	viper.SetConfigName(defaultConfigFileName)
@@ -50,33 +46,10 @@ func readConfig(filePath string) error {
 	var notFound viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
 		if errors.As(err, &notFound) {
-			return ui.Error{
-				Title: "Config file not found.",
-				Fields: []ui.Field{
-					{Label: "Searched in", Value: filePath},
-				},
-				Hints: []ui.Hint{
-					{
-						Prefix:  "Run ",
-						Command: "agent init",
-						Suffix:  " to create a new config file.",
-					},
-				},
-				Cause: err,
-			}
+			return fmt.Errorf("config file not found at %s (run `agent init`)", filePath)
 		}
 
-		return ui.Error{
-			Title: "Failed to read config file.",
-			Fields: []ui.Field{
-				{Label: "Path", Value: filePath},
-			},
-			Details: []string{err.Error()},
-			Hints: []ui.Hint{
-				{Text: "Check permissions and YAML syntax."},
-			},
-			Cause: err,
-		}
+		return fmt.Errorf("failed to read config file at %s: %w", filePath, err)
 	}
 
 	return nil

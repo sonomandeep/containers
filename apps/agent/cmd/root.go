@@ -2,7 +2,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -27,16 +26,9 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	uiKit := ui.New()
 	if err := rootCmd.Execute(); err != nil {
-		var uiErr ui.Error
-		if errors.As(err, &uiErr) {
-			fmt.Println(uiKit.RenderError(uiErr))
-			os.Exit(1)
-		}
-
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(2)
+		fmt.Fprintln(os.Stderr, ui.Danger("✕")+" "+err.Error())
+		os.Exit(1)
 	}
 }
 

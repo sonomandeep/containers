@@ -1,13 +1,11 @@
 // Package ui provides shared helpers and styles for rendering consistent
-// terminal output across the CLI, including error boxes, key/value rows,
-// and emphasized hints, built on top of lipgloss.
+// terminal output across the CLI.
 package ui
 
 import (
-	"fmt"
 	"os"
+	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 )
 
@@ -40,77 +38,36 @@ func Muted(s string) string {
 		String()
 }
 
-type UI struct {
-	Box       lipgloss.Style
-	InfoTitle lipgloss.Style
-	ErrTitle  lipgloss.Style
-	Label     lipgloss.Style
-	Value     lipgloss.Style
-	Emph      lipgloss.Style
-	Muted     lipgloss.Style
+func Emph(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("205")).
+		Bold().
+		String()
 }
 
-func New() UI {
-	return UI{
-		Box:       lipgloss.NewStyle().Padding(1, 0),
-		InfoTitle: lipgloss.NewStyle().Foreground(lipgloss.Color("12")).Bold(true),
-		ErrTitle:  lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true),
-		Label:     lipgloss.NewStyle().Foreground(lipgloss.Color("244")),
-		Value:     lipgloss.NewStyle().Foreground(lipgloss.Color("252")),
-		Emph:      lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true),
-		Muted:     lipgloss.NewStyle().Foreground(lipgloss.Color("241")),
-	}
+func InfoTitle(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("12")).
+		Bold().
+		String()
 }
 
-func (ui UI) KV(k, v string) string {
-	return ui.Label.Render(k+": ") + ui.Value.Render(v)
+func Label(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("244")).
+		String()
 }
 
-func (ui UI) ErrorBox(lines ...string) string {
-	return ui.Box.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+func Value(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("252")).
+		String()
 }
 
-func (ui UI) InfoBox(lines ...string) string {
-	return ui.Box.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+func KV(k, v string) string {
+	return Label(k+": ") + Value(v)
 }
 
-func (ui UI) RenderError(err Error) string {
-	title := err.Title
-	if title == "" {
-		title = "Something went wrong."
-	}
-
-	lines := []string{ui.ErrTitle.Render(title)}
-
-	for _, field := range err.Fields {
-		lines = append(lines, ui.KV(field.Label, field.Value))
-	}
-
-	if len(err.Details) > 0 {
-		if len(err.Fields) > 0 {
-			lines = append(lines, "")
-		}
-		for _, detail := range err.Details {
-			lines = append(lines, ui.Muted.Render(detail))
-		}
-	}
-
-	if len(err.Hints) > 0 {
-		lines = append(lines, "")
-		for _, hint := range err.Hints {
-			if hint.Command != "" {
-				lines = append(lines, hint.Prefix+ui.Emph.Render(hint.Command)+hint.Suffix)
-				continue
-			}
-			if hint.Text != "" {
-				lines = append(lines, hint.Text)
-			}
-		}
-	}
-
-	return ui.ErrorBox(lines...)
-}
-
-func (ui UI) Sprintf(format string, args ...any) string {
-	return fmt.Sprintf(format, args...)
+func InfoBox(lines ...string) string {
+	return strings.Join(lines, "\n")
 }
