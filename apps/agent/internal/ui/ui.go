@@ -20,6 +20,20 @@ func Command(s string) string {
 		String()
 }
 
+func Success(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("2")).
+		Bold().
+		String()
+}
+
+func Danger(s string) string {
+	return termenv.String(s).
+		Foreground(output.Color("1")).
+		Bold().
+		String()
+}
+
 func Muted(s string) string {
 	return termenv.String(s).
 		Foreground(output.Color("241")).
