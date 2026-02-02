@@ -3,7 +3,6 @@ module github.com/sonomandeep/containers/agent
 go 1.25.6
 
 require (
-	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/yarlson/pin v0.9.1

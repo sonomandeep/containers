@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/sonomandeep/containers/agent/internal/config"
 	"github.com/sonomandeep/containers/agent/internal/ui"
@@ -19,59 +22,44 @@ This command is safe to run multiple times; use --overwrite to replace an existi
 	Args:         cobra.NoArgs,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		uiKit := ui.New()
-
-		overwrite, err := cmd.Flags().GetBool("overwrite")
+		reader := bufio.NewReader(os.Stdin)
+		defaultAPIURL := config.DefaultAPIURL()
+		useHosted, err := promptYesNo(
+			reader,
+			fmt.Sprintf("Use hosted API? (%s) [Y/n]: ", defaultAPIURL),
+			true,
+		)
 		if err != nil {
-			return ui.Error{
-				Title:   "Invalid flags.",
-				Details: []string{err.Error()},
-				Cause:   err,
+			return err
+		}
+
+		apiURL := defaultAPIURL
+		if !useHosted {
+			apiURL, err = promptURL(reader, "Enter API URL: ")
+			if err != nil {
+				return err
 			}
 		}
 
-		path, err := config.WriteDefaultConfig(overwrite)
+		overwrite, err := cmd.Flags().GetBool("overwrite")
 		if err != nil {
-			locationFields := func(location string) []ui.Field {
-				if location == "" {
-					return nil
-				}
-				return []ui.Field{{Label: "Location", Value: location}}
-			}
+			return err
+		}
 
+		path, err := config.WriteDefaultConfig(overwrite, apiURL)
+		if err != nil {
 			if errors.Is(err, os.ErrExist) {
-				return ui.Error{
-					Title: "Config file already exists.",
-					Fields: locationFields(path),
-					Hints: []ui.Hint{
-						{
-							Prefix:  "Run ",
-							Command: "agent init --overwrite",
-							Suffix:  " to replace it.",
-						},
-					},
-					Cause: err,
-				}
+				fmt.Fprintln(os.Stderr, "Agent Init")
+				fmt.Fprintln(os.Stderr)
+				fmt.Fprintln(os.Stderr, ui.Danger("✕")+" Config file already exists.")
+				fmt.Fprintln(os.Stderr, ui.Muted("Location: "+path))
+				fmt.Fprintln(
+					os.Stderr,
+					ui.Muted("Run ")+ui.Command("agent init --overwrite")+ui.Muted(" to replace it."),
+				)
+				os.Exit(1)
 			}
-
-			if errors.Is(err, os.ErrPermission) {
-				return ui.Error{
-					Title: "Permission denied while writing config.",
-					Fields: locationFields(path),
-					Details: []string{err.Error()},
-					Hints: []ui.Hint{
-						{Text: "Check directory permissions or run with appropriate privileges."},
-					},
-					Cause: err,
-				}
-			}
-
-			return ui.Error{
-				Title: "Failed to write config file.",
-				Fields: locationFields(path),
-				Details: []string{err.Error()},
-				Cause:   err,
-			}
+			return err
 		}
 
 		title := "Config file created."
@@ -79,17 +67,10 @@ This command is safe to run multiple times; use --overwrite to replace an existi
 			title = "Config file written."
 		}
 
-		lines := []string{
-			uiKit.InfoTitle.Render(title),
-			uiKit.KV("Location", path),
-			"",
-			"Open it with " + uiKit.Emph.Render("cat "+path) + " or edit it in your editor.",
-		}
-		if !overwrite {
-			lines = append(lines, uiKit.Muted.Render("Tip: re-run with --overwrite to regenerate the file."))
-		}
-
-		fmt.Println(uiKit.InfoBox(lines...))
+		fmt.Fprintln(os.Stderr, "Agent Init")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, ui.Success("✓")+" "+title)
+		fmt.Fprintln(os.Stderr, ui.Muted("Location: "+path))
 
 		return nil
 	},
@@ -104,4 +85,51 @@ func init() {
 	)
 
 	rootCmd.AddCommand(initCmd)
+}
+
+func promptYesNo(reader *bufio.Reader, prompt string, defaultYes bool) (bool, error) {
+	for {
+		fmt.Fprint(os.Stderr, prompt)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return false, err
+		}
+
+		answer := strings.TrimSpace(strings.ToLower(input))
+		if answer == "" {
+			return defaultYes, nil
+		}
+		if answer == "y" || answer == "yes" {
+			return true, nil
+		}
+		if answer == "n" || answer == "no" {
+			return false, nil
+		}
+
+		fmt.Fprintln(os.Stderr, ui.Muted("Please answer with y or n."))
+	}
+}
+
+func promptURL(reader *bufio.Reader, prompt string) (string, error) {
+	for {
+		fmt.Fprint(os.Stderr, prompt)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+
+		trimmed := strings.TrimSpace(input)
+		if trimmed == "" {
+			fmt.Fprintln(os.Stderr, ui.Muted("URL cannot be empty."))
+			continue
+		}
+
+		parsed, err := url.ParseRequestURI(trimmed)
+		if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+			fmt.Fprintln(os.Stderr, ui.Muted("Enter a valid URL (including http/https)."))
+			continue
+		}
+
+		return trimmed, nil
+	}
 }

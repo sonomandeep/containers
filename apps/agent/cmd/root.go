@@ -27,16 +27,18 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	uiKit := ui.New()
 	if err := rootCmd.Execute(); err != nil {
-		var uiErr ui.Error
-		if errors.As(err, &uiErr) {
-			fmt.Println(uiKit.RenderError(uiErr))
+		var configErr config.NotInitializedError
+		if errors.As(err, &configErr) {
+			fmt.Fprintln(os.Stderr, ui.Danger("✕")+" "+configErr.Error())
+			if configErr.Path != "" {
+				fmt.Fprintln(os.Stderr, ui.Muted("Location: "+configErr.Path))
+			}
 			os.Exit(1)
 		}
 
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(2)
+		fmt.Fprintln(os.Stderr, ui.Danger("✕")+" "+err.Error())
+		os.Exit(1)
 	}
 }
 

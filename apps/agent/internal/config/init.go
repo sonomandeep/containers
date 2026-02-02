@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.yaml.in/yaml/v3"
 )
@@ -11,11 +12,15 @@ const (
 	defaultConfigDirName  = "mando.sh"
 	defaultConfigFileName = "config"
 	defaultConfigFileType = "yaml"
-	defaultApiUrl = "https://api.paper.sh"
-	defaultAgentId = "agent"
+	defaultApiUrl         = "https://paper.mando.sh/api"
+	defaultClientID       = "sh.mando.paper.cli"
 )
 
-func WriteDefaultConfig(overwrite bool) (string, error) {
+func DefaultAPIURL() string {
+	return defaultApiUrl
+}
+
+func WriteDefaultConfig(overwrite bool, apiURL string) (string, error) {
 	configDirPath, err := GetConfigDirPath()
 	if err != nil {
 		return "", err
@@ -25,7 +30,12 @@ func WriteDefaultConfig(overwrite bool) (string, error) {
 	if err = os.MkdirAll(configDirPath, 0o755); err != nil {
 		return configFilePath, err
 	}
-	cfg := New(defaultApiUrl, defaultAgentId)
+	normalizedAPIURL := strings.TrimSpace(apiURL)
+	if normalizedAPIURL == "" {
+		normalizedAPIURL = defaultApiUrl
+	}
+
+	cfg := New(normalizedAPIURL)
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return configFilePath, err
