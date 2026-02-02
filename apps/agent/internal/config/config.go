@@ -13,6 +13,14 @@ type Config struct {
 	ClientID string `yaml:"client_id"`
 }
 
+type NotInitializedError struct {
+	Path string
+}
+
+func (err NotInitializedError) Error() string {
+	return "config not initialized (run `agent init`)"
+}
+
 func New(apiURL string, clientID string) *Config {
 	return &Config{
 		APIURL:   apiURL,
@@ -46,7 +54,7 @@ func readConfig(filePath string) error {
 	var notFound viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
 		if errors.As(err, &notFound) {
-			return fmt.Errorf("config file not found at %s (run `agent init`)", filePath)
+			return NotInitializedError{Path: filePath}
 		}
 
 		return fmt.Errorf("failed to read config file at %s: %w", filePath, err)
