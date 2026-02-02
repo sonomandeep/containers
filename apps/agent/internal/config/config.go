@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	APIURL   string `yaml:"api_url"`
-	ClientID string `yaml:"client_id"`
+	ClientID string `yaml:"-"`
 }
 
 type NotInitializedError struct {
@@ -21,17 +21,17 @@ func (err NotInitializedError) Error() string {
 	return "config not initialized (run `agent init`)"
 }
 
-func New(apiURL string, clientID string) *Config {
+func New(apiURL string) *Config {
 	return &Config{
 		APIURL:   apiURL,
-		ClientID: clientID,
+		ClientID: defaultClientID,
 	}
 }
 
 func Get() *Config {
 	return &Config{
 		APIURL:   viper.GetString("api_url"),
-		ClientID: viper.GetString("client_id"),
+		ClientID: defaultClientID,
 	}
 }
 

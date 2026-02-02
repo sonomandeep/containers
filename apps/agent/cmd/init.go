@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/sonomandeep/containers/agent/internal/config"
 	"github.com/sonomandeep/containers/agent/internal/ui"
@@ -19,12 +22,31 @@ This command is safe to run multiple times; use --overwrite to replace an existi
 	Args:         cobra.NoArgs,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		reader := bufio.NewReader(os.Stdin)
+		defaultAPIURL := config.DefaultAPIURL()
+		useHosted, err := promptYesNo(
+			reader,
+			fmt.Sprintf("Use hosted API? (%s) [Y/n]: ", defaultAPIURL),
+			true,
+		)
+		if err != nil {
+			return err
+		}
+
+		apiURL := defaultAPIURL
+		if !useHosted {
+			apiURL, err = promptURL(reader, "Enter API URL: ")
+			if err != nil {
+				return err
+			}
+		}
+
 		overwrite, err := cmd.Flags().GetBool("overwrite")
 		if err != nil {
 			return err
 		}
 
-		path, err := config.WriteDefaultConfig(overwrite)
+		path, err := config.WriteDefaultConfig(overwrite, apiURL)
 		if err != nil {
 			if errors.Is(err, os.ErrExist) {
 				fmt.Fprintln(os.Stderr, "Agent Init")
@@ -63,4 +85,51 @@ func init() {
 	)
 
 	rootCmd.AddCommand(initCmd)
+}
+
+func promptYesNo(reader *bufio.Reader, prompt string, defaultYes bool) (bool, error) {
+	for {
+		fmt.Fprint(os.Stderr, prompt)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return false, err
+		}
+
+		answer := strings.TrimSpace(strings.ToLower(input))
+		if answer == "" {
+			return defaultYes, nil
+		}
+		if answer == "y" || answer == "yes" {
+			return true, nil
+		}
+		if answer == "n" || answer == "no" {
+			return false, nil
+		}
+
+		fmt.Fprintln(os.Stderr, ui.Muted("Please answer with y or n."))
+	}
+}
+
+func promptURL(reader *bufio.Reader, prompt string) (string, error) {
+	for {
+		fmt.Fprint(os.Stderr, prompt)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+
+		trimmed := strings.TrimSpace(input)
+		if trimmed == "" {
+			fmt.Fprintln(os.Stderr, ui.Muted("URL cannot be empty."))
+			continue
+		}
+
+		parsed, err := url.ParseRequestURI(trimmed)
+		if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+			fmt.Fprintln(os.Stderr, ui.Muted("Enter a valid URL (including http/https)."))
+			continue
+		}
+
+		return trimmed, nil
+	}
 }
