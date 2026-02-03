@@ -1,4 +1,4 @@
-main_package_path ?= ./
+main_package_path ?= ./cmd/cli/
 binary_name ?= main
 build_dir ?= ./bin
 .DEFAULT_GOAL := help
