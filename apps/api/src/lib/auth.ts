@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { deviceAuthorization } from "better-auth/plugins";
+import { bearer, deviceAuthorization } from "better-auth/plugins";
 import { db } from "@/db";
 import env from "@/env";
 import { sendVerificationEmail } from "./services/auth.service";
@@ -44,6 +44,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    bearer(),
     deviceAuthorization({
       verificationUri: new URL("/agents/auth", env.APP_URL).toString(),
       expiresIn: "3m",
