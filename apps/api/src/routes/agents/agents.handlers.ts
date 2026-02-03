@@ -1,20 +1,31 @@
 import type { Context } from "hono";
 import { upgradeWebSocket } from "hono/bun";
 import type { AppBindings } from "@/lib/types";
+import { agentsRegistry } from "./agents.service";
 
 export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
   const logger = c.var.logger;
+  const id = c.req.query("id");
+  if (!id) {
+    throw new Error("handle validation");
+  }
 
   return {
-    onOpen(e) {
-      logger.debug(e, "connection opened");
+    onOpen(_evt, ws) {
+      agentsRegistry.add(id, ws);
+      ws.send(JSON.stringify({ type: "welcome", id }));
+    },
+    onClose(e) {
+      agentsRegistry.remove(id);
+      logger.debug(e, "connection closed");
+    },
+    onError(e) {
+      agentsRegistry.remove(id);
+      logger.debug(e, "connection error");
     },
     onMessage(e) {
       const payload = JSON.parse(e.data as string);
       logger.info(payload, "message");
-    },
-    onError(e) {
-      logger.debug(e, "connection error");
     },
   };
 });
