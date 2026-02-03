@@ -1,7 +1,16 @@
 import type { Context } from "hono";
 import { upgradeWebSocket } from "hono/bun";
-import type { AppBindings } from "@/lib/types";
+import type { AppBindings, AppRouteHandler } from "@/lib/types";
 import { agentsRegistry } from "./agents.service";
+import type { ListRoute } from "./agents.routes";
+
+export const list: AppRouteHandler<ListRoute> = (c) => {
+  const agents = agentsRegistry
+    .getAgents()
+    .map((agent) => ({ id: agent.id, client: undefined }));
+
+  return c.json(agents);
+};
 
 export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
   const logger = c.var.logger;

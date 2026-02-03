@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const agentSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().optional(),
   client: z.unknown(),
 });
 

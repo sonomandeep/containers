@@ -1,3 +1,4 @@
+import type { Agent } from "@containers/shared";
 import type { WSContext } from "hono/ws";
 
 export class AgentsRegistry<T = unknown> {
@@ -13,6 +14,20 @@ export class AgentsRegistry<T = unknown> {
 
   get(id: string) {
     return this.clients.get(id);
+  }
+
+  getAgents(): Array<Agent<WSContext<T>>> {
+    const agents: Array<Agent<WSContext<T>>> = [];
+
+    for (const [id, client] of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        agents.push({ id, client });
+      } else {
+        this.clients.delete(id);
+      }
+    }
+
+    return agents;
   }
 
   sendTo(id: string, data: string | ArrayBuffer | Uint8Array<ArrayBuffer>) {
