@@ -4,9 +4,11 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/coder/websocket"
@@ -14,8 +16,8 @@ import (
 )
 
 const (
-	host    = "paper.sh:9999"
-	agentID = "go-cli"
+	agentAPIURLEnv = "AGENT_API_URL"
+	agentIDEnv     = "AGENT_ID"
 )
 
 type Client struct {
@@ -34,10 +36,13 @@ func Connect(ctx context.Context) (*Client, error) {
 	dialCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	url := buildURL()
-	log.Printf("ws: connecting to %s", url)
+	wsURL, err := buildURL()
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("ws: connecting to %s", wsURL)
 
-	c, _, err := websocket.Dial(dialCtx, url, nil)
+	c, _, err := websocket.Dial(dialCtx, wsURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -66,19 +71,38 @@ func (cl *Client) Close(status websocket.StatusCode, reason string) error {
 	return cl.Conn.Close(status, reason)
 }
 
-func buildURL() string {
-	u := url.URL{
-		Scheme: "ws",
-		Host:   host,
-		Path:   "/agents/socket",
+func buildURL() (string, error) {
+	apiURL := os.Getenv(agentAPIURLEnv)
+	if apiURL == "" {
+		return "", fmt.Errorf("missing %s", agentAPIURLEnv)
 	}
 
-	q := url.Values{}
-	q.Add("id", agentID)
+	agentID := os.Getenv(agentIDEnv)
+	if agentID == "" {
+		return "", fmt.Errorf("missing %s", agentIDEnv)
+	}
 
-	u.RawQuery = q.Encode()
+	parsed, err := url.Parse(apiURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid %s: %w", agentAPIURLEnv, err)
+	}
 
-	return u.String()
+	switch parsed.Scheme {
+	case "http":
+		parsed.Scheme = "ws"
+	case "https":
+		parsed.Scheme = "wss"
+	case "ws", "wss":
+	default:
+		return "", fmt.Errorf("unsupported %s scheme: %s", agentAPIURLEnv, parsed.Scheme)
+	}
+
+	parsed.Path = "/agents/socket"
+	q := parsed.Query()
+	q.Set("id", agentID)
+	parsed.RawQuery = q.Encode()
+
+	return parsed.String(), nil
 }
 
 func read(ctx context.Context, c *websocket.Conn, out chan<- InMsg, errs chan<- error) {
