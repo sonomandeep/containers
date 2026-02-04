@@ -1,5 +1,5 @@
-// Package cmd contains the root command and subcommands for the CLI.
-package cmd
+// Package commands contains the root command and subcommands for the CLI.
+package commands
 
 import (
 	"errors"
