@@ -13,6 +13,7 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
+	"github.com/sonomandeep/containers/agent/internal/agent"
 )
 
 const (
@@ -21,10 +22,10 @@ const (
 )
 
 type Client struct {
-	Conn *websocket.Conn
-	In   <-chan InMsg
-	Out  chan<- any
-	Errs <-chan error
+	Conn     *websocket.Conn
+	incoming <-chan InMsg
+	outgoing chan agent.Event
+	Errs     <-chan error
 }
 
 type InMsg struct {
@@ -49,26 +50,39 @@ func Connect(ctx context.Context) (*Client, error) {
 
 	log.Printf("ws: connection established")
 
-	inCh := make(chan InMsg, 64)
-	outCh := make(chan any, 64)
+	incoming := make(chan InMsg, 64)
+	outgoing := make(chan agent.Event, 64)
 	errCh := make(chan error, 1)
 
-	go read(ctx, c, inCh, errCh)
-	go write(ctx, c, outCh, errCh)
+	go read(ctx, c, incoming, errCh)
+	go writer(ctx, c, outgoing, errCh)
 
 	return &Client{
-		Conn: c,
-		In:   inCh,
-		Out:  outCh,
-		Errs: errCh,
+		Conn:     c,
+		incoming: incoming,
+		outgoing: outgoing,
+		Errs:     errCh,
 	}, nil
 }
 
-func (cl *Client) Close(status websocket.StatusCode, reason string) error {
-	if cl == nil || cl.Conn == nil {
+func (c *Client) Incoming() <-chan InMsg {
+	return c.incoming
+}
+
+func (c *Client) Write(event agent.Event) {
+	select {
+	case c.outgoing <- event:
+	default:
+		log.Println("ws: outbound queue full, dropping event")
+	}
+}
+
+func (c *Client) Close(status websocket.StatusCode, reason string) error {
+	if c == nil || c.Conn == nil {
 		return nil
 	}
-	return cl.Conn.Close(status, reason)
+	close(c.outgoing)
+	return c.Conn.Close(status, reason)
 }
 
 func buildURL() (string, error) {
@@ -152,7 +166,7 @@ func read(ctx context.Context, c *websocket.Conn, out chan<- InMsg, errs chan<- 
 	}
 }
 
-func write(ctx context.Context, c *websocket.Conn, out <-chan any, errs chan<- error) {
+func writer(ctx context.Context, c *websocket.Conn, out <-chan agent.Event, errs chan<- error) {
 	for {
 		select {
 		case <-ctx.Done():

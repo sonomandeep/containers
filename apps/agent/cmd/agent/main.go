@@ -37,7 +37,7 @@ func main() {
 		case <-ctx.Done():
 			return
 
-		case msg, ok := <-client.In:
+		case msg, ok := <-client.Incoming():
 			if !ok {
 				return
 			}
@@ -61,11 +61,7 @@ func main() {
 			if !ok {
 				return
 			}
-			select {
-			case client.Out <- e:
-			default:
-				log.Println("ws: outbound queue full, dropping event")
-			}
+			client.Write(e)
 
 		}
 	}
