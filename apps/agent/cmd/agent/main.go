@@ -40,7 +40,7 @@ func main() {
 			if !ok {
 				return
 			}
-			log.Printf("client: `%s` at %s with %s", e.Type, e.TS, e.Data)
+			log.Printf("client: `%s` with %v", e.Type, e.Data)
 		}
 	}
 }

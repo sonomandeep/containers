@@ -3,7 +3,6 @@ package agent
 
 import (
 	"context"
-	"time"
 
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
@@ -42,10 +41,13 @@ func (a *Agent) Run(ctx context.Context) {
 			if !ok {
 				return
 			}
-			a.events <- Event{
-				Type: "docker.event",
-				TS:   time.Unix(0, m.TimeNano),
-				Data: m,
+			event, err := a.parseDockerEvent(ctx, m)
+			if err != nil {
+				a.errors <- err
+				continue
+			}
+			if event != nil {
+				a.events <- *event
 			}
 
 		case e, ok := <-errs:
@@ -71,6 +73,8 @@ func (a *Agent) Close() error {
 
 func (a *Agent) getEvents(ctx context.Context) (<-chan events.Message, <-chan error) {
 	f := filters.NewArgs()
+	f.Add("type", "container")
+	f.Add("type", "image")
 
 	msgs, errs := a.cli.Events(ctx, events.ListOptions{Filters: f})
 
