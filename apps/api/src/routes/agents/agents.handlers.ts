@@ -1,8 +1,8 @@
 import type { Context } from "hono";
 import { upgradeWebSocket } from "hono/bun";
 import type { AppBindings, AppRouteHandler } from "@/lib/types";
-import { agentsRegistry } from "./agents.service";
 import type { ListRoute } from "./agents.routes";
+import { agentsRegistry } from "./agents.service";
 
 export const list: AppRouteHandler<ListRoute> = (c) => {
   const agents = agentsRegistry
