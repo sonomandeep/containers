@@ -2,50 +2,45 @@ package main
 
 import (
 	"context"
-	"log/slog"
+	"log"
 	"os"
-	"time"
+	"os/signal"
+	"syscall"
 
-	"github.com/coder/websocket"
-	"github.com/coder/websocket/wsjson"
+	"github.com/sonomandeep/containers/agent/internal/agent"
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, nil))
-
-	dialCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	conn, _, err := websocket.Dial(dialCtx, "ws://paper.sh:9999/agents/socket", nil)
+	agent, err := agent.New()
 	if err != nil {
-		logger.Error("failed to dial", "err", err)
-		os.Exit(1)
+		log.Println(err)
+		cancel()
+		return
 	}
-	defer conn.CloseNow()
+	defer agent.Close()
 
-	ctx := conn.CloseRead(context.Background())
-
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
+	go agent.Run(ctx)
 
 	for {
 		select {
 		case <-ctx.Done():
-			logger.Info("connection closed", "err", ctx.Err())
 			return
 
-		case <-ticker.C:
-			// 3) Timeout per singola write (NON riusare lo stesso context)
-			writeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			err := wsjson.Write(writeCtx, conn, map[string]string{
-				"type": "ping",
-			})
-			cancel()
-
-			if err != nil {
-				logger.Error("failed to send ping", "err", err)
+		case e, ok := <-agent.Errors():
+			if !ok {
 				return
 			}
+			log.Println(e)
+			cancel()
+
+		case e, ok := <-agent.Events():
+			if !ok {
+				return
+			}
+			log.Printf("client: `%s` at %s with %s", e.Type, e.TS, e.Data)
 		}
 	}
 }
