@@ -7,12 +7,20 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/coder/websocket"
 	"github.com/sonomandeep/containers/agent/internal/agent"
+	"github.com/sonomandeep/containers/agent/internal/client"
 )
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+
+	client, err := client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Close(websocket.StatusNormalClosure, "shutdown")
 
 	agent, err := agent.New()
 	if err != nil {
@@ -29,6 +37,20 @@ func main() {
 		case <-ctx.Done():
 			return
 
+		case msg, ok := <-client.In:
+			if !ok {
+				return
+			}
+			log.Printf("recv (%v): %s\n", msg.Type, string(msg.Data))
+			client.Out <- "hello server"
+
+		case e, ok := <-client.Errs:
+			if !ok {
+				return
+			}
+			log.Println(e)
+			cancel()
+
 		case e, ok := <-agent.Errors():
 			if !ok {
 				return
@@ -41,6 +63,8 @@ func main() {
 				return
 			}
 			log.Printf("client: `%s` with %v", e.Type, e.Data)
+			client.Out <- e
+
 		}
 	}
 }
