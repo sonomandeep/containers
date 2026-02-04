@@ -31,6 +31,21 @@ services:
     networks:
       - internal
 
+  redis:
+    image: redis:8.4.0-alpine3.22
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+    volumes:
+      - redis_data:/data
+    cpus: "0.25"
+    mem_limit: "128m"
+    networks:
+      - internal
+
   api:
     build:
       context: .
@@ -83,6 +98,7 @@ services:
 volumes:
   postgres_data:
   api_uploads:
+  redis_data:
 
 networks:
   proxy:
