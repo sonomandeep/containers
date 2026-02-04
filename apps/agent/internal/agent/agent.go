@@ -71,7 +71,6 @@ func (a *Agent) Close() error {
 
 func (a *Agent) getEvents(ctx context.Context) (<-chan events.Message, <-chan error) {
 	f := filters.NewArgs()
-	f.Add("type", "container")
 
 	msgs, errs := a.cli.Events(ctx, events.ListOptions{Filters: f})
 
