@@ -42,7 +42,6 @@ func main() {
 				return
 			}
 			log.Printf("recv (%v): %s\n", msg.Type, string(msg.Data))
-			client.Out <- "hello server"
 
 		case e, ok := <-client.Errs:
 			if !ok {
@@ -62,8 +61,11 @@ func main() {
 			if !ok {
 				return
 			}
-			log.Printf("client: `%s` with %v", e.Type, e.Data)
-			client.Out <- e
+			select {
+			case client.Out <- e:
+			default:
+				log.Println("ws: outbound queue full, dropping event")
+			}
 
 		}
 	}
