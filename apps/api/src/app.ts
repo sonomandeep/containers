@@ -2,6 +2,7 @@ import { serveStatic } from "hono/bun";
 import env from "@/env";
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
+import agents from "@/routes/agents/agents.index";
 import containers from "@/routes/containers/containers.index";
 import files from "@/routes/files/files.index";
 import images from "@/routes/images/images.index";
@@ -9,7 +10,7 @@ import { auth } from "./lib/auth";
 
 const app = createApp();
 
-const routes = [containers, files, images] as const;
+const routes = [containers, files, images, agents] as const;
 
 configureOpenAPI(app);
 
