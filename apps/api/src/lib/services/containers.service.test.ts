@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, jest, mock, spyOn, test } from "bun:test";
 import os from "node:os";
 import type { Container, LaunchContainerInput } from "@containers/shared";
+import type { RedisClient } from "bun";
 import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
@@ -14,6 +15,8 @@ type FakeDocker = {
     options: Dockerode.ContainerCreateOptions
   ) => Promise<Dockerode.Container>;
 };
+
+type FakeRedis = Pick<RedisClient, "hgetall">;
 
 const fakeDocker: FakeDocker = {
   listContainers: (_options?: Dockerode.ContainerListOptions) =>
@@ -34,172 +37,62 @@ afterEach(() => {
 });
 
 describe("listContainers", () => {
-  test("formats containers and metrics from Docker", async () => {
-    const runningInfo = {
-      Id: "running-1",
-      Names: ["/api"],
-      Image: "ghcr.io/containers/api:latest",
-      State: "running",
-      Status: "Up 2 minutes",
-      Ports: [
-        {
-          IP: "0.0.0.0",
-          PrivatePort: 3000,
-          PublicPort: 3000,
-          Type: "tcp",
+  test("returns containers from cache", async () => {
+    const cachedContainers = [
+      {
+        id: "running-1",
+        name: "api",
+        image: "ghcr.io/containers/api:latest",
+        state: "running",
+        status: "Up 2 minutes",
+        ports: [
+          {
+            ipVersion: "IPv4",
+            public: 3000,
+            private: 3000,
+            type: "tcp",
+          },
+        ],
+        envs: [
+          { key: "NODE_ENV", value: "production" },
+          { key: "COMPLEX", value: "foo=bar" },
+        ],
+        metrics: {
+          cpu: 50,
+          memory: {
+            used: 800,
+            total: 2000,
+          },
         },
-      ],
-      Created: 1_700_000_000,
-    } as unknown as Dockerode.ContainerInfo;
+        created: 1_700_000_000,
+        host: os.hostname(),
+      },
+      {
+        id: "stopped-1",
+        name: "worker",
+        image: "ghcr.io/containers/worker:latest",
+        state: "exited",
+        status: "Exited (0) 2 hours ago",
+        ports: [],
+        envs: [{ key: "LOG_LEVEL", value: "debug" }],
+        created: 1_700_000_100,
+        host: os.hostname(),
+      },
+    ] satisfies Array<Container>;
 
-    const stoppedInfo = {
-      Id: "stopped-1",
-      Names: ["/worker"],
-      Image: "ghcr.io/containers/worker:latest",
-      State: "exited",
-      Status: "Exited (0) 2 hours ago",
-      Ports: [],
-      Created: 1_700_000_100,
-    } as unknown as Dockerode.ContainerInfo;
+    const redis = {
+      hgetall: async () => ({
+        "running-1": JSON.stringify(cachedContainers[0]),
+        "stopped-1": JSON.stringify(cachedContainers[1]),
+      }),
+    } satisfies FakeRedis;
 
-    const runningInspect = {
-      Id: "running-1",
-      Name: "/api",
-      Config: {
-        Image: "ghcr.io/containers/api:latest",
-        Env: ["NODE_ENV=production", "COMPLEX=foo=bar"],
-      },
-      State: {
-        Status: "running",
-        Running: true,
-      },
-      NetworkSettings: {
-        Ports: Object.create(null),
-      },
-      HostConfig: {
-        NanoCpus: 2_000_000_000,
-      },
-      Created: "2024-01-01T00:00:00.000Z",
-    } as unknown as Dockerode.ContainerInspectInfo;
-
-    const stoppedInspect = {
-      Id: "stopped-1",
-      Name: "/worker",
-      Config: {
-        Image: "ghcr.io/containers/worker:latest",
-        Env: ["LOG_LEVEL=debug"],
-      },
-      State: {
-        Status: "exited",
-        Running: false,
-      },
-      NetworkSettings: {
-        Ports: Object.create(null),
-      },
-      HostConfig: {
-        NanoCpus: 0,
-      },
-      Created: "2024-01-02T00:00:00.000Z",
-    } as unknown as Dockerode.ContainerInspectInfo;
-
-    const runningStats = {
-      cpu_stats: {
-        cpu_usage: {
-          total_usage: 200,
-        },
-        system_cpu_usage: 300,
-        online_cpus: 2,
-      },
-      precpu_stats: {
-        cpu_usage: {
-          total_usage: 100,
-        },
-        system_cpu_usage: 100,
-      },
-      memory_stats: {
-        usage: 1000,
-        limit: 2000,
-        stats: {
-          cache: 200,
-        },
-      },
-    } as unknown as Dockerode.ContainerStats;
-
-    const runningContainer = {
-      inspect: () => runningInspect,
-      stats: () => runningStats,
-    } as unknown as Dockerode.Container;
-
-    const stoppedContainer = {
-      inspect: () => stoppedInspect,
-      stats: () => runningStats,
-    } as unknown as Dockerode.Container;
-
-    const listSpy = spyOn(fakeDocker, "listContainers").mockResolvedValue([
-      runningInfo,
-      stoppedInfo,
-    ]);
-    const getContainerSpy = spyOn(
-      fakeDocker,
-      "getContainer"
-    ).mockImplementation((id: string) =>
-      id === runningInfo.Id ? runningContainer : stoppedContainer
+    const result = await service.listContainers(
+      redis as unknown as RedisClient
     );
-    const runningInspectSpy = spyOn(runningContainer, "inspect");
-    const runningStatsSpy = spyOn(runningContainer, "stats");
-    const stoppedInspectSpy = spyOn(stoppedContainer, "inspect");
-    const stoppedStatsSpy = spyOn(stoppedContainer, "stats");
 
-    const result = await service.listContainers();
-
-    expect(listSpy).toHaveBeenCalledWith({ all: true });
-    expect(getContainerSpy).toHaveBeenCalledTimes(3);
-    expect(runningInspectSpy).toHaveBeenCalledTimes(2);
-    expect(runningStatsSpy).toHaveBeenCalledTimes(1);
-    expect(runningStatsSpy).toHaveBeenCalledWith({ stream: false });
-    expect(stoppedInspectSpy).toHaveBeenCalledTimes(1);
-    expect(stoppedStatsSpy).not.toHaveBeenCalled();
-    expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({
-      id: "running-1",
-      name: "api",
-      image: "ghcr.io/containers/api:latest",
-      state: "running",
-      status: "Up 2 minutes",
-      ports: [
-        {
-          ipVersion: "IPv4",
-          public: 3000,
-          private: 3000,
-          type: "tcp",
-        },
-      ],
-      envs: [
-        { key: "NODE_ENV", value: "production" },
-        { key: "COMPLEX", value: "foo=bar" },
-      ],
-      metrics: {
-        cpu: 50,
-        memory: {
-          used: 800,
-          total: 2000,
-        },
-      },
-      created: 1_700_000_000,
-      host: os.hostname(),
-    });
-    expect(result[1]).toMatchObject({
-      id: "stopped-1",
-      name: "worker",
-      image: "ghcr.io/containers/worker:latest",
-      state: "exited",
-      status: "Exited (0) 2 hours ago",
-      ports: [],
-      envs: [{ key: "LOG_LEVEL", value: "debug" }],
-      created: 1_700_000_100,
-      host: os.hostname(),
-    });
-    expect(result[1].metrics).toBeUndefined();
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual(cachedContainers);
   });
 });
 

@@ -29,9 +29,18 @@ import type {
 } from "./containers.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const containers = await listContainers();
+  const result = await listContainers(c.var.redis);
+  if (result.error || result.data === null) {
+    c.var.logger.error(result.error, "error fetching containers");
+    return c.json(
+      {
+        message: result.error?.message ?? "internal server error",
+      },
+      result.error?.code ?? HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
 
-  return c.json(containers);
+  return c.json(result.data, HttpStatusCodes.OK);
 };
 
 export const stream: AppSSEHandler<StreamRoute> = (c) => {
@@ -48,10 +57,21 @@ export const stream: AppSSEHandler<StreamRoute> = (c) => {
 
     while (isActive) {
       try {
-        const containers = await listContainers();
+        const containers = await listContainers(c.var.redis);
+
+        if (containers.error || containers.data === null) {
+          c.var.logger.error(containers.error, "error fetching containers");
+          await s.writeSSE({
+            data: JSON.stringify({ error: "Failed to fetch metrics" }),
+            event: "error",
+            id: String(Date.now()),
+          });
+          await s.sleep(UPDATE_INTERVAL * 2);
+          continue;
+        }
 
         await s.writeSSE({
-          data: JSON.stringify(containers),
+          data: JSON.stringify(containers.data),
           event: "containers",
           id: String(Date.now()),
         });
