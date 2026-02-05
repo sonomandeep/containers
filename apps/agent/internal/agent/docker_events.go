@@ -74,6 +74,11 @@ type Image struct {
 	Containers   []ImageContainer `json:"containers"`
 }
 
+type SnapshotPayload struct {
+	Containers []Container `json:"containers"`
+	Images     []Image     `json:"images"`
+}
+
 func (a *Agent) parseDockerEvent(ctx context.Context, msg events.Message) (*Event, error) {
 	if msg.Type == "" {
 		return nil, fmt.Errorf("docker event missing type")
@@ -97,6 +102,61 @@ func (a *Agent) parseDockerEvent(ctx context.Context, msg events.Message) (*Even
 	default:
 		return nil, nil
 	}
+}
+
+func (a *Agent) buildSnapshotEvent(ctx context.Context) (*Event, error) {
+	containerSummaries, err := a.cli.ContainerList(ctx, container.ListOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+
+	containers := make([]Container, 0, len(containerSummaries))
+	for _, summary := range containerSummaries {
+		containers = append(containers, a.snapshotContainer(ctx, summary))
+	}
+
+	imageSummaries, err := a.cli.ImageList(ctx, image.ListOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+
+	images := make([]Image, 0, len(imageSummaries))
+	for _, summary := range imageSummaries {
+		images = append(images, a.snapshotImage(ctx, summary, containerSummaries))
+	}
+
+	payload := SnapshotPayload{Containers: containers, Images: images}
+	return &Event{Type: "snapshot", TS: time.Now(), Data: payload}, nil
+}
+
+func (a *Agent) snapshotContainer(ctx context.Context, summary container.Summary) Container {
+	info, err := a.cli.ContainerInspect(ctx, summary.ID)
+	if err != nil {
+		return buildContainerFallbackFromSummary(summary)
+	}
+
+	var metrics *ContainerMetrics
+	if info.State != nil && info.State.Running {
+		data, err := a.getContainerMetrics(ctx, info)
+		if err == nil {
+			metrics = data
+		}
+	}
+
+	return containerFromInspect(info, metrics, summary.Created)
+}
+
+func (a *Agent) snapshotImage(
+	ctx context.Context,
+	summary image.Summary,
+	containers []container.Summary,
+) Image {
+	info, _, err := a.cli.ImageInspectWithRaw(ctx, summary.ID)
+	if err != nil {
+		return buildImageFallbackFromSummary(summary, containers)
+	}
+
+	return imageFromInspect(info, containers)
 }
 
 func (a *Agent) containerPayload(ctx context.Context, msg events.Message) (*Container, error) {
@@ -191,6 +251,25 @@ func buildContainerFallback(msg events.Message) Container {
 	}
 }
 
+func buildContainerFallbackFromSummary(summary container.Summary) Container {
+	name := strings.TrimPrefix(firstName(summary.Names), "/")
+	if name == "" {
+		name = "-"
+	}
+
+	return Container{
+		ID:      summary.ID,
+		Name:    name,
+		Image:   summary.Image,
+		State:   summary.State,
+		Status:  summary.Status,
+		Ports:   formatSummaryPorts(summary.Ports),
+		Envs:    []EnvironmentVariable{},
+		Host:    hostName(),
+		Created: summary.Created,
+	}
+}
+
 func (a *Agent) imagePayload(ctx context.Context, msg events.Message) (*Image, error) {
 	if msg.Actor.ID == "" {
 		return nil, fmt.Errorf("image event missing id")
@@ -268,6 +347,45 @@ func buildImageFallback(msg events.Message) Image {
 	}
 }
 
+func buildImageFallbackFromSummary(
+	summary image.Summary,
+	containers []container.Summary,
+) Image {
+	firstTag := firstName(summary.RepoTags)
+
+	return Image{
+		ID:           shortID(summary.ID),
+		Name:         getImageName(firstTag),
+		Tags:         getImageTags(summary.RepoTags),
+		Size:         summary.Size,
+		Layers:       nil,
+		OS:           "",
+		Architecture: "",
+		Registry:     "docker.io",
+		Containers:   containersForImage(summary.ID, containers),
+	}
+}
+
+func containersForImage(
+	imageID string,
+	containers []container.Summary,
+) []ImageContainer {
+	result := []ImageContainer{}
+
+	for _, item := range containers {
+		if item.ImageID != imageID {
+			continue
+		}
+		result = append(result, ImageContainer{
+			ID:    shortID(item.ID),
+			Name:  strings.TrimPrefix(firstName(item.Names), "/"),
+			State: item.State,
+		})
+	}
+
+	return result
+}
+
 func getContainerEnvs(info container.InspectResponse) []EnvironmentVariable {
 	if info.Config == nil || len(info.Config.Env) == 0 {
 		return []EnvironmentVariable{}
@@ -288,6 +406,31 @@ func getContainerEnvs(info container.InspectResponse) []EnvironmentVariable {
 	}
 
 	return envs
+}
+
+func formatSummaryPorts(ports []container.Port) []ContainerPort {
+	if len(ports) == 0 {
+		return []ContainerPort{}
+	}
+
+	result := make([]ContainerPort, 0, len(ports))
+	for _, port := range ports {
+		entry := ContainerPort{
+			IPVersion: "",
+			Private:   int(port.PrivatePort),
+			Type:      port.Type,
+		}
+		if port.IP != "" {
+			entry.IPVersion = ipVersion(port.IP)
+		}
+		if port.PublicPort > 0 {
+			public := int(port.PublicPort)
+			entry.Public = &public
+		}
+		result = append(result, entry)
+	}
+
+	return result
 }
 
 func formatPorts(ports nat.PortMap) []ContainerPort {
