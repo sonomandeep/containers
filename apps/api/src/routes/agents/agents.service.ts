@@ -1,5 +1,34 @@
 import type { Agent } from "@containers/shared";
+import { containerSchema, imageSchema } from "@containers/shared";
+import type { RedisClient } from "bun";
 import type { WSContext } from "hono/ws";
+import z from "zod";
+
+const CONTAINERS_KEY = "containers";
+
+const baseEventSchema = z.object({
+  type: z.string().min(1),
+  ts: z.string().min(1),
+  data: z.unknown(),
+});
+
+const containerEventSchema = baseEventSchema.extend({
+  type: z.string().refine((value) => value.startsWith("container."), {
+    message: "expected container event type",
+  }),
+  data: containerSchema,
+});
+
+const imageEventSchema = baseEventSchema.extend({
+  type: z.string().refine((value) => value.startsWith("image."), {
+    message: "expected image event type",
+  }),
+  data: imageSchema,
+});
+
+const agentEventSchema = z.union([containerEventSchema, imageEventSchema]);
+export type AgentEvent = z.infer<typeof agentEventSchema>;
+export type ContainerEvent = z.infer<typeof containerEventSchema>;
 
 export class AgentsRegistry<T = unknown> {
   private readonly clients = new Map<string, WSContext<T>>();
@@ -70,3 +99,39 @@ export class AgentsRegistry<T = unknown> {
 }
 
 export const agentsRegistry = new AgentsRegistry();
+
+export function parseAgentMessage(data: unknown): AgentEvent {
+  if (typeof data !== "string") {
+    throw new Error("unsupported message type");
+  }
+
+  const payload = JSON.parse(data) as unknown;
+  return agentEventSchema.parse(payload);
+}
+
+export function isContainerEvent(event: AgentEvent): event is ContainerEvent {
+  return event.type.startsWith("container.");
+}
+
+function isContainerRemovalEvent(eventType: string) {
+  return (
+    eventType === "container.remove" ||
+    eventType === "container.destroy" ||
+    eventType === "container.delete"
+  );
+}
+
+export async function storeContainer(
+  redis: RedisClient,
+  eventType: string,
+  container: z.infer<typeof containerSchema>
+) {
+  if (isContainerRemovalEvent(eventType)) {
+    await redis.hdel(CONTAINERS_KEY, container.id);
+    return;
+  }
+
+  await redis.hset(CONTAINERS_KEY, {
+    [container.id]: JSON.stringify(container),
+  });
+}
