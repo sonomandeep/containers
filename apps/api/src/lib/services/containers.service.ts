@@ -2,12 +2,13 @@ import os from "node:os";
 import type {
   Container,
   ContainerMetrics,
-  ContainerPort,
   ContainerState,
   EnvironmentVariable,
   LaunchContainerInput,
   ServiceResponse,
 } from "@containers/shared";
+import { containerSchema } from "@containers/shared";
+import type { RedisClient } from "bun";
 import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
@@ -71,53 +72,41 @@ type RestartContainerError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
-function getPorts(ports: Array<Dockerode.Port>): Array<ContainerPort> {
-  return ports.map((port) => ({
-    ipVersion: port.IP === "0.0.0.0" ? "IPv4" : "IPv6",
-    public: port.PublicPort,
-    private: port.PrivatePort,
-    type: port.Type,
-  }));
-}
+export async function listContainers(redis: RedisClient): Promise<
+  ServiceResponse<
+    Array<Container>,
+    {
+      message: string;
+      code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+    }
+  >
+> {
+  try {
+    const cached = await redis.hgetall("containers");
+    const values = Object.values(cached);
+    const parsed = values.map((value) => JSON.parse(value));
+    const validation = containerSchema.array().safeParse(parsed);
 
-export async function listContainers(): Promise<Array<Container>> {
-  const items = await docker.listContainers({ all: true });
+    if (!validation.success) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+          code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+        },
+      };
+    }
 
-  const result = await Promise.all(
-    items.map(async (item) => {
-      const container = docker.getContainer(item.Id);
-      const inspect = await container.inspect();
-      const envs = getContainerEnvs(inspect);
-
-      let metrics: ContainerMetrics | undefined;
-      if (item.State === "running") {
-        metrics = await getContainerMetrics(item.Id);
-      }
-
-      return formatContainerInfo(item, envs, metrics);
-    })
-  );
-
-  return result;
-}
-
-function formatContainerInfo(
-  info: Dockerode.ContainerInfo,
-  envs: Array<EnvironmentVariable>,
-  metrics?: ContainerMetrics | undefined
-): Container {
-  return {
-    id: info.Id,
-    name: info.Names.at(0)?.replace("/", "") || "-",
-    image: info.Image,
-    state: info.State as ContainerState,
-    status: info.Status,
-    ports: getPorts(info.Ports),
-    envs,
-    metrics,
-    created: info.Created,
-    host: os.hostname(),
-  };
+    return { data: validation.data, error: null };
+  } catch {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
 }
 
 function formatContainerInspectInfo(

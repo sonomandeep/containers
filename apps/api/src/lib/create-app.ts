@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import type { AppBindings, AppOpenAPI } from "./types";
+import { redisMiddleware } from "./middlewares/redis.middleware";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({
@@ -43,6 +44,7 @@ export default function createApp() {
 
     await next();
   });
+  app.use(redisMiddleware);
 
   app.use("/containers/*", authMiddleware);
 

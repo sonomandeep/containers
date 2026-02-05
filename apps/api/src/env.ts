@@ -28,6 +28,10 @@ const envSchema = z
     SMTP_SECURE: z.enum(["true", "false"]).transform((val) => val === "true"),
     SMTP_USERNAME: z.string(),
     SMTP_PASSWORD: z.string(),
+
+    // REDIS
+    REDIS_HOST: z.string(),
+    REDIS_TIMEOUT: z.coerce.number().default(1000),
   })
   .superRefine((values, ctx) => {
     if (!values.AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED) {

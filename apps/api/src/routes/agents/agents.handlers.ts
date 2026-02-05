@@ -1,15 +1,21 @@
 import type { Context } from "hono";
 import { upgradeWebSocket } from "hono/bun";
+import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppBindings, AppRouteHandler } from "@/lib/types";
 import type { ListRoute } from "./agents.routes";
-import { agentsRegistry } from "./agents.service";
+import {
+  agentsRegistry,
+  isContainerEvent,
+  parseAgentMessage,
+  storeContainer,
+} from "./agents.service";
 
 export const list: AppRouteHandler<ListRoute> = (c) => {
   const agents = agentsRegistry
     .getAgents()
-    .map((agent) => ({ id: agent.id, client: undefined }));
+    .map((agent) => ({ id: agent.id, client: null }));
 
-  return c.json(agents);
+  return c.json(agents, HttpStatusCodes.OK);
 };
 
 export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
@@ -32,9 +38,13 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
       agentsRegistry.remove(id);
       logger.debug(e, "connection error");
     },
-    onMessage(e) {
-      const payload = JSON.parse(e.data as string);
+    async onMessage(e) {
+      const payload = parseAgentMessage(e.data);
       logger.info(payload, "message");
+
+      if (isContainerEvent(payload)) {
+        await storeContainer(c.var.redis, payload.type, payload.data);
+      }
     },
   };
 });
