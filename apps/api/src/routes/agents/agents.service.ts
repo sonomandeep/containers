@@ -26,7 +26,18 @@ const imageEventSchema = baseEventSchema.extend({
   data: imageSchema,
 });
 
-const agentEventSchema = z.union([containerEventSchema, imageEventSchema]);
+const snapshotEventSchema = baseEventSchema.extend({
+  type: z.string().refine((value) => value.startsWith("snapshot"), {
+    message: "expected snapshot event type",
+  }),
+  data: z.unknown(),
+});
+
+const agentEventSchema = z.union([
+  containerEventSchema,
+  imageEventSchema,
+  snapshotEventSchema,
+]);
 export type AgentEvent = z.infer<typeof agentEventSchema>;
 export type ContainerEvent = z.infer<typeof containerEventSchema>;
 
