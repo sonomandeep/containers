@@ -6,8 +6,10 @@ import type { ListRoute } from "./agents.routes";
 import {
   agentsRegistry,
   isContainerEvent,
+  isSnapshotEvent,
   parseAgentMessage,
   storeContainer,
+  storeContainersSnapshot,
 } from "./agents.service";
 
 export const list: AppRouteHandler<ListRoute> = (c) => {
@@ -39,11 +41,19 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
       logger.debug(e, "connection error");
     },
     async onMessage(e) {
-      const payload = parseAgentMessage(e.data);
-      logger.info(payload, "message");
+      try {
+        const payload = parseAgentMessage(e.data);
+        logger.info(payload, "message");
 
-      if (isContainerEvent(payload)) {
-        await storeContainer(c.var.redis, payload.type, payload.data);
+        if (isSnapshotEvent(payload)) {
+          await storeContainersSnapshot(c.var.redis, payload.data.containers);
+        }
+
+        if (isContainerEvent(payload)) {
+          await storeContainer(c.var.redis, payload.type, payload.data);
+        }
+      } catch (error) {
+        logger.warn({ error }, "invalid agent message");
       }
     },
   };
