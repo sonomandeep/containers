@@ -291,7 +291,7 @@ func (a *Agent) imagePayload(ctx context.Context, msg events.Message) (*Image, e
 }
 
 func imageFromInspect(info image.InspectResponse, containers []container.Summary) Image {
-	var containersWithImage []ImageContainer
+	containersWithImage := []ImageContainer{}
 
 	for _, container := range containers {
 		if container.ImageID != info.ID {
