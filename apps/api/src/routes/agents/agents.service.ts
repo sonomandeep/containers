@@ -26,11 +26,14 @@ const imageEventSchema = baseEventSchema.extend({
   data: imageSchema,
 });
 
+const snapshotPayloadSchema = z.object({
+  containers: z.array(containerSchema),
+  images: z.array(imageSchema),
+});
+
 const snapshotEventSchema = baseEventSchema.extend({
-  type: z.string().refine((value) => value.startsWith("snapshot"), {
-    message: "expected snapshot event type",
-  }),
-  data: z.unknown(),
+  type: z.literal("snapshot"),
+  data: snapshotPayloadSchema,
 });
 
 const agentEventSchema = z.union([
