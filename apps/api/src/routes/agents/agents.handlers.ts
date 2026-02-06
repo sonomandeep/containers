@@ -43,7 +43,6 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
     async onMessage(e) {
       try {
         const payload = parseAgentMessage(e.data);
-        logger.info(payload, "message");
 
         if (isSnapshotEvent(payload)) {
           await storeContainersSnapshot(c.var.redis, payload.data.containers);
