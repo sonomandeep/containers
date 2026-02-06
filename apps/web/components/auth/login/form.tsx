@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -26,9 +26,12 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
 
-export function LoginForm() {
+type Props = {
+  callbackUrl: string;
+};
+
+export function LoginForm({ callbackUrl }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isPending, setIsPending] = useState(false);
   const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -41,7 +44,6 @@ export function LoginForm() {
   });
 
   function handleSubmit(input: LoginSchemaInput) {
-    const callbackUrl = searchParams.get("callbackUrl");
     auth.signIn.email(input, {
       onRequest: () => {
         setIsPending(true);

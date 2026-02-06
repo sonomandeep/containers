@@ -9,7 +9,11 @@ import {
 import { LoginForm } from "@/components/auth/login/form";
 import { Logo } from "@/components/core/logo";
 
-export default function Page() {
+type Props = {
+  searchParams: { callbackUrl?: string };
+};
+
+export default function Page({ searchParams }: Props) {
   return (
     <AuthCard>
       <AuthCardContent>
@@ -20,7 +24,7 @@ export default function Page() {
           </div>
         </AuthCardHeader>
 
-        <LoginForm />
+        <LoginForm callbackUrl={searchParams.callbackUrl || ""} />
       </AuthCardContent>
 
       <AuthCardFooter>
