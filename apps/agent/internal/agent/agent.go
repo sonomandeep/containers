@@ -42,32 +42,7 @@ func (a *Agent) Run(ctx context.Context) {
 		a.runSnapshots(ctx, snapshotInterval)
 	}()
 
-loop:
-	for {
-		select {
-		case <-ctx.Done():
-			break loop
-
-		case m, ok := <-msgs:
-			if !ok {
-				break loop
-			}
-			event, err := a.parseDockerEvent(ctx, m)
-			if err != nil {
-				a.emitError(ctx, err)
-				continue
-			}
-			if event != nil {
-				a.emitEvent(ctx, *event)
-			}
-
-		case e, ok := <-errs:
-			if !ok {
-				break loop
-			}
-			a.emitError(ctx, e)
-		}
-	}
+	a.runEventLoop(ctx, msgs, errs)
 
 	wg.Wait()
 }
@@ -92,6 +67,38 @@ func (a *Agent) getEvents(ctx context.Context) (<-chan events.Message, <-chan er
 	msgs, errs := a.cli.Events(ctx, events.ListOptions{Filters: f})
 
 	return msgs, errs
+}
+
+func (a *Agent) runEventLoop(
+	ctx context.Context,
+	msgs <-chan events.Message,
+	errs <-chan error,
+) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case m, ok := <-msgs:
+			if !ok {
+				return
+			}
+			event, err := a.parseDockerEvent(ctx, m)
+			if err != nil {
+				a.emitError(ctx, err)
+				continue
+			}
+			if event != nil {
+				a.emitEvent(ctx, *event)
+			}
+
+		case e, ok := <-errs:
+			if !ok {
+				return
+			}
+			a.emitError(ctx, e)
+		}
+	}
 }
 
 func (a *Agent) runSnapshots(ctx context.Context, interval time.Duration) {
