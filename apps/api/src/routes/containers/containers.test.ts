@@ -32,7 +32,7 @@ describe("list containers", () => {
     getSessionSpy.mockResolvedValueOnce(null);
 
     const listContainersServiceSpy = spyOn(service, "listContainers");
-    listContainersServiceSpy.mockResolvedValue([]);
+    listContainersServiceSpy.mockResolvedValue({ data: [], error: null });
 
     const response = await createClient().containers.$get();
     const result = await response.json();
@@ -44,7 +44,7 @@ describe("list containers", () => {
 
   test("should return empty containers list", async () => {
     const listContainersServiceSpy = spyOn(service, "listContainers");
-    listContainersServiceSpy.mockResolvedValue([]);
+    listContainersServiceSpy.mockResolvedValue({ data: [], error: null });
 
     const response = await createClient().containers.$get();
     const result = await response.json();
@@ -110,7 +110,10 @@ describe("list containers", () => {
       },
     ];
 
-    listContainersServiceSpy.mockResolvedValue(containers);
+    listContainersServiceSpy.mockResolvedValue({
+      data: containers,
+      error: null,
+    });
 
     const response = await createClient().containers.$get();
     const result = await response.json();
@@ -120,16 +123,24 @@ describe("list containers", () => {
     expect(result).toEqual(containers);
   });
 
-  test("should return 500 when service throws", async () => {
+  test("should return 500 when service returns error", async () => {
     const listContainersServiceSpy = spyOn(service, "listContainers");
-    listContainersServiceSpy.mockRejectedValue(new Error("Service failed"));
+    listContainersServiceSpy.mockResolvedValue({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: 500,
+      },
+    });
 
     const response = await createClient().containers.$get();
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(500);
-    expect(result).toMatchObject({ message: "Service failed" });
+    expect(result).toMatchObject({
+      message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+    });
   });
 });
 
