@@ -8,7 +8,11 @@ import {
 } from "@/components/auth/auth-card";
 import { Logo } from "@/components/core/logo";
 
-export default function Page() {
+type Props = {
+  searchParams: { callbackUrl?: string; user_code?: string };
+};
+
+export default function Page({ searchParams }: Props) {
   return (
     <AuthCard className="pb-2">
       <AuthCardContent>
@@ -22,7 +26,10 @@ export default function Page() {
           </AuthCardDescription>
         </AuthCardHeader>
 
-        <DeviceVerificationForm />
+        <DeviceVerificationForm
+          callbackUrl={searchParams.callbackUrl || ""}
+          userCode={searchParams.user_code || ""}
+        />
       </AuthCardContent>
     </AuthCard>
   );

@@ -8,8 +8,8 @@ import {
   CheckIcon,
   XIcon,
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -34,35 +34,32 @@ type ActionState = "approve" | "deny" | null;
 
 type ResultState = "idle" | "approved" | "denied";
 
-export function DeviceVerificationForm() {
+type Props = {
+  callbackUrl: string;
+  userCode: string;
+};
+
+export function DeviceVerificationForm({ callbackUrl, userCode }: Props) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { data: session, isPending: isSessionPending } = auth.useSession();
   const [action, setAction] = useState<ActionState>(null);
   const [result, setResult] = useState<ResultState>("idle");
   const [requestError, setRequestError] = useState<string | null>(null);
 
-  const initialCode = useMemo(
-    () => searchParams.get("user_code") ?? "",
-    [searchParams]
-  );
-  const queryString = useMemo(() => searchParams.toString(), [searchParams]);
-
   const form = useForm<DeviceVerificationInput>({
     resolver: zodResolver(deviceVerificationSchema),
     defaultValues: {
-      userCode: initialCode,
+      userCode,
     },
   });
 
   useEffect(() => {
-    if (!initialCode) {
+    if (!userCode) {
       return;
     }
 
-    form.setValue("userCode", initialCode, { shouldValidate: true });
-  }, [form, initialCode]);
+    form.setValue("userCode", userCode, { shouldValidate: true });
+  }, [form, userCode]);
 
   useEffect(() => {
     if (isSessionPending) {
@@ -70,12 +67,11 @@ export function DeviceVerificationForm() {
     }
 
     if (!session) {
-      const callbackUrl = queryString ? `${pathname}?${queryString}` : pathname;
       router.replace(
         `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
       );
     }
-  }, [isSessionPending, pathname, queryString, router, session]);
+  }, [isSessionPending, callbackUrl, router, session]);
 
   const isBusy = action !== null;
   const isDone = result !== "idle";
@@ -84,8 +80,8 @@ export function DeviceVerificationForm() {
     setAction("approve");
     setRequestError(null);
 
-    const userCode = normalizeUserCode(input.userCode);
-    if (!userCode) {
+    const code = normalizeUserCode(input.userCode);
+    if (!code) {
       form.setError("userCode", {
         message: "Enter the code from your terminal.",
       });
@@ -93,7 +89,7 @@ export function DeviceVerificationForm() {
       return;
     }
 
-    const { error } = await auth.device.approve({ userCode });
+    const { error } = await auth.device.approve({ userCode: code });
     if (error) {
       setRequestError(formatDeviceError(error));
       setAction(null);
@@ -113,8 +109,8 @@ export function DeviceVerificationForm() {
     setAction("deny");
     setRequestError(null);
 
-    const userCode = normalizeUserCode(form.getValues("userCode"));
-    if (!userCode) {
+    const code = normalizeUserCode(form.getValues("userCode"));
+    if (!code) {
       form.setError("userCode", {
         message: "Enter the code from your terminal.",
       });
@@ -122,7 +118,7 @@ export function DeviceVerificationForm() {
       return;
     }
 
-    const { error } = await auth.device.deny({ userCode });
+    const { error } = await auth.device.deny({ userCode: code });
     if (error) {
       setRequestError(formatDeviceError(error));
       setAction(null);
