@@ -26,9 +26,24 @@ const imageEventSchema = baseEventSchema.extend({
   data: imageSchema,
 });
 
-const agentEventSchema = z.union([containerEventSchema, imageEventSchema]);
+const snapshotPayloadSchema = z.object({
+  containers: z.array(containerSchema),
+  images: z.array(imageSchema),
+});
+
+const snapshotEventSchema = baseEventSchema.extend({
+  type: z.literal("snapshot"),
+  data: snapshotPayloadSchema,
+});
+
+const agentEventSchema = z.union([
+  containerEventSchema,
+  imageEventSchema,
+  snapshotEventSchema,
+]);
 export type AgentEvent = z.infer<typeof agentEventSchema>;
 export type ContainerEvent = z.infer<typeof containerEventSchema>;
+export type SnapshotEvent = z.infer<typeof snapshotEventSchema>;
 
 export class AgentsRegistry<T = unknown> {
   private readonly clients = new Map<string, WSContext<T>>();
@@ -113,6 +128,10 @@ export function isContainerEvent(event: AgentEvent): event is ContainerEvent {
   return event.type.startsWith("container.");
 }
 
+export function isSnapshotEvent(event: AgentEvent): event is SnapshotEvent {
+  return event.type === "snapshot";
+}
+
 function isContainerRemovalEvent(eventType: string) {
   return (
     eventType === "container.remove" ||
@@ -134,4 +153,22 @@ export async function storeContainer(
   await redis.hset(CONTAINERS_KEY, {
     [container.id]: JSON.stringify(container),
   });
+}
+
+export async function storeContainersSnapshot(
+  redis: RedisClient,
+  containers: Array<z.infer<typeof containerSchema>>
+) {
+  await redis.del(CONTAINERS_KEY);
+
+  if (containers.length === 0) {
+    return;
+  }
+
+  const entries: Record<string, string> = {};
+  for (const container of containers) {
+    entries[container.id] = JSON.stringify(container);
+  }
+
+  await redis.hset(CONTAINERS_KEY, entries);
 }

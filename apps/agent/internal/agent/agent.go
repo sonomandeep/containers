@@ -3,6 +3,8 @@ package agent
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
@@ -32,31 +34,15 @@ func (a *Agent) Run(ctx context.Context) {
 
 	msgs, errs := a.getEvents(ctx)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
+	const snapshotInterval = 30 * time.Second
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		a.runSnapshots(ctx, snapshotInterval)
+	})
 
-		case m, ok := <-msgs:
-			if !ok {
-				return
-			}
-			event, err := a.parseDockerEvent(ctx, m)
-			if err != nil {
-				a.errors <- err
-				continue
-			}
-			if event != nil {
-				a.events <- *event
-			}
+	a.runEventLoop(ctx, msgs, errs)
 
-		case e, ok := <-errs:
-			if !ok {
-				return
-			}
-			a.errors <- e
-		}
-	}
+	wg.Wait()
 }
 
 func (a *Agent) Events() <-chan Event {
@@ -79,4 +65,88 @@ func (a *Agent) getEvents(ctx context.Context) (<-chan events.Message, <-chan er
 	msgs, errs := a.cli.Events(ctx, events.ListOptions{Filters: f})
 
 	return msgs, errs
+}
+
+func (a *Agent) runEventLoop(
+	ctx context.Context,
+	msgs <-chan events.Message,
+	errs <-chan error,
+) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case m, ok := <-msgs:
+			if !ok {
+				return
+			}
+			event, err := a.parseDockerEvent(ctx, m)
+			if err != nil {
+				a.emitError(ctx, err)
+				continue
+			}
+			if event != nil {
+				a.emitEvent(ctx, *event)
+			}
+
+		case e, ok := <-errs:
+			if !ok {
+				return
+			}
+			a.emitError(ctx, e)
+		}
+	}
+}
+
+func (a *Agent) runSnapshots(ctx context.Context, interval time.Duration) {
+	if interval <= 0 {
+		return
+	}
+
+	if err := a.emitSnapshot(ctx); err != nil {
+		a.emitError(ctx, err)
+	}
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := a.emitSnapshot(ctx); err != nil {
+				a.emitError(ctx, err)
+			}
+		}
+	}
+}
+
+func (a *Agent) emitSnapshot(ctx context.Context) error {
+	event, err := a.buildSnapshotEvent(ctx)
+	if err != nil {
+		return err
+	}
+
+	a.emitEvent(ctx, *event)
+	return nil
+}
+
+func (a *Agent) emitEvent(ctx context.Context, event Event) {
+	select {
+	case a.events <- event:
+	case <-ctx.Done():
+	}
+}
+
+func (a *Agent) emitError(ctx context.Context, err error) {
+	if err == nil {
+		return
+	}
+
+	select {
+	case a.errors <- err:
+	case <-ctx.Done():
+	}
 }
