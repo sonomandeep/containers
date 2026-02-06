@@ -36,11 +36,9 @@ func (a *Agent) Run(ctx context.Context) {
 
 	const snapshotInterval = 30 * time.Second
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		a.runSnapshots(ctx, snapshotInterval)
-	}()
+	})
 
 	a.runEventLoop(ctx, msgs, errs)
 
