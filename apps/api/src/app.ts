@@ -25,7 +25,7 @@ app.use(
 );
 
 for (const route of routes) {
-  app.route("/", route);
+  app.route("/api", route);
 }
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));

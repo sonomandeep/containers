@@ -73,9 +73,6 @@ services:
       - traefik.http.routers.api.service=api
       - traefik.http.services.api.loadbalancer.server.port=9999
 
-      # - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
-      # - traefik.http.routers.api.middlewares=api-stripprefix
-
   web:
     build:
       context: .
