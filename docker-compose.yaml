@@ -66,7 +66,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
-      - traefik.http.routers.api.rule=Host(`paper.sh`) && PathPrefix(`/api`)
+      - traefik.http.routers.api.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/api`)
       - traefik.http.routers.api.entrypoints=web
       - traefik.http.routers.api.service=api
       - traefik.http.services.api.loadbalancer.server.port=9999
@@ -89,7 +89,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
-      - traefik.http.routers.web.rule=Host(`paper.sh`) && !PathPrefix(`/api`)
+      - traefik.http.routers.web.rule=Host(`${TRAEFIK_DOMAIN}`) && !PathPrefix(`/api`)
       - traefik.http.routers.web.entrypoints=web
       - traefik.http.routers.web.service=web
       - traefik.http.services.web.loadbalancer.server.port=9999
