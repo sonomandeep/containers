@@ -52,7 +52,7 @@ services:
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     env_file:
-      - ./apps/api/.env.prod
+      - .env
     expose:
       - "9999"
     volumes:
@@ -80,7 +80,7 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     env_file:
-      - ./apps/web/.env.prod
+      - .env
     expose:
       - "3000"
     depends_on:
