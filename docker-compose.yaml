@@ -67,10 +67,14 @@ services:
       - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.paper.sh`)
-      - traefik.http.routers.api.entrypoints=web
-      - traefik.http.services.api.loadbalancer.server.port=9999
       - traefik.docker.network=proxy
+      - traefik.http.routers.api.rule=Host(`paper.sh`) && PathPrefix(`/api`)
+      - traefik.http.routers.api.entrypoints=web
+      - traefik.http.routers.api.service=api
+      - traefik.http.services.api.loadbalancer.server.port=9999
+
+      # - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
+      # - traefik.http.routers.api.middlewares=api-stripprefix
 
   web:
     build:
@@ -91,9 +95,11 @@ services:
       - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.web.rule=Host(`app.paper.sh`)
+      - traefik.docker.network=proxy
+      - traefik.http.routers.web.rule=Host(`paper.sh`) && !PathPrefix(`/api`)
       - traefik.http.routers.web.entrypoints=web
-      - traefik.http.services.web.loadbalancer.server.port=3000
+      - traefik.http.routers.web.service=web
+      - traefik.http.services.web.loadbalancer.server.port=9999
 
 volumes:
   postgres_data:
