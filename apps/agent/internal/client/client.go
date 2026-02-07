@@ -111,7 +111,7 @@ func buildURL() (string, error) {
 		return "", fmt.Errorf("unsupported %s scheme: %s", agentAPIURLEnv, parsed.Scheme)
 	}
 
-	parsed.Path = "/agents/socket"
+	parsed.Path = "/api/agents/socket"
 	q := parsed.Query()
 	q.Set("id", agentID)
 	parsed.RawQuery = q.Encode()
