@@ -52,9 +52,7 @@ services:
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     env_file:
-      - ./apps/api/.env.prod
-    expose:
-      - "9999"
+      - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - api_uploads:/data/uploads
@@ -67,10 +65,11 @@ services:
       - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.paper.sh`)
-      - traefik.http.routers.api.entrypoints=web
-      - traefik.http.services.api.loadbalancer.server.port=9999
       - traefik.docker.network=proxy
+      - traefik.http.routers.api.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/api`)
+      - traefik.http.routers.api.entrypoints=web
+      - traefik.http.routers.api.service=api
+      - traefik.http.services.api.loadbalancer.server.port=9999
 
   web:
     build:
@@ -80,9 +79,7 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     env_file:
-      - ./apps/web/.env.prod
-    expose:
-      - "3000"
+      - .env
     depends_on:
       - api
     cpus: "1.0"
@@ -91,9 +88,11 @@ services:
       - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.web.rule=Host(`app.paper.sh`)
+      - traefik.docker.network=proxy
+      - traefik.http.routers.web.rule=Host(`${TRAEFIK_DOMAIN}`) && !PathPrefix(`/api`)
       - traefik.http.routers.web.entrypoints=web
-      - traefik.http.services.web.loadbalancer.server.port=3000
+      - traefik.http.routers.web.service=web
+      - traefik.http.services.web.loadbalancer.server.port=9999
 
 volumes:
   postgres_data:
