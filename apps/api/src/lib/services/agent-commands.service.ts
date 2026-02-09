@@ -1,29 +1,12 @@
+import type { ServiceResponse } from "@containers/shared";
 import { z } from "zod";
-
-export const stopCommandPayloadSchema = z.object({
-  containerId: z.string().min(1),
-});
-
-type CommandPayloadSchemas = {
-  "container.stop": typeof stopCommandPayloadSchema;
-};
-
-type CommandName = keyof CommandPayloadSchemas;
-
-type CommandPayload<TName extends CommandName> = z.infer<
-  CommandPayloadSchemas[TName]
->;
-
-const commandPayloadSchemas: CommandPayloadSchemas = {
-  "container.stop": stopCommandPayloadSchema,
-};
-
-const commandNameSchema = z.enum(["container.stop"]);
 
 const commandDataSchema = z.discriminatedUnion("name", [
   z.object({
     name: z.literal("container.stop"),
-    payload: stopCommandPayloadSchema,
+    payload: z.object({
+      containerId: z.string().min(1),
+    }),
   }),
 ]);
 
@@ -39,26 +22,36 @@ export const commandSchema = z.object({
 
 export type AgentCommand = z.infer<typeof commandSchema>;
 
-type BuildCommandInput<TName extends CommandName> = {
-  name: TName;
-  payload: CommandPayload<TName>;
+type BuildCommandInput = z.input<typeof commandDataSchema> & {
   id?: string;
   ts?: string;
 };
 
-export function buildCommand<TName extends CommandName>(
-  input: BuildCommandInput<TName>
-): AgentCommand {
-  const payloadSchema = commandPayloadSchemas[input.name];
-  const payload = payloadSchema.parse(input.payload);
+type BuildCommandError = "invalid command payload";
 
-  return commandSchema.parse({
+export function buildCommand(
+  input: BuildCommandInput
+): ServiceResponse<AgentCommand, BuildCommandError> {
+  const { id, ts, ...data } = input;
+
+  const validation = commandSchema.safeParse({
     type: "command",
-    ts: input.ts ?? new Date().toISOString(),
+    ts: ts ?? new Date().toISOString(),
     data: {
-      id: input.id ?? crypto.randomUUID(),
-      name: commandNameSchema.parse(input.name),
-      payload,
+      id: id ?? crypto.randomUUID(),
+      ...data,
     },
   });
+
+  if (!validation.success) {
+    return {
+      data: null,
+      error: "invalid command payload",
+    };
+  }
+
+  return {
+    data: validation.data,
+    error: null,
+  };
 }

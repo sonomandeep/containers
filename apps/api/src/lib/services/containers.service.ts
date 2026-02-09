@@ -267,33 +267,14 @@ export function stopContainer(
       | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
   }
 > {
-  try {
-    const command = buildCommand({
-      name: "container.stop",
-      payload: {
-        containerId,
-      },
-    });
+  const commandResult = buildCommand({
+    name: "container.stop",
+    payload: {
+      containerId,
+    },
+  });
 
-    const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
-
-    if (error) {
-      return {
-        data: null,
-        error: {
-          message: error,
-          code: HttpStatusCodes.SERVICE_UNAVAILABLE,
-        },
-      };
-    }
-
-    return {
-      data: {
-        commandId: command.data.id,
-      },
-      error: null,
-    };
-  } catch {
+  if (commandResult.error || commandResult.data === null) {
     return {
       data: null,
       error: {
@@ -302,6 +283,27 @@ export function stopContainer(
       },
     };
   }
+
+  const command = commandResult.data;
+
+  const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
+
+  if (error) {
+    return {
+      data: null,
+      error: {
+        message: error,
+        code: HttpStatusCodes.SERVICE_UNAVAILABLE,
+      },
+    };
+  }
+
+  return {
+    data: {
+      commandId: command.data.id,
+    },
+    error: null,
+  };
 }
 
 export async function startContainer(
