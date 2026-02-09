@@ -13,7 +13,7 @@ import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
-import { buildCommand } from "@/lib/services/agent-commands.service";
+import { buildCommand } from "@/lib/services/agent-protocol.service";
 import { isDockerodeError } from "@/lib/utils";
 import { agentsRegistry } from "@/routes/agents/agents.service";
 

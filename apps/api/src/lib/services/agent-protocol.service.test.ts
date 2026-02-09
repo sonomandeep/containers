@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-const commands = await import("@/lib/services/agent-commands.service");
+const protocol = await import("@/lib/services/agent-protocol.service");
 
 describe("buildCommand", () => {
   test("builds a valid stop command", () => {
-    const result = commands.buildCommand({
+    const result = protocol.buildCommand({
       name: "container.stop",
       payload: {
         containerId: "container-1",
@@ -30,7 +30,7 @@ describe("buildCommand", () => {
   });
 
   test("returns error when stop payload is invalid", () => {
-    const result = commands.buildCommand({
+    const result = protocol.buildCommand({
       name: "container.stop",
       payload: {
         containerId: "",
