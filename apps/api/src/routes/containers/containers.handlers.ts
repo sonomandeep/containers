@@ -27,7 +27,6 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
-import { agentsRegistry } from "../agents/agents.service";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const result = await listContainers(c.var.redis);
@@ -130,27 +129,19 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   );
 };
 
-export const stop: AppRouteHandler<StopRoute> = async (c) => {
+export const stop: AppRouteHandler<StopRoute> = (c) => {
   const params = c.req.valid("param");
 
-  const { data: agent, error } = agentsRegistry.get("go-cli");
-  if (error) {
-    return c.json(
-      {
-        message: error,
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-
-  console.log(agent, error);
-
-  const result = await stopContainer({
-    containerId: params.containerId,
-  });
+  const result = stopContainer("go-cli", params.containerId);
 
   if (result.error) {
-    c.var.logger.error(result.error);
+    c.var.logger.error(
+      {
+        error: result.error,
+        containerId: params.containerId,
+      },
+      "error dispatching stop command"
+    );
     return c.json(
       {
         message: result.error.message,
@@ -159,7 +150,13 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
     );
   }
 
-  return c.json(result.data, HttpStatusCodes.OK);
+  return c.json(
+    {
+      commandId: result.data.commandId,
+      status: "queued" as const,
+    },
+    HttpStatusCodes.ACCEPTED
+  );
 };
 
 export const start: AppRouteHandler<StartRoute> = async (c) => {

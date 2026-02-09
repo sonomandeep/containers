@@ -14,6 +14,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
 import { isDockerodeError } from "@/lib/utils";
+import { agentsRegistry } from "@/routes/agents/agents.service";
 
 type LaunchContainerError = {
   message: string;
@@ -36,19 +37,18 @@ type RemoveContainerError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
-type StopContainerInput = {
+type RestartContainerInput = {
   containerId: string;
 };
 
-type RestartContainerInput = {
-  containerId: string;
+type StopContainerOutput = {
+  commandId: string;
 };
 
 type StopContainerError = {
   message: string;
   code:
-    | typeof HttpStatusCodes.NOT_FOUND
-    | typeof HttpStatusCodes.CONFLICT
+    | typeof HttpStatusCodes.SERVICE_UNAVAILABLE
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
@@ -265,45 +265,44 @@ export async function removeContainer(
   }
 }
 
-export async function stopContainer(
-  input: StopContainerInput
-): Promise<ServiceResponse<Container, StopContainerError>> {
+export function stopContainer(
+  agentId: string,
+  containerId: string
+): ServiceResponse<StopContainerOutput, StopContainerError> {
   try {
-    const container = docker.getContainer(input.containerId);
-    await container.stop();
-    const info = await container.inspect();
-    const envs = getContainerEnvs(info);
-
-    return {
-      data: formatContainerInspectInfo(info, envs),
-      error: null,
-    };
-  } catch (error) {
-    if (isDockerodeError(error)) {
-      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
-        return {
-          data: null,
-          error: {
-            message: HttpStatusPhrases.NOT_FOUND,
-            code: HttpStatusCodes.NOT_FOUND,
+    const commandId = crypto.randomUUID();
+    const sent = agentsRegistry.sendTo(
+      agentId,
+      JSON.stringify({
+        type: "command",
+        ts: new Date().toISOString(),
+        data: {
+          id: commandId,
+          name: "container.stop",
+          payload: {
+            containerId,
           },
-        };
-      }
+        },
+      })
+    );
 
-      if (
-        error.statusCode === HttpStatusCodes.CONFLICT ||
-        error.statusCode === HttpStatusCodes.NOT_MODIFIED
-      ) {
-        return {
-          data: null,
-          error: {
-            message: "Container is not running.",
-            code: HttpStatusCodes.CONFLICT,
-          },
-        };
-      }
+    if (!sent) {
+      return {
+        data: null,
+        error: {
+          message: "agent not available",
+          code: HttpStatusCodes.SERVICE_UNAVAILABLE,
+        },
+      };
     }
 
+    return {
+      data: {
+        commandId,
+      },
+      error: null,
+    };
+  } catch {
     return {
       data: null,
       error: {
