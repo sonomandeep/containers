@@ -41,17 +41,6 @@ type RestartContainerInput = {
   containerId: string;
 };
 
-type StopContainerOutput = {
-  commandId: string;
-};
-
-type StopContainerError = {
-  message: string;
-  code:
-    | typeof HttpStatusCodes.SERVICE_UNAVAILABLE
-    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
-};
-
 type StartContainerInput = {
   containerId: string;
 };
@@ -268,7 +257,15 @@ export async function removeContainer(
 export function stopContainer(
   agentId: string,
   containerId: string
-): ServiceResponse<StopContainerOutput, StopContainerError> {
+): ServiceResponse<
+  { commandId: string },
+  {
+    message: string;
+    code:
+      | typeof HttpStatusCodes.SERVICE_UNAVAILABLE
+      | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+  }
+> {
   try {
     const commandId = crypto.randomUUID();
     const { error } = agentsRegistry.sendTo(
