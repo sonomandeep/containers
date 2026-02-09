@@ -10,10 +10,12 @@ import { LoginForm } from "@/components/auth/login/form";
 import { Logo } from "@/components/core/logo";
 
 type Props = {
-  searchParams: { callbackUrl?: string };
+  searchParams: Promise<{ callbackUrl?: string }>;
 };
 
-export default function Page({ searchParams }: Props) {
+export default async function Page({ searchParams }: Props) {
+  const { callbackUrl } = await searchParams;
+
   return (
     <AuthCard>
       <AuthCardContent>
@@ -24,7 +26,7 @@ export default function Page({ searchParams }: Props) {
           </div>
         </AuthCardHeader>
 
-        <LoginForm callbackUrl={searchParams.callbackUrl || ""} />
+        <LoginForm callbackUrl={callbackUrl || ""} />
       </AuthCardContent>
 
       <AuthCardFooter>
