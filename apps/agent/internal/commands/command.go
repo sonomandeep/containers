@@ -1,4 +1,4 @@
-package protocol
+package commands
 
 import (
 	"encoding/json"
@@ -10,9 +10,7 @@ import (
 
 const ContainerStopName = "container.stop"
 
-var (
-	ErrNotCommand = errors.New("message is not a command")
-)
+var ErrNotCommand = errors.New("message is not a command")
 
 type Command struct {
 	ID      string

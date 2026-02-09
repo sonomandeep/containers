@@ -12,7 +12,6 @@ import (
 	"github.com/sonomandeep/containers/agent/internal/agent"
 	"github.com/sonomandeep/containers/agent/internal/client"
 	agentcommands "github.com/sonomandeep/containers/agent/internal/commands"
-	"github.com/sonomandeep/containers/agent/internal/protocol"
 )
 
 func main() {
@@ -51,9 +50,9 @@ func main() {
 				continue
 			}
 
-			command, err := protocol.ParseCommand(msg.Data)
+			command, err := agentcommands.ParseCommand(msg.Data)
 			if err != nil {
-				if errors.Is(err, protocol.ErrNotCommand) {
+				if errors.Is(err, agentcommands.ErrNotCommand) {
 					continue
 				}
 

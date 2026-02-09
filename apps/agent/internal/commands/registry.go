@@ -5,13 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/sonomandeep/containers/agent/internal/protocol"
 )
 
 var ErrUnhandledCommand = errors.New("command not handled")
 
-type Handler func(context.Context, *protocol.Command) error
+type Handler func(context.Context, *Command) error
 
 type Dispatcher struct {
 	handlers map[string]Handler
@@ -27,7 +25,7 @@ func NewDispatcher() *Dispatcher {
 	return dispatcher
 }
 
-func (d *Dispatcher) Dispatch(ctx context.Context, command *protocol.Command) error {
+func (d *Dispatcher) Dispatch(ctx context.Context, command *Command) error {
 	if command == nil {
 		return errors.New("command is nil")
 	}

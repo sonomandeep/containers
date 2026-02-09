@@ -6,18 +6,16 @@ import (
 	"errors"
 	"testing"
 	"time"
-
-	"github.com/sonomandeep/containers/agent/internal/protocol"
 )
 
 func TestDispatcherDispatch(t *testing.T) {
 	t.Run("dispatches container.stop command", func(t *testing.T) {
 		dispatcher := NewDispatcher()
 
-		err := dispatcher.Dispatch(context.Background(), &protocol.Command{
+		err := dispatcher.Dispatch(context.Background(), &Command{
 			ID:      "cmd-1",
 			TS:      time.Now(),
-			Name:    protocol.ContainerStopName,
+			Name:    ContainerStopName,
 			Payload: json.RawMessage(`{"containerId":"container-1"}`),
 		})
 		if err != nil {
@@ -28,7 +26,7 @@ func TestDispatcherDispatch(t *testing.T) {
 	t.Run("returns ErrUnhandledCommand for unknown command", func(t *testing.T) {
 		dispatcher := NewDispatcher()
 
-		err := dispatcher.Dispatch(context.Background(), &protocol.Command{
+		err := dispatcher.Dispatch(context.Background(), &Command{
 			ID:      "cmd-1",
 			TS:      time.Now(),
 			Name:    "container.start",
@@ -42,10 +40,10 @@ func TestDispatcherDispatch(t *testing.T) {
 	t.Run("returns error for invalid container.stop payload", func(t *testing.T) {
 		dispatcher := NewDispatcher()
 
-		err := dispatcher.Dispatch(context.Background(), &protocol.Command{
+		err := dispatcher.Dispatch(context.Background(), &Command{
 			ID:      "cmd-1",
 			TS:      time.Now(),
-			Name:    protocol.ContainerStopName,
+			Name:    ContainerStopName,
 			Payload: json.RawMessage(`{"containerId":"   "}`),
 		})
 		if err == nil {
