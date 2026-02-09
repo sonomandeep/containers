@@ -57,7 +57,12 @@ export class AgentsRegistry<T = unknown> {
   }
 
   get(id: string) {
-    return this.clients.get(id);
+    const agent = this.clients.get(id);
+    if (!agent || agent.readyState !== WebSocket.OPEN) {
+      return { data: null, error: "agent not found" };
+    }
+
+    return { data: this.clients.get(id), error: null };
   }
 
   getAgents(): Array<Agent<WSContext<T>>> {

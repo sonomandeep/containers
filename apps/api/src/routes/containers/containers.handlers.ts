@@ -27,6 +27,7 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
+import { agentsRegistry } from "../agents/agents.service";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const result = await listContainers(c.var.redis);
@@ -131,6 +132,18 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
 export const stop: AppRouteHandler<StopRoute> = async (c) => {
   const params = c.req.valid("param");
+
+  const { data: agent, error } = agentsRegistry.get("go-cli");
+  if (error) {
+    return c.json(
+      {
+        message: error,
+      },
+      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  console.log(agent, error);
 
   const result = await stopContainer({
     containerId: params.containerId,
