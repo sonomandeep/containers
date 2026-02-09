@@ -13,6 +13,7 @@ import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
+import { buildCommand } from "@/lib/services/agent-commands.service";
 import { isDockerodeError } from "@/lib/utils";
 import { agentsRegistry } from "@/routes/agents/agents.service";
 
@@ -267,21 +268,14 @@ export function stopContainer(
   }
 > {
   try {
-    const commandId = crypto.randomUUID();
-    const { error } = agentsRegistry.sendTo(
-      agentId,
-      JSON.stringify({
-        type: "command",
-        ts: new Date().toISOString(),
-        data: {
-          id: commandId,
-          name: "container.stop",
-          payload: {
-            containerId,
-          },
-        },
-      })
-    );
+    const command = buildCommand({
+      name: "container.stop",
+      payload: {
+        containerId,
+      },
+    });
+
+    const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
 
     if (error) {
       return {
@@ -295,7 +289,7 @@ export function stopContainer(
 
     return {
       data: {
-        commandId,
+        commandId: command.data.id,
       },
       error: null,
     };
