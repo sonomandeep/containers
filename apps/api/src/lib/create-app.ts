@@ -8,8 +8,8 @@ import env from "@/env";
 import { auth } from "@/lib/auth";
 import pinoLogger from "@/lib/middlewares/logger";
 import { authMiddleware } from "./middlewares/auth.middleware";
-import type { AppBindings, AppOpenAPI } from "./types";
 import { redisMiddleware } from "./middlewares/redis.middleware";
+import type { AppBindings, AppOpenAPI } from "./types";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({

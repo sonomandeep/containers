@@ -6,12 +6,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { stopContainer } from "@/lib/services/containers.service";
+import { useContainersStore } from "@/lib/store/containers.store";
 
 type Props = {
   id: string;
 };
 
 export function StopContainer({ id }: Props) {
+  const store = useContainersStore((state) => state);
   const [isPending, startTransition] = useTransition();
 
   const handleStop = () => {
@@ -21,6 +23,16 @@ export function StopContainer({ id }: Props) {
           if (result.error) {
             throw new Error(result.error);
           }
+
+          store.setContainers(
+            store.containers.map((container) => {
+              if (container.id === id) {
+                return { ...container, state: "stopping" };
+              }
+
+              return container;
+            })
+          );
 
           return result;
         }),

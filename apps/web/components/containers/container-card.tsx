@@ -123,6 +123,14 @@ function ContainerStatus({ container }: { container: Container }) {
     );
   }
 
+  if (container.state === ContainerStateEnum.stopping) {
+    return (
+      <div className="inline-flex items-center gap-2 text-destructive">
+        <span>Container stopping...</span>
+      </div>
+    );
+  }
+
   return <span>{container.status}</span>;
 }
 
