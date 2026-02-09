@@ -9,10 +9,12 @@ import {
 import { Logo } from "@/components/core/logo";
 
 type Props = {
-  searchParams: { callbackUrl?: string; user_code?: string };
+  searchParams: Promise<{ callbackUrl?: string; user_code?: string }>;
 };
 
-export default function Page({ searchParams }: Props) {
+export default async function Page({ searchParams }: Props) {
+  const { callbackUrl, user_code: userCode } = await searchParams;
+
   return (
     <AuthCard className="pb-2">
       <AuthCardContent>
@@ -27,8 +29,8 @@ export default function Page({ searchParams }: Props) {
         </AuthCardHeader>
 
         <DeviceVerificationForm
-          callbackUrl={searchParams.callbackUrl || ""}
-          userCode={searchParams.user_code || ""}
+          callbackUrl={callbackUrl || ""}
+          userCode={userCode || ""}
         />
       </AuthCardContent>
     </AuthCard>
