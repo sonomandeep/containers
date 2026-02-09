@@ -1,13 +1,15 @@
 import type { Context } from "hono";
 import { upgradeWebSocket } from "hono/bun";
 import * as HttpStatusCodes from "stoker/http-status-codes";
+import {
+  isContainerEvent,
+  isSnapshotEvent,
+  parseAgentMessage,
+} from "@/lib/services/agent-protocol.service";
 import type { AppBindings, AppRouteHandler } from "@/lib/types";
 import type { ListRoute } from "./agents.routes";
 import {
   agentsRegistry,
-  isContainerEvent,
-  isSnapshotEvent,
-  parseAgentMessage,
   storeContainer,
   storeContainersSnapshot,
 } from "./agents.service";

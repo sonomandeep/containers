@@ -4,6 +4,7 @@ export const containerStateSchema = z.enum([
   "running",
   "paused",
   "exited",
+  "stopping",
   "restarting",
   "created",
   "removing",

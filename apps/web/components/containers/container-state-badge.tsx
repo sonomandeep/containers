@@ -17,6 +17,15 @@ export function ContainerStateBadge({ state }: Props) {
     );
   }
 
+  if (state === "stopping") {
+    return (
+      <Badge variant="error">
+        <Spinner data-icon="inline-start" />
+        <span>Stopping</span>
+      </Badge>
+    );
+  }
+
   if (state === "exited") {
     return (
       <Badge variant="error">

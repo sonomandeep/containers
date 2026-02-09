@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/sonomandeep/containers/agent/internal/agent"
 	"github.com/sonomandeep/containers/agent/internal/client"
+	agentcommands "github.com/sonomandeep/containers/agent/internal/commands"
 )
 
 func main() {
@@ -31,6 +33,7 @@ func main() {
 	defer agent.Close()
 
 	go agent.Run(ctx)
+	dispatcher := agentcommands.NewDispatcher()
 
 	for {
 		select {
@@ -41,7 +44,30 @@ func main() {
 			if !ok {
 				return
 			}
-			log.Printf("recv (%v): %s\n", msg.Type, string(msg.Data))
+
+			if msg.Type != websocket.MessageText {
+				log.Printf("recv: ignoring non-text message (%v)", msg.Type)
+				continue
+			}
+
+			command, err := agentcommands.ParseCommand(msg.Data)
+			if err != nil {
+				if errors.Is(err, agentcommands.ErrNotCommand) {
+					continue
+				}
+
+				log.Printf("recv: invalid command message: %v", err)
+				continue
+			}
+
+			if err := dispatcher.Dispatch(ctx, command); err != nil {
+				if errors.Is(err, agentcommands.ErrUnhandledCommand) {
+					log.Printf("recv: command %q (%s) is not handled yet", command.Name, command.ID)
+					continue
+				}
+
+				log.Printf("recv: command %q (%s) failed: %v", command.Name, command.ID, err)
+			}
 
 		case e, ok := <-client.Errs:
 			if !ok {

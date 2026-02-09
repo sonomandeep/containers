@@ -493,21 +493,15 @@ describe("restartContainer", () => {
 });
 
 describe("stopContainer", () => {
-  test("stops container and returns data when api succeeds", async () => {
+  test("queues stop command and returns ack when api succeeds", async () => {
     const getSessionSpy = mockAuthSession(authClient);
     const containerId = "container/with space";
-    const container: Container = {
-      id: "container-1",
-      name: "api",
-      image: "nginx:latest",
-      state: "exited",
-      status: "Exited (0) 1 second ago",
-      ports: [],
-      envs: [],
-      created: 1_700_000_000,
+    const command = {
+      commandId: "cmd-1",
+      status: "queued" as const,
     };
 
-    apiMock.mockResolvedValue({ data: container, error: null });
+    apiMock.mockResolvedValue({ data: command, error: null });
 
     const result = await service.stopContainer(containerId);
 
@@ -530,7 +524,7 @@ describe("stopContainer", () => {
       }
     );
     expect(updateTagMock).not.toHaveBeenCalled();
-    expect(result).toEqual({ data: container, error: null });
+    expect(result).toEqual({ data: command, error: null });
   });
 
   test("returns error when api responds with error", async () => {
@@ -551,7 +545,7 @@ describe("stopContainer", () => {
     expect(updateTagMock).not.toHaveBeenCalled();
     expect(result).toEqual({
       data: null,
-      error: "Unexpected error while stopping the container.",
+      error: "Unexpected error while queueing the stop command.",
     });
   });
 

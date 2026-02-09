@@ -11,9 +11,9 @@ import type { Container, LaunchContainerInput } from "@containers/shared";
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import createApp from "@/lib/create-app";
-import * as service from "@/lib/services/containers.service";
 import { mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
+import * as service from "./containers.service";
 
 const createClient = () => testClient(createApp().route("/", router));
 
@@ -416,16 +416,6 @@ describe("start container", () => {
 describe("stop container", () => {
   let getSessionSpy: ReturnType<typeof spyOn>;
   const containerId = "container-1";
-  const container: Container = {
-    id: containerId,
-    name: "api",
-    image: "ghcr.io/containers/api:latest",
-    state: "exited",
-    status: "exited",
-    ports: [],
-    envs: [],
-    created: 1_690_002_000,
-  };
 
   beforeEach(() => {
     getSessionSpy = mockAuthSession();
@@ -439,8 +429,10 @@ describe("stop container", () => {
     getSessionSpy.mockResolvedValueOnce(null);
 
     const stopContainerServiceSpy = spyOn(service, "stopContainer");
-    stopContainerServiceSpy.mockResolvedValue({
-      data: container,
+    stopContainerServiceSpy.mockReturnValue({
+      data: {
+        commandId: "cmd-1",
+      },
       error: null,
     });
 
@@ -456,10 +448,12 @@ describe("stop container", () => {
     expect(result).toEqual({ message: HttpStatusPhrases.UNAUTHORIZED });
   });
 
-  test("should stop container", async () => {
+  test("should queue stop command", async () => {
     const stopContainerServiceSpy = spyOn(service, "stopContainer");
-    stopContainerServiceSpy.mockResolvedValue({
-      data: container,
+    stopContainerServiceSpy.mockReturnValue({
+      data: {
+        commandId: "cmd-1",
+      },
       error: null,
     });
 
@@ -471,18 +465,21 @@ describe("stop container", () => {
     const result = await response.json();
 
     expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
-    expect(stopContainerServiceSpy).toHaveBeenCalledWith({ containerId });
-    expect(response.status).toBe(200);
-    expect(result).toEqual(container);
+    expect(stopContainerServiceSpy).toHaveBeenCalledWith("go-cli", containerId);
+    expect(response.status).toBe(202);
+    expect(result).toEqual({
+      commandId: "cmd-1",
+      status: "queued",
+    });
   });
 
-  test("should return not found error", async () => {
+  test("should return service unavailable error", async () => {
     const stopContainerServiceSpy = spyOn(service, "stopContainer");
-    stopContainerServiceSpy.mockResolvedValue({
+    stopContainerServiceSpy.mockReturnValue({
       data: null,
       error: {
-        message: HttpStatusPhrases.NOT_FOUND,
-        code: 404,
+        message: "agent not available",
+        code: 503,
       },
     });
 
@@ -494,35 +491,13 @@ describe("stop container", () => {
     const result = await response.json();
 
     expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(404);
-    expect(result).toEqual({ message: HttpStatusPhrases.NOT_FOUND });
-  });
-
-  test("should return conflict error", async () => {
-    const stopContainerServiceSpy = spyOn(service, "stopContainer");
-    stopContainerServiceSpy.mockResolvedValue({
-      data: null,
-      error: {
-        message: "Container is not running.",
-        code: 409,
-      },
-    });
-
-    const response = await createClient().containers[":containerId"].stop.$post(
-      {
-        param: { containerId },
-      }
-    );
-    const result = await response.json();
-
-    expect(stopContainerServiceSpy).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(409);
-    expect(result).toEqual({ message: "Container is not running." });
+    expect(response.status).toBe(503);
+    expect(result).toEqual({ message: "agent not available" });
   });
 
   test("should return internal server error", async () => {
     const stopContainerServiceSpy = spyOn(service, "stopContainer");
-    stopContainerServiceSpy.mockResolvedValue({
+    stopContainerServiceSpy.mockReturnValue({
       data: null,
       error: {
         message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,

@@ -30,7 +30,8 @@ const fakeDocker: FakeDocker = {
 
 mock.module("@/lib/agent", () => ({ docker: fakeDocker }));
 
-const service = await import("@/lib/services/containers.service");
+const service = await import("./containers.service");
+const agents = await import("@/routes/agents/agents.service");
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -309,109 +310,71 @@ describe("removeContainer", () => {
 });
 
 describe("stopContainer", () => {
-  const inspectInfo = {
-    Id: "container-1",
-    Name: "/api",
-    Config: {
-      Image: "nginx:latest",
-      Env: ["NODE_ENV=production"],
-    },
-    State: {
-      Status: "exited",
-      Running: false,
-    },
-    NetworkSettings: {
-      Ports: {
-        "3000/tcp": [{ HostIp: "0.0.0.0", HostPort: "3000" }],
-      },
-    },
-    HostConfig: {
-      NanoCpus: 0,
-    },
-    Created: "2024-01-03T00:00:00.000Z",
-  } as unknown as Dockerode.ContainerInspectInfo;
-
-  const expectedContainer: Container = {
-    id: "container-1",
-    name: "api",
-    image: "nginx:latest",
-    state: "exited",
-    status: "exited",
-    ports: [
-      {
-        ipVersion: "IPv4",
-        private: 3000,
-        public: 3000,
-        type: "tcp",
-      },
-    ],
-    envs: [{ key: "NODE_ENV", value: "production" }],
-    created: new Date("2024-01-03T00:00:00.000Z").getTime() / 1000,
-    host: os.hostname(),
-  };
-
-  test("returns container info after stop", async () => {
-    const container = {
-      stop: () => null,
-      inspect: () => inspectInfo,
-    } as unknown as Dockerode.Container;
-
-    const stopSpy = spyOn(container, "stop");
-    const inspectSpy = spyOn(container, "inspect");
-    spyOn(fakeDocker, "getContainer").mockReturnValue(container);
-
-    const result = await service.stopContainer({ containerId: "container-1" });
-
-    expect(stopSpy).toHaveBeenCalledTimes(1);
-    expect(inspectSpy).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({
-      data: expectedContainer,
+  test("queues stop command and returns command id", () => {
+    const sendToSpy = spyOn(agents.agentsRegistry, "sendTo").mockReturnValue({
+      data: null,
       error: null,
     });
+
+    const result = service.stopContainer("go-cli", "container-1");
+
+    expect(sendToSpy).toHaveBeenCalledTimes(1);
+    const [agentId, payload] = sendToSpy.mock.calls[0] as [string, string];
+    expect(agentId).toBe("go-cli");
+
+    const message = JSON.parse(payload) as {
+      type: string;
+      ts: string;
+      data: {
+        id: string;
+        name: string;
+        payload: {
+          containerId: string;
+        };
+      };
+    };
+
+    expect(message.type).toBe("command");
+    expect(message.data.name).toBe("container.stop");
+    expect(message.data.payload.containerId).toBe("container-1");
+    expect(message.data.id.length).toBeGreaterThan(0);
+    expect(message.ts.length).toBeGreaterThan(0);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({
+      commandId: message.data.id,
+    });
   });
 
-  test("returns conflict when container is not running", async () => {
-    const container = {
-      stop: () => null,
-      inspect: () => inspectInfo,
-    } as unknown as Dockerode.Container;
-
-    spyOn(container, "stop").mockRejectedValue({
-      statusCode: HttpStatusCodes.NOT_MODIFIED,
-      message: "Not Modified",
+  test("returns service unavailable when agent is offline", () => {
+    spyOn(agents.agentsRegistry, "sendTo").mockReturnValue({
+      data: null,
+      error: "agent not available",
     });
-    spyOn(fakeDocker, "getContainer").mockReturnValue(container);
 
-    const result = await service.stopContainer({ containerId: "container-1" });
+    const result = service.stopContainer("go-cli", "container-1");
 
     expect(result).toEqual({
       data: null,
       error: {
-        message: "Container is not running.",
-        code: HttpStatusCodes.CONFLICT,
+        message: "agent not available",
+        code: HttpStatusCodes.SERVICE_UNAVAILABLE,
       },
     });
   });
 
-  test("returns not found when container does not exist", async () => {
-    const container = {
-      stop: () => null,
-      inspect: () => inspectInfo,
-    } as unknown as Dockerode.Container;
-
-    spyOn(container, "stop").mockRejectedValue({
-      statusCode: HttpStatusCodes.NOT_FOUND,
-      message: "Not Found",
+  test("returns internal server error on unexpected failure", () => {
+    spyOn(agents.agentsRegistry, "sendTo").mockImplementation(() => {
+      throw new Error("boom");
     });
-    spyOn(fakeDocker, "getContainer").mockReturnValue(container);
 
-    const result = await service.stopContainer({ containerId: "missing" });
+    const result = service.stopContainer("go-cli", "container-1");
 
     expect(result).toEqual({
       data: null,
       error: {
-        message: HttpStatusPhrases.NOT_FOUND,
-        code: HttpStatusCodes.NOT_FOUND,
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
       },
     });
   });

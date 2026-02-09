@@ -152,18 +152,20 @@ export const stop = createRoute({
     }),
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(containerSchema, "Container stopped"),
+    [HttpStatusCodes.ACCEPTED]: jsonContent(
+      z.object({
+        commandId: z.string(),
+        status: z.literal("queued"),
+      }),
+      "Stop command queued"
+    ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       unauthorizedSchema,
       "Unauthorized"
     ),
-    [HttpStatusCodes.NOT_FOUND]: jsonContent(
-      notFoundSchema,
-      "Container not found"
-    ),
-    [HttpStatusCodes.CONFLICT]: jsonContent(
-      createMessageObjectSchema("Container is not running."),
-      "Container not running"
+    [HttpStatusCodes.SERVICE_UNAVAILABLE]: jsonContent(
+      createMessageObjectSchema("agent not available"),
+      "Agent unavailable"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       internalServerErrorSchema,

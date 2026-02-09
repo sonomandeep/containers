@@ -13,7 +13,9 @@ import type Dockerode from "dockerode";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { docker } from "@/lib/agent";
+import { buildCommand } from "@/lib/services/agent-protocol.service";
 import { isDockerodeError } from "@/lib/utils";
+import { agentsRegistry } from "@/routes/agents/agents.service";
 
 type LaunchContainerError = {
   message: string;
@@ -36,20 +38,8 @@ type RemoveContainerError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
-type StopContainerInput = {
-  containerId: string;
-};
-
 type RestartContainerInput = {
   containerId: string;
-};
-
-type StopContainerError = {
-  message: string;
-  code:
-    | typeof HttpStatusCodes.NOT_FOUND
-    | typeof HttpStatusCodes.CONFLICT
-    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
 type StartContainerInput = {
@@ -265,45 +255,26 @@ export async function removeContainer(
   }
 }
 
-export async function stopContainer(
-  input: StopContainerInput
-): Promise<ServiceResponse<Container, StopContainerError>> {
-  try {
-    const container = docker.getContainer(input.containerId);
-    await container.stop();
-    const info = await container.inspect();
-    const envs = getContainerEnvs(info);
+export function stopContainer(
+  agentId: string,
+  containerId: string
+): ServiceResponse<
+  { commandId: string },
+  {
+    message: string;
+    code:
+      | typeof HttpStatusCodes.SERVICE_UNAVAILABLE
+      | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+  }
+> {
+  const commandResult = buildCommand({
+    name: "container.stop",
+    payload: {
+      containerId,
+    },
+  });
 
-    return {
-      data: formatContainerInspectInfo(info, envs),
-      error: null,
-    };
-  } catch (error) {
-    if (isDockerodeError(error)) {
-      if (error.statusCode === HttpStatusCodes.NOT_FOUND) {
-        return {
-          data: null,
-          error: {
-            message: HttpStatusPhrases.NOT_FOUND,
-            code: HttpStatusCodes.NOT_FOUND,
-          },
-        };
-      }
-
-      if (
-        error.statusCode === HttpStatusCodes.CONFLICT ||
-        error.statusCode === HttpStatusCodes.NOT_MODIFIED
-      ) {
-        return {
-          data: null,
-          error: {
-            message: "Container is not running.",
-            code: HttpStatusCodes.CONFLICT,
-          },
-        };
-      }
-    }
-
+  if (commandResult.error || commandResult.data === null) {
     return {
       data: null,
       error: {
@@ -312,6 +283,27 @@ export async function stopContainer(
       },
     };
   }
+
+  const command = commandResult.data;
+
+  const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
+
+  if (error) {
+    return {
+      data: null,
+      error: {
+        message: error,
+        code: HttpStatusCodes.SERVICE_UNAVAILABLE,
+      },
+    };
+  }
+
+  return {
+    data: {
+      commandId: command.data.id,
+    },
+    error: null,
+  };
 }
 
 export async function startContainer(

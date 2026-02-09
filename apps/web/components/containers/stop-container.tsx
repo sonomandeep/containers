@@ -13,8 +13,8 @@ type Props = {
 };
 
 export function StopContainer({ id }: Props) {
-  const [isPending, startTransition] = useTransition();
   const store = useContainersStore((state) => state);
+  const [isPending, startTransition] = useTransition();
 
   const handleStop = () => {
     startTransition(() => {
@@ -24,23 +24,21 @@ export function StopContainer({ id }: Props) {
             throw new Error(result.error);
           }
 
-          if (!result.data) {
-            throw new Error("Unexpected error occured, try again later.");
-          }
-
           store.setContainers(
-            store.containers.map((container) =>
-              container.id === id
-                ? { ...result.data, status: "Exited now" }
-                : container
-            )
+            store.containers.map((container) => {
+              if (container.id === id) {
+                return { ...container, state: "stopping" };
+              }
+
+              return container;
+            })
           );
 
           return result;
         }),
         {
-          loading: "Stopping container...",
-          success: "Container stopped successfully",
+          loading: "Queueing stop command...",
+          success: "Stop command queued",
           error: (error) => error.message,
         }
       );

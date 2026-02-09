@@ -3,15 +3,6 @@ import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
-  launchContainer,
-  listContainers,
-  removeContainer,
-  restartContainer,
-  startContainer,
-  stopContainer,
-  updateContainerEnvs,
-} from "@/lib/services/containers.service";
-import {
   parseEvent,
   startTerminal,
   validateTerminalAccess,
@@ -27,6 +18,15 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
+import {
+  launchContainer,
+  listContainers,
+  removeContainer,
+  restartContainer,
+  startContainer,
+  stopContainer,
+  updateContainerEnvs,
+} from "./containers.service";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const result = await listContainers(c.var.redis);
@@ -129,15 +129,19 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   );
 };
 
-export const stop: AppRouteHandler<StopRoute> = async (c) => {
+export const stop: AppRouteHandler<StopRoute> = (c) => {
   const params = c.req.valid("param");
 
-  const result = await stopContainer({
-    containerId: params.containerId,
-  });
+  const result = stopContainer("go-cli", params.containerId);
 
   if (result.error) {
-    c.var.logger.error(result.error);
+    c.var.logger.error(
+      {
+        error: result.error,
+        containerId: params.containerId,
+      },
+      "error dispatching stop command"
+    );
     return c.json(
       {
         message: result.error.message,
@@ -146,7 +150,13 @@ export const stop: AppRouteHandler<StopRoute> = async (c) => {
     );
   }
 
-  return c.json(result.data, HttpStatusCodes.OK);
+  return c.json(
+    {
+      commandId: result.data.commandId,
+      status: "queued" as const,
+    },
+    HttpStatusCodes.ACCEPTED
+  );
 };
 
 export const start: AppRouteHandler<StartRoute> = async (c) => {

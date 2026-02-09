@@ -60,7 +60,7 @@ export function ContainerMenu({ container }: Props) {
 
   return (
     <>
-      <DropdownMenu modal={false}>
+      <DropdownMenu disabled={container.state === "stopping"} modal={false}>
         <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" />}>
           <EllipsisVerticalIcon />
         </DropdownMenuTrigger>
