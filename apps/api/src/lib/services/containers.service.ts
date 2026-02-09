@@ -271,7 +271,7 @@ export function stopContainer(
 ): ServiceResponse<StopContainerOutput, StopContainerError> {
   try {
     const commandId = crypto.randomUUID();
-    const sent = agentsRegistry.sendTo(
+    const { error } = agentsRegistry.sendTo(
       agentId,
       JSON.stringify({
         type: "command",
@@ -286,11 +286,11 @@ export function stopContainer(
       })
     );
 
-    if (!sent) {
+    if (error) {
       return {
         data: null,
         error: {
-          message: "agent not available",
+          message: error,
           code: HttpStatusCodes.SERVICE_UNAVAILABLE,
         },
       };

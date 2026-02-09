@@ -1,4 +1,4 @@
-import type { Agent } from "@containers/shared";
+import type { Agent, ServiceResponse } from "@containers/shared";
 import { containerSchema, imageSchema } from "@containers/shared";
 import type { RedisClient } from "bun";
 import type { WSContext } from "hono/ws";
@@ -79,23 +79,38 @@ export class AgentsRegistry<T = unknown> {
     return agents;
   }
 
-  sendTo(id: string, data: string | ArrayBuffer | Uint8Array<ArrayBuffer>) {
+  sendTo(
+    id: string,
+    data: string | ArrayBuffer | Uint8Array<ArrayBuffer>
+  ): ServiceResponse<null, string> {
     const client = this.clients.get(id);
     if (!client) {
-      return false;
+      return {
+        data: null,
+        error: "agent not available",
+      };
     }
 
     if (client.readyState !== WebSocket.OPEN) {
       this.clients.delete(id);
-      return false;
+      return {
+        data: null,
+        error: "agent not available",
+      };
     }
 
     try {
       client.send(data);
-      return true;
+      return {
+        data: null,
+        error: null,
+      };
     } catch {
       this.clients.delete(id);
-      return false;
+      return {
+        data: null,
+        error: "agent not available",
+      };
     }
   }
 

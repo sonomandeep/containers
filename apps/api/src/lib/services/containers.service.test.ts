@@ -311,9 +311,10 @@ describe("removeContainer", () => {
 
 describe("stopContainer", () => {
   test("queues stop command and returns command id", () => {
-    const sendToSpy = spyOn(agents.agentsRegistry, "sendTo").mockReturnValue(
-      true
-    );
+    const sendToSpy = spyOn(agents.agentsRegistry, "sendTo").mockReturnValue({
+      data: null,
+      error: null,
+    });
 
     const result = service.stopContainer("go-cli", "container-1");
 
@@ -346,7 +347,10 @@ describe("stopContainer", () => {
   });
 
   test("returns service unavailable when agent is offline", () => {
-    spyOn(agents.agentsRegistry, "sendTo").mockReturnValue(false);
+    spyOn(agents.agentsRegistry, "sendTo").mockReturnValue({
+      data: null,
+      error: "agent not available",
+    });
 
     const result = service.stopContainer("go-cli", "container-1");
 
