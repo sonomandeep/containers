@@ -14,6 +14,11 @@ import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
 import { checkAuthentication } from "@/lib/services/auth.service";
 
+const stopContainerResponseSchema = z.object({
+  commandId: z.string(),
+  status: z.literal("queued"),
+});
+
 export async function listContainers() {
   const { cookies } = await checkAuthentication();
 
@@ -132,7 +137,9 @@ export async function restartContainer(
 
 export async function stopContainer(
   id: string
-): Promise<ServiceResponse<Container, string>> {
+): Promise<
+  ServiceResponse<z.infer<typeof stopContainerResponseSchema>, string>
+> {
   const { cookies } = await checkAuthentication();
   const path = `/containers/${encodeURIComponent(id)}/stop`;
 
@@ -141,13 +148,13 @@ export async function stopContainer(
     headers: {
       Cookie: cookies.toString(),
     },
-    output: containerSchema,
+    output: stopContainerResponseSchema,
   });
   if (error) {
     logger.error(error, "stopContainer error");
     return {
       data: null,
-      error: "Unexpected error while stopping the container.",
+      error: "Unexpected error while queueing the stop command.",
     };
   }
 
