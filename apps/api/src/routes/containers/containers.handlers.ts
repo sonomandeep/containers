@@ -3,15 +3,6 @@ import { upgradeWebSocket } from "hono/bun";
 import { streamSSE } from "hono/streaming";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import {
-  launchContainer,
-  listContainers,
-  removeContainer,
-  restartContainer,
-  startContainer,
-  stopContainer,
-  updateContainerEnvs,
-} from "@/lib/services/containers.service";
-import {
   parseEvent,
   startTerminal,
   validateTerminalAccess,
@@ -27,6 +18,15 @@ import type {
   StreamRoute,
   UpdateEnvsRoute,
 } from "./containers.routes";
+import {
+  launchContainer,
+  listContainers,
+  removeContainer,
+  restartContainer,
+  startContainer,
+  stopContainer,
+  updateContainerEnvs,
+} from "./containers.service";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const result = await listContainers(c.var.redis);

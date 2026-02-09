@@ -11,9 +11,9 @@ import type { Container, LaunchContainerInput } from "@containers/shared";
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import createApp from "@/lib/create-app";
-import * as service from "@/lib/services/containers.service";
 import { mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
+import * as service from "./containers.service";
 
 const createClient = () => testClient(createApp().route("/", router));
 

@@ -30,7 +30,7 @@ const fakeDocker: FakeDocker = {
 
 mock.module("@/lib/agent", () => ({ docker: fakeDocker }));
 
-const service = await import("@/lib/services/containers.service");
+const service = await import("./containers.service");
 const agents = await import("@/routes/agents/agents.service");
 
 afterEach(() => {
