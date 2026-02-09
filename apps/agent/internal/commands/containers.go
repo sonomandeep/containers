@@ -14,12 +14,16 @@ type containerStopPayload struct {
 }
 
 func (d *Dispatcher) registerContainerHandlers() {
-	d.register(ContainerStopName, handleContainerStop)
+	d.register(ContainerStopName, d.handleContainerStop)
 }
 
-func handleContainerStop(_ context.Context, command *Command) error {
+func (d *Dispatcher) handleContainerStop(ctx context.Context, command *Command) error {
 	if command == nil {
 		return errors.New("command is nil")
+	}
+
+	if d.containerStopper == nil {
+		return errors.New("container stopper not configured")
 	}
 
 	var payload containerStopPayload
@@ -32,8 +36,12 @@ func handleContainerStop(_ context.Context, command *Command) error {
 		return errors.New("container.stop payload missing containerId")
 	}
 
+	if err := d.containerStopper.StopContainer(ctx, payload.ContainerID); err != nil {
+		return fmt.Errorf("stop container %q: %w", payload.ContainerID, err)
+	}
+
 	log.Printf(
-		"command %q (%s) parsed for container %q",
+		"command %q (%s) stopped container %q",
 		command.Name,
 		command.ID,
 		payload.ContainerID,

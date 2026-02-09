@@ -33,7 +33,7 @@ func main() {
 	defer agent.Close()
 
 	go agent.Run(ctx)
-	dispatcher := agentcommands.NewDispatcher()
+	dispatcher := agentcommands.NewDispatcher(agent)
 
 	for {
 		select {
