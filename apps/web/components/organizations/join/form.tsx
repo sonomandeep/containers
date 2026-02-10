@@ -46,9 +46,7 @@ function buildInvitationPreview(invitationId: string) {
 
   return {
     workspaceName: "Paper Workspace",
-    invitedBy: `owner+${suffix}@mando.sh`,
-    invitedEmail: `member+${suffix}@mando.sh`,
-    role: "Member",
+    inviterName: suffix === "team" ? undefined : "Mando Team",
   };
 }
 
@@ -67,6 +65,7 @@ export function JoinTeamForm({ initialInvitationId }: JoinTeamFormProps) {
   });
 
   const invitationPreview = buildInvitationPreview(activeInvitationId);
+  const hasInviterName = Boolean(invitationPreview.inviterName?.trim());
 
   function handleContinue(input: JoinTeamFormInput) {
     const invitationId = normalizeInvitationId(input.invitationId);
@@ -101,30 +100,29 @@ export function JoinTeamForm({ initialInvitationId }: JoinTeamFormProps) {
     >
       {activeInvitationId ? (
         <div className="flex flex-col gap-3">
-          <div className="rounded-md border border-card-border bg-card p-3">
-            <p className="font-medium text-xs/relaxed">Invitation details</p>
-
-            <dl className="mt-2 grid gap-1 text-xs/relaxed">
-              <div className="inline-flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Workspace</dt>
-                <dd>{invitationPreview.workspaceName}</dd>
-              </div>
-
-              <div className="inline-flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Invited by</dt>
-                <dd>{invitationPreview.invitedBy}</dd>
-              </div>
-
-              <div className="inline-flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Email</dt>
-                <dd>{invitationPreview.invitedEmail}</dd>
-              </div>
-
-              <div className="inline-flex items-center justify-between gap-2">
-                <dt className="text-muted-foreground">Role</dt>
-                <dd>{invitationPreview.role}</dd>
-              </div>
-            </dl>
+          <div className="rounded-md border border-card-border bg-card px-3 py-2">
+            <p className="text-sm/relaxed">
+              {hasInviterName ? (
+                <>
+                  <span className="font-semibold">
+                    {invitationPreview.inviterName}
+                  </span>{" "}
+                  has invited you to join the{" "}
+                  <span className="font-semibold">
+                    {invitationPreview.workspaceName}
+                  </span>{" "}
+                  workspace.
+                </>
+              ) : (
+                <>
+                  You've been invited to join the{" "}
+                  <span className="font-semibold">
+                    {invitationPreview.workspaceName}
+                  </span>{" "}
+                  workspace. Accept the invitation to continue.
+                </>
+              )}
+            </p>
           </div>
 
           {decision === "accepted" && (
