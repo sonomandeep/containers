@@ -1,8 +1,12 @@
 "use client";
 
-import { CornerDownLeftIcon, RotateCcwIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  CornerDownLeftIcon,
+  RotateCcwIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,47 +24,69 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import { toSlug } from "@/lib/utils";
-
-type CreateOrganizationFormInput = {
-  logo: File | null;
-  name: string;
-  handle: string;
-};
+import { cn, toSlug } from "@/lib/utils";
+import {
+  type CreateOrganizationInput,
+  createOrganizationSchema,
+} from "@containers/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { auth } from "@/lib/auth";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
 
 const ACCEPTED_LOGO_FORMATS = "image/png,image/jpeg,image/webp";
 
 export function CreateOrganizationForm() {
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const [isHandleAutoSync, setIsHandleAutoSync] = useState(true);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
-  const form = useForm<CreateOrganizationFormInput>({
+  const form = useForm<CreateOrganizationInput>({
+    resolver: zodResolver(createOrganizationSchema),
     defaultValues: {
-      logo: null,
       name: "",
-      handle: "",
+      slug: "",
+      logo: undefined,
     },
   });
 
-  const logo = form.watch("logo");
+  // const logo = form.watch("logo");
   const name = form.watch("name");
 
-  useEffect(() => {
-    if (!logo) {
-      setLogoPreviewUrl(null);
-      return;
-    }
+  // useEffect(() => {
+  //   if (!logo) {
+  //     setLogoPreviewUrl(null);
+  //     return;
+  //   }
+  //
+  //   const objectUrl = URL.createObjectURL(logo);
+  //   setLogoPreviewUrl(objectUrl);
+  //
+  //   return () => {
+  //     URL.revokeObjectURL(objectUrl);
+  //   };
+  // }, [logo]);
 
-    const objectUrl = URL.createObjectURL(logo);
-    setLogoPreviewUrl(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [logo]);
-
-  function handleSubmit(_input: CreateOrganizationFormInput) {
-    router.push("/onboarding/invite");
+  function handleSubmit(input: CreateOrganizationInput) {
+    auth.organization.create(
+      { name: input.name, slug: input.slug },
+      {
+        onRequest: () => {
+          setIsPending(true);
+        },
+        onResponse: () => {
+          setIsPending(false);
+        },
+        onSuccess: () => {
+          console.log("org created");
+          // router.replace("/containers");
+        },
+        onError: ({ error }) => {
+          console.log(error);
+          form.setError("root", { message: error.message });
+        },
+      }
+    );
   }
 
   return (
@@ -71,6 +97,7 @@ export function CreateOrganizationForm() {
       <div className="flex flex-col gap-3">
         <Controller
           control={form.control}
+          disabled={isPending}
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -88,7 +115,7 @@ export function CreateOrganizationForm() {
                     return;
                   }
 
-                  form.setValue("handle", toSlug(nextName), {
+                  form.setValue("slug", toSlug(nextName), {
                     shouldDirty: false,
                     shouldTouch: false,
                   });
@@ -103,7 +130,8 @@ export function CreateOrganizationForm() {
 
         <Controller
           control={form.control}
-          name="handle"
+          disabled={isPending}
+          name="slug"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Handle</FieldLabel>
@@ -142,7 +170,7 @@ export function CreateOrganizationForm() {
                     disabled={isHandleAutoSync}
                     onClick={() => {
                       const workspaceName = form.getValues("name");
-                      form.setValue("handle", toSlug(workspaceName));
+                      form.setValue("slug", toSlug(workspaceName));
                       setIsHandleAutoSync(true);
                     }}
                     size="icon-xs"
@@ -160,10 +188,12 @@ export function CreateOrganizationForm() {
 
         <Controller
           control={form.control}
+          disabled={isPending}
           name="logo"
           render={({ field, fieldState }) => (
             <Field className="pt-1" data-invalid={fieldState.invalid}>
               <Input
+                disabled={isPending}
                 accept={ACCEPTED_LOGO_FORMATS}
                 className="sr-only"
                 id={field.name}
@@ -179,7 +209,10 @@ export function CreateOrganizationForm() {
 
               <div className="relative flex w-full items-center gap-3 rounded-md">
                 <FieldLabel
-                  className="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-md"
+                  className={cn(
+                    "absolute inset-0 z-10 h-full w-full rounded-md",
+                    !isPending && "cursor-pointer"
+                  )}
                   htmlFor={field.name}
                 >
                   <span className="sr-only">Upload workspace logo</span>
@@ -218,9 +251,22 @@ export function CreateOrganizationForm() {
         />
       </div>
 
-      <Button className="w-full" type="submit">
+      {form.formState.errors.root && (
+        <Alert variant="destructive">
+          <div className="inline-flex items-center gap-2">
+            <AlertCircleIcon className="size-3" />
+            <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
+          </div>
+        </Alert>
+      )}
+
+      <Button className="w-full" disabled={isPending} type="submit">
         Continue
-        <CornerDownLeftIcon className="size-3 opacity-60" />
+        {isPending ? (
+          <Spinner className="size-3 opacity-60" />
+        ) : (
+          <CornerDownLeftIcon className="size-3 opacity-60" />
+        )}
       </Button>
     </form>
   );
