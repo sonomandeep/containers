@@ -69,65 +69,6 @@ export function CreateOrganizationForm() {
       <div className="flex flex-col gap-3">
         <Controller
           control={form.control}
-          name="logo"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <Input
-                accept={ACCEPTED_LOGO_FORMATS}
-                className="sr-only"
-                id={field.name}
-                name={field.name}
-                onBlur={field.onBlur}
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  field.onChange(file);
-                }}
-                ref={field.ref}
-                type="file"
-              />
-
-              <div className="relative flex w-full items-center gap-3 rounded-md">
-                <FieldLabel
-                  className="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-md"
-                  htmlFor={field.name}
-                >
-                  <span className="sr-only">Upload workspace logo</span>
-                </FieldLabel>
-
-                <Avatar className="size-8 after:rounded-md">
-                  {logoPreviewUrl ? (
-                    <AvatarImage
-                      alt="Workspace logo preview"
-                      className="rounded-md"
-                      src={logoPreviewUrl}
-                    />
-                  ) : (
-                    <AvatarFallback className="rounded-md font-medium font-mono uppercase">
-                      {name?.charAt(0) || "A"}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-
-                <div className="flex flex-col">
-                  <FieldLabel
-                    className="pointer-events-none w-fit"
-                    htmlFor={field.name}
-                  >
-                    Workspace logo
-                  </FieldLabel>
-                  <FieldDescription className="pointer-events-none m-0">
-                    Accepted: PNG, JPG, WEBP. Max 2MB.
-                  </FieldDescription>
-                </div>
-              </div>
-
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={form.control}
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
@@ -210,6 +151,65 @@ export function CreateOrganizationForm() {
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={form.control}
+          name="logo"
+          render={({ field, fieldState }) => (
+            <Field className="pt-1" data-invalid={fieldState.invalid}>
+              <Input
+                accept={ACCEPTED_LOGO_FORMATS}
+                className="sr-only"
+                id={field.name}
+                name={field.name}
+                onBlur={field.onBlur}
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  field.onChange(file);
+                }}
+                ref={field.ref}
+                type="file"
+              />
+
+              <div className="relative flex w-full items-center gap-3 rounded-md">
+                <FieldLabel
+                  className="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-md"
+                  htmlFor={field.name}
+                >
+                  <span className="sr-only">Upload workspace logo</span>
+                </FieldLabel>
+
+                <Avatar className="size-8 after:rounded-md">
+                  {logoPreviewUrl ? (
+                    <AvatarImage
+                      alt="Workspace logo preview"
+                      className="rounded-md"
+                      src={logoPreviewUrl}
+                    />
+                  ) : (
+                    <AvatarFallback className="rounded-md font-medium font-mono uppercase">
+                      {name?.charAt(0) || "A"}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+
+                <div className="flex flex-col">
+                  <FieldLabel
+                    className="pointer-events-none w-fit"
+                    htmlFor={field.name}
+                  >
+                    Workspace logo
+                  </FieldLabel>
+                  <FieldDescription className="pointer-events-none m-0">
+                    Accepted: PNG, JPG, WEBP. Max 2MB.
+                  </FieldDescription>
+                </div>
+              </div>
+
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
