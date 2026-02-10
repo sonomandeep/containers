@@ -57,7 +57,7 @@ function OnboardingCard({
   description,
 }: OnboardingCardProps) {
   return (
-    <div className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3">
+    <div className="flex w-full cursor-pointer flex-col gap-3 rounded-md border border-card-border bg-card p-3 transition-colors duration-150 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10">
       <Icon className="size-4" />
 
       <div className="flex flex-col gap-0.5">
