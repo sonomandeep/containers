@@ -8,6 +8,7 @@ import {
   AuthCardTitle,
 } from "@/components/auth/auth-card";
 import { Logo } from "@/components/core/logo";
+import { CreateOrganizationForm } from "@/components/organizations/create/form";
 
 export default async function Page() {
   return (
@@ -24,6 +25,8 @@ export default async function Page() {
             </div>
           </div>
         </AuthCardHeader>
+
+        <CreateOrganizationForm />
       </AuthCardContent>
 
       <AuthCardFooter>
