@@ -1,13 +1,18 @@
 "use client";
 
 import {
+  type CreateOrganizationInput,
+  createOrganizationSchema,
+} from "@containers/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
   AlertCircleIcon,
   CornerDownLeftIcon,
   RotateCcwIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,20 +29,13 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import { cn, toSlug } from "@/lib/utils";
-import {
-  type CreateOrganizationInput,
-  createOrganizationSchema,
-} from "@containers/shared";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { auth } from "@/lib/auth";
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
+// import { auth } from "@/lib/auth";
+import { cn, toSlug } from "@/lib/utils";
 
 const ACCEPTED_LOGO_FORMATS = "image/png,image/jpeg,image/webp";
 
 export function CreateOrganizationForm() {
-  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isHandleAutoSync, setIsHandleAutoSync] = useState(true);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -50,43 +48,48 @@ export function CreateOrganizationForm() {
     },
   });
 
-  // const logo = form.watch("logo");
+  const logo = form.watch("logo");
   const name = form.watch("name");
 
-  // useEffect(() => {
-  //   if (!logo) {
-  //     setLogoPreviewUrl(null);
-  //     return;
-  //   }
-  //
-  //   const objectUrl = URL.createObjectURL(logo);
-  //   setLogoPreviewUrl(objectUrl);
-  //
-  //   return () => {
-  //     URL.revokeObjectURL(objectUrl);
-  //   };
-  // }, [logo]);
+  useEffect(() => {
+    if (!(logo instanceof File)) {
+      setLogoPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(logo);
+    setLogoPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [logo]);
 
   function handleSubmit(input: CreateOrganizationInput) {
-    auth.organization.create(
-      { name: input.name, slug: input.slug },
-      {
-        onRequest: () => {
-          setIsPending(true);
-        },
-        onResponse: () => {
-          setIsPending(false);
-        },
-        onSuccess: () => {
-          console.log("org created");
-          // router.replace("/containers");
-        },
-        onError: ({ error }) => {
-          console.log(error);
-          form.setError("root", { message: error.message });
-        },
-      }
-    );
+    setIsPending(true);
+    if (input.logo instanceof File) {
+      // biome-ignore lint/suspicious/noConsole: temporary upload debug output
+      console.log("logo selected", {
+        name: input.logo.name,
+        size: input.logo.size,
+        type: input.logo.type,
+      });
+    }
+
+    //   auth.organization.create(
+    //     { name: input.name, slug: input.slug },
+    //     {
+    //       onRequest: () => {
+    //         setIsPending(true);
+    //       },
+    //       onResponse: () => {
+    //         setIsPending(false);
+    //       },
+    //       onError: ({ error }) => {
+    //         form.setError("root", { message: error.message });
+    //       },
+    //     }
+    //   );
   }
 
   return (
@@ -193,9 +196,9 @@ export function CreateOrganizationForm() {
           render={({ field, fieldState }) => (
             <Field className="pt-1" data-invalid={fieldState.invalid}>
               <Input
-                disabled={isPending}
                 accept={ACCEPTED_LOGO_FORMATS}
                 className="sr-only"
+                disabled={isPending}
                 id={field.name}
                 name={field.name}
                 onBlur={field.onBlur}
