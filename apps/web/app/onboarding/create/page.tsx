@@ -17,7 +17,7 @@ export default async function Page() {
           <div className="inline-flex w-full gap-2">
             <Logo size={30} />
             <div className="flex flex-col">
-              <AuthCardTitle>Create your workspace</AuthCardTitle>
+              <AuthCardTitle>Set up your workspace</AuthCardTitle>
               <AuthCardDescription>
                 Fill the form to create your workspace.
               </AuthCardDescription>
