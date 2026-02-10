@@ -10,6 +10,7 @@ import {
   CornerDownLeftIcon,
   RotateCcwIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -30,12 +31,14 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-// import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { uploadLogo } from "@/lib/services/organizations.service";
 import { cn, toSlug } from "@/lib/utils";
 
 const ACCEPTED_LOGO_FORMATS = "image/png,image/jpeg,image/webp";
 
 export function CreateOrganizationForm() {
+  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isHandleAutoSync, setIsHandleAutoSync] = useState(true);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -65,31 +68,50 @@ export function CreateOrganizationForm() {
     };
   }, [logo]);
 
-  function handleSubmit(input: CreateOrganizationInput) {
+  async function handleSubmit(input: CreateOrganizationInput) {
+    form.clearErrors();
     setIsPending(true);
+
+    let logoUrl: string | undefined;
     if (input.logo instanceof File) {
-      // biome-ignore lint/suspicious/noConsole: temporary upload debug output
-      console.log("logo selected", {
-        name: input.logo.name,
-        size: input.logo.size,
-        type: input.logo.type,
-      });
+      const uploadedLogo = await uploadLogo(input.logo);
+      if (uploadedLogo.error || !uploadedLogo.data) {
+        form.setError("root", {
+          message:
+            uploadedLogo.error || "Unexpected error while uploading logo.",
+        });
+        setIsPending(false);
+        return;
+      }
+
+      logoUrl = uploadedLogo.data.url;
     }
 
-    //   auth.organization.create(
-    //     { name: input.name, slug: input.slug },
-    //     {
-    //       onRequest: () => {
-    //         setIsPending(true);
-    //       },
-    //       onResponse: () => {
-    //         setIsPending(false);
-    //       },
-    //       onError: ({ error }) => {
-    //         form.setError("root", { message: error.message });
-    //       },
-    //     }
-    //   );
+    auth.organization.create(
+      {
+        name: input.name,
+        slug: input.slug,
+        ...(logoUrl ? { logo: logoUrl } : {}),
+      },
+      {
+        onResponse: () => {
+          setIsPending(false);
+        },
+        onSuccess: () => {
+          router.replace("/onboarding/invite");
+        },
+        onError: ({ error }) => {
+          if (error.code === "ORGANIZATION_ALREADY_EXISTS") {
+            form.setError("slug", {
+              message: "Workspace handle is already taken",
+            });
+            return;
+          }
+
+          form.setError("root", { message: error.message });
+        },
+      }
+    );
   }
 
   return (
