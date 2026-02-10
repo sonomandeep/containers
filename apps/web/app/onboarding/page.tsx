@@ -63,7 +63,7 @@ function OnboardingCard({
 }: OnboardingCardProps) {
   return (
     <Link
-      className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3 transition-colors duration-150 hover:border-black hover:bg-white focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-ring/30 dark:hover:border-white/40 dark:hover:bg-black"
+      className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3 transition-colors duration-150 hover:border-black hover:bg-white focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 dark:hover:border-white/40 dark:hover:bg-black"
       href={href}
     >
       <Icon className="size-4" />
