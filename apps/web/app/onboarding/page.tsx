@@ -1,5 +1,6 @@
 import { Building2Icon, type LucideIcon, UsersIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Logo } from "@/components/core/logo";
 
 export default async function Page() {
@@ -19,12 +20,14 @@ export default async function Page() {
         <div className="grid grid-cols-2 gap-3">
           <OnboardingCard
             description="Enter an invite code or accept an invitation to collaborate with your team."
+            href="/onboarding/join"
             icon={UsersIcon}
             title="Join workspace"
           />
 
           <OnboardingCard
             description="Set up your organization and invite teammates in a few steps."
+            href="/onboarding/create"
             icon={Building2Icon}
             title="Create workspace"
           />
@@ -46,24 +49,29 @@ export default async function Page() {
 }
 
 type OnboardingCardProps = {
+  href: string;
   icon: LucideIcon;
   title: string;
   description: string;
 };
 
 function OnboardingCard({
+  href,
   icon: Icon,
   title,
   description,
 }: OnboardingCardProps) {
   return (
-    <div className="flex w-full cursor-pointer flex-col gap-3 rounded-md border border-card-border bg-card p-3 transition-colors duration-150 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10">
+    <Link
+      className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3 transition-colors duration-150 hover:border-black hover:bg-white focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-ring/30 dark:hover:border-white/40 dark:hover:bg-black"
+      href={href}
+    >
       <Icon className="size-4" />
 
       <div className="flex flex-col gap-0.5">
         <h2>{title}</h2>
         <p className="text-muted-foreground text-xs">{description}</p>
       </div>
-    </div>
+    </Link>
   );
 }
