@@ -16,6 +16,7 @@ type Props = {
 
 export default async function Page({ searchParams }: Props) {
   const { invitationId } = await searchParams;
+  const hasInvitationId = Boolean(invitationId?.trim());
 
   return (
     <AuthCard>
@@ -36,13 +37,27 @@ export default async function Page({ searchParams }: Props) {
       </AuthCardContent>
 
       <AuthCardFooter>
-        <span>Got the wrong invite?</span>
-        <Link
-          className="underline transition-colors hover:text-foreground"
-          href="/onboarding/join"
-        >
-          Go back
-        </Link>
+        {hasInvitationId ? (
+          <>
+            <span>Wrong invite?</span>
+            <Link
+              className="underline transition-colors hover:text-foreground"
+              href="/onboarding/join"
+            >
+              Go back
+            </Link>
+          </>
+        ) : (
+          <>
+            <span>Need a workspace?</span>
+            <Link
+              className="underline transition-colors hover:text-foreground"
+              href="/onboarding/create"
+            >
+              Create one
+            </Link>
+          </>
+        )}
       </AuthCardFooter>
     </AuthCard>
   );
