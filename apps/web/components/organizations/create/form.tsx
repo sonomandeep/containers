@@ -1,6 +1,7 @@
 "use client";
 
 import { CornerDownLeftIcon, RotateCcwIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +31,7 @@ type CreateOrganizationFormInput = {
 const ACCEPTED_LOGO_FORMATS = "image/png,image/jpeg,image/webp";
 
 export function CreateOrganizationForm() {
+  const router = useRouter();
   const [isHandleAutoSync, setIsHandleAutoSync] = useState(true);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const form = useForm<CreateOrganizationFormInput>({
@@ -57,8 +59,8 @@ export function CreateOrganizationForm() {
     };
   }, [logo]);
 
-  function handleSubmit(input: CreateOrganizationFormInput) {
-    form.reset(input);
+  function handleSubmit(_input: CreateOrganizationFormInput) {
+    router.push("/onboarding/invite");
   }
 
   return (

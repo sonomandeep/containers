@@ -33,7 +33,7 @@ export default async function Page() {
         <span>Already have a team?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
-          href="/auth/signup"
+          href="/onboarding/join"
         >
           Join
         </Link>

@@ -19,7 +19,7 @@ export default async function Page() {
 
         <div className="grid grid-cols-2 gap-3">
           <OnboardingCard
-            description="Enter an invite code or accept an invitation to collaborate with your team."
+            description="Enter an invitation ID or accept an invitation to collaborate with your team."
             href="/onboarding/join"
             icon={UsersIcon}
             title="Join workspace"
