@@ -5,7 +5,8 @@ import {
   BadgeCheckIcon,
   CornerDownLeftIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -51,21 +52,26 @@ function buildInvitationPreview(invitationId: string) {
 }
 
 export function JoinTeamForm({ initialInvitationId }: JoinTeamFormProps) {
-  const normalizedInvitationId = normalizeInvitationId(
-    initialInvitationId ?? ""
-  );
-  const [activeInvitationId, setActiveInvitationId] = useState(
-    normalizedInvitationId
-  );
+  const router = useRouter();
+  const activeInvitationId = normalizeInvitationId(initialInvitationId ?? "");
   const [decision, setDecision] = useState<InvitationDecision>("idle");
   const form = useForm<JoinTeamFormInput>({
     defaultValues: {
-      invitationId: normalizedInvitationId,
+      invitationId: activeInvitationId,
     },
   });
 
   const invitationPreview = buildInvitationPreview(activeInvitationId);
   const hasInviterName = Boolean(invitationPreview.inviterName?.trim());
+
+  useEffect(() => {
+    form.setValue("invitationId", activeInvitationId, {
+      shouldDirty: false,
+      shouldTouch: false,
+    });
+    form.clearErrors("invitationId");
+    setDecision("idle");
+  }, [activeInvitationId, form]);
 
   function handleContinue(input: JoinTeamFormInput) {
     const invitationId = normalizeInvitationId(input.invitationId);
@@ -89,8 +95,9 @@ export function JoinTeamForm({ initialInvitationId }: JoinTeamFormProps) {
       shouldDirty: true,
       shouldTouch: true,
     });
-    setActiveInvitationId(invitationId);
-    setDecision("idle");
+    router.replace(
+      `/onboarding/join?invitationId=${encodeURIComponent(invitationId)}`
+    );
   }
 
   return (
