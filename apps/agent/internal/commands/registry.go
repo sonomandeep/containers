@@ -9,15 +9,21 @@ import (
 
 var ErrUnhandledCommand = errors.New("command not handled")
 
+type ContainerStopper interface {
+	StopContainer(context.Context, string) error
+}
+
 type Handler func(context.Context, *Command) error
 
 type Dispatcher struct {
-	handlers map[string]Handler
+	handlers         map[string]Handler
+	containerStopper ContainerStopper
 }
 
-func NewDispatcher() *Dispatcher {
+func NewDispatcher(containerStopper ContainerStopper) *Dispatcher {
 	dispatcher := &Dispatcher{
-		handlers: make(map[string]Handler),
+		handlers:         make(map[string]Handler),
+		containerStopper: containerStopper,
 	}
 
 	dispatcher.registerContainerHandlers()
