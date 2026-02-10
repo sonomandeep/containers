@@ -36,12 +36,12 @@ export default async function Page({ searchParams }: Props) {
       </AuthCardContent>
 
       <AuthCardFooter>
-        <span>Need a different invitation?</span>
+        <span>Got the wrong invite?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
           href="/onboarding/join"
         >
-          Use another invite
+          Go back
         </Link>
       </AuthCardFooter>
     </AuthCard>
