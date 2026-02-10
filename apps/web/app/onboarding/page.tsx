@@ -1,4 +1,4 @@
-import { Building2Icon, UsersIcon } from "lucide-react";
+import { Building2Icon, type LucideIcon, UsersIcon } from "lucide-react";
 import Image from "next/image";
 import { Logo } from "@/components/core/logo";
 
@@ -17,28 +17,17 @@ export default async function Page() {
         </header>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3">
-            <UsersIcon className="size-4" />
+          <OnboardingCard
+            description="Enter an invite code or accept an invitation to collaborate with your team."
+            icon={UsersIcon}
+            title="Join workspace"
+          />
 
-            <div className="flex flex-col gap-0.5">
-              <h2>Join workspace</h2>
-              <p className="text-muted-foreground text-xs">
-                Enter an invite code or accept an invitation to collaborate with
-                your team.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3">
-            <Building2Icon className="size-4" />
-
-            <div className="flex flex-col gap-0.5">
-              <h2>Create workspace</h2>
-              <p className="text-muted-foreground text-xs">
-                Set up your organization and invite teammates in a few steps.
-              </p>
-            </div>
-          </div>
+          <OnboardingCard
+            description="Set up your organization and invite teammates in a few steps."
+            icon={Building2Icon}
+            title="Create workspace"
+          />
         </div>
       </section>
 
@@ -52,6 +41,29 @@ export default async function Page() {
           src="/assets/mock.png"
         />
       </section>
+    </div>
+  );
+}
+
+type OnboardingCardProps = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+};
+
+function OnboardingCard({
+  icon: Icon,
+  title,
+  description,
+}: OnboardingCardProps) {
+  return (
+    <div className="flex w-full flex-col gap-3 rounded-md border border-card-border bg-card p-3">
+      <Icon className="size-4" />
+
+      <div className="flex flex-col gap-0.5">
+        <h2>{title}</h2>
+        <p className="text-muted-foreground text-xs">{description}</p>
+      </div>
     </div>
   );
 }
