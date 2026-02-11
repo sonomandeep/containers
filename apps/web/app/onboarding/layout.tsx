@@ -8,7 +8,11 @@ export default function RootLayout({
   return (
     <main className="flex h-svh w-full items-center justify-center overflow-hidden">
       <div className="grid h-full w-full grid-cols-3">
-        <section className="col-span-1">{children}</section>
+        <section className="col-span-1 overflow-y-auto px-6 py-8">
+          <div className="flex min-h-full items-center justify-center">
+            {children}
+          </div>
+        </section>
 
         <aside
           aria-hidden="true"
