@@ -41,7 +41,6 @@ const pendingJoinInvitationSchema = z.object({
   id: z.string(),
   organizationName: z.string(),
   organizationSlug: z.string(),
-  inviterEmail: z.string(),
 });
 
 type InvitationPreview = z.infer<typeof invitationPreviewSchema>;
@@ -249,7 +248,6 @@ export async function listPendingJoinInvitations(): Promise<
         id: invitationDetail.id,
         organizationName: invitationDetail.organizationName,
         organizationSlug: invitationDetail.organizationSlug,
-        inviterEmail: invitationDetail.inviterEmail,
       });
 
       if (!parsedInvitation.success) {
