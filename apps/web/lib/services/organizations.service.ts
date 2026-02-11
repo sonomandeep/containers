@@ -24,7 +24,17 @@ const invitationPreviewSchema = z.object({
   inviterEmail: z.string(),
 });
 
+const activeOrganizationSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  logo: z.string().nullable().optional(),
+});
+
 type InvitationPreview = z.infer<typeof invitationPreviewSchema>;
+type ActiveOrganizationSummary = z.infer<
+  typeof activeOrganizationSummarySchema
+>;
 
 type InvitationErrorDetails = {
   code: string | null;
@@ -109,6 +119,55 @@ export async function removeLogo(
   }
 
   return { data: null, error: null };
+}
+
+export async function getActiveOrganizationSummary(): Promise<
+  ServiceResponse<ActiveOrganizationSummary, string>
+> {
+  const { cookies } = await checkAuthentication();
+
+  const { data, error } = await auth.organization.getFullOrganization({
+    fetchOptions: {
+      headers: {
+        Cookie: cookies.toString(),
+      },
+    },
+  });
+
+  if (error) {
+    logger.error(error, "getActiveOrganizationSummary error");
+    return {
+      data: null,
+      error: "Unable to load active workspace.",
+    };
+  }
+
+  if (!data) {
+    return {
+      data: null,
+      error: "No active workspace found.",
+    };
+  }
+
+  const parsedData = activeOrganizationSummarySchema.safeParse(data);
+  if (!parsedData.success) {
+    logger.error(
+      {
+        issues: parsedData.error.issues,
+      },
+      "invalid active organization payload"
+    );
+
+    return {
+      data: null,
+      error: "Unable to load active workspace.",
+    };
+  }
+
+  return {
+    data: parsedData.data,
+    error: null,
+  };
 }
 
 export async function getInvitationPreview(
