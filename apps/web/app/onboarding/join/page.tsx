@@ -33,12 +33,12 @@ export default async function Page() {
 
             return (
               <Link
-                className="inline-flex w-full items-center justify-between gap-3 rounded-md border border-card-border bg-card p-2.5 transition-colors duration-150 hover:border-black hover:bg-white focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 dark:hover:border-white/40 dark:hover:bg-black"
+                className="inline-flex w-full items-center justify-between gap-3 rounded-md border border-transparent bg-transparent p-2.5 transition-colors duration-150 hover:border-card-border hover:bg-card focus-visible:border-card-border focus-visible:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
                 href={`/onboarding/join/${encodeURIComponent(invitation.id)}`}
                 key={invitation.id}
               >
                 <div className="inline-flex min-w-0 items-center gap-2.5">
-                  <Avatar className="size-8 after:rounded-md">
+                  <Avatar className="size-9 after:rounded-md">
                     <AvatarFallback className="rounded-md font-medium font-mono uppercase">
                       {organizationInitial}
                     </AvatarFallback>
