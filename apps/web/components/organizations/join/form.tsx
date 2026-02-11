@@ -1,12 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  AlertCircleIcon,
-  AlertTriangleIcon,
-  BadgeCheckIcon,
-  CornerDownLeftIcon,
-} from "lucide-react";
+import { AlertCircleIcon, CornerDownLeftIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -45,11 +40,12 @@ type JoinInvitationIdFormProps = {
 };
 
 type JoinInvitationDecisionFormProps = {
+  invitationId: string;
   inviterEmail: string;
   organizationName: string;
 };
 
-type InvitationDecision = "idle" | "accepted" | "declined";
+type InvitationAction = "accept" | "decline";
 
 function normalizeInvitationId(value: string) {
   return value.trim();
@@ -153,10 +149,36 @@ export function JoinInvitationIdForm({
 }
 
 export function JoinInvitationDecisionForm({
+  invitationId,
   inviterEmail,
   organizationName,
 }: JoinInvitationDecisionFormProps) {
-  const [decision, setDecision] = useState<InvitationDecision>("idle");
+  const router = useRouter();
+  const [pendingAction, setPendingAction] = useState<InvitationAction | null>(
+    null
+  );
+  const [rootError, setRootError] = useState<string | null>(null);
+
+  const isPending = pendingAction !== null;
+
+  async function handleInvitationAction(action: InvitationAction) {
+    setPendingAction(action);
+    setRootError(null);
+
+    const result = await executeInvitationAction(action, invitationId);
+    if (result.error) {
+      setRootError(result.error);
+      setPendingAction(null);
+      return;
+    }
+
+    if (action === "accept") {
+      router.replace("/containers");
+      return;
+    }
+
+    router.replace("/onboarding/join");
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -168,44 +190,70 @@ export function JoinInvitationDecisionForm({
         </p>
       </div>
 
-      {decision === "accepted" && (
-        <Alert variant="info">
-          <div className="inline-flex items-center gap-2">
-            <BadgeCheckIcon className="size-3" />
-            <AlertTitle>Invitation accepted.</AlertTitle>
-          </div>
-        </Alert>
-      )}
-
-      {decision === "declined" && (
+      {rootError && (
         <Alert variant="destructive">
           <div className="inline-flex items-center gap-2">
-            <AlertTriangleIcon className="size-3" />
-            <AlertTitle>Invitation declined.</AlertTitle>
+            <AlertCircleIcon className="size-3" />
+            <AlertTitle>{rootError}</AlertTitle>
           </div>
         </Alert>
       )}
 
       <div className="grid w-full grid-cols-2 gap-2">
         <Button
-          onClick={() => setDecision("declined")}
+          disabled={isPending}
+          onClick={() => handleInvitationAction("decline")}
           type="button"
           variant="secondary"
         >
           Decline
+          {pendingAction === "decline" && (
+            <Spinner className="size-3 opacity-60" />
+          )}
         </Button>
 
         <Button
-          onClick={() => setDecision("accepted")}
+          disabled={isPending}
+          onClick={() => handleInvitationAction("accept")}
           type="button"
           variant="default"
         >
           Approve
-          <CornerDownLeftIcon className="size-3 opacity-60" />
+          {pendingAction === "accept" ? (
+            <Spinner className="size-3 opacity-60" />
+          ) : (
+            <CornerDownLeftIcon className="size-3 opacity-60" />
+          )}
         </Button>
       </div>
     </div>
   );
+}
+
+async function executeInvitationAction(
+  action: InvitationAction,
+  invitationId: string
+) {
+  try {
+    const response =
+      action === "accept"
+        ? await auth.organization.acceptInvitation({ invitationId })
+        : await auth.organization.rejectInvitation({ invitationId });
+
+    if (response.error) {
+      return {
+        error: parseInvitationLookupError(response.error),
+      };
+    }
+
+    return {
+      error: null,
+    };
+  } catch (error) {
+    return {
+      error: parseInvitationLookupError(error),
+    };
+  }
 }
 
 function buildJoinInvitationDetailUrl({
@@ -259,55 +307,94 @@ async function lookupInvitationPreview(invitationId: string) {
 }
 
 function parseInvitationLookupError(error: unknown) {
+  const details = extractInvitationErrorDetails(error);
+  return mapInvitationErrorMessage(details) || details.message;
+}
+
+const INVITATION_ERROR_MAPPINGS = [
+  {
+    code: "YOU_ARE_NOT_THE_RECIPIENT_OF_THE_INVITATION",
+    includes: "not the recipient",
+    message: "This invitation belongs to another account.",
+  },
+  {
+    code: "INVITATION_NOT_FOUND",
+    includes: "invitation not found",
+    message: "This invitation is invalid or has expired.",
+  },
+  {
+    code: "ORGANIZATION_NOT_FOUND",
+    includes: "organization not found",
+    message: "This workspace is no longer available.",
+  },
+  {
+    code: "EMAIL_VERIFICATION_REQUIRED_BEFORE_ACCEPTING_OR_REJECTING_INVITATION",
+    includes: "email verification required",
+    message: "Verify your email before responding to this invitation.",
+  },
+  {
+    code: "ORGANIZATION_MEMBERSHIP_LIMIT_REACHED",
+    includes: "membership limit",
+    message: "This workspace has reached its member limit.",
+  },
+] as const;
+
+function extractInvitationErrorDetails(error: unknown) {
   if (!error) {
-    return "Unable to load invitation details.";
+    return {
+      code: null,
+      message: "Unable to load invitation details.",
+    };
   }
 
   if (typeof error === "string") {
-    return error;
+    return {
+      code: null,
+      message: error,
+    };
   }
 
-  if (typeof error === "object") {
-    const details = error as {
-      code?: string;
-      error?: string;
-      error_description?: string;
-      message?: string;
-      statusText?: string;
+  if (typeof error !== "object") {
+    return {
+      code: null,
+      message: "Unable to load invitation details.",
     };
+  }
 
-    const message =
+  const details = error as {
+    code?: string;
+    error?: string;
+    error_description?: string;
+    message?: string;
+    statusText?: string;
+  };
+
+  return {
+    code: typeof details.code === "string" ? details.code : null,
+    message:
       details.message ||
       details.error_description ||
       details.error ||
       details.statusText ||
-      "Unable to load invitation details.";
-    const normalizedCode = details.code?.toUpperCase();
-    const normalizedMessage = message.toLowerCase();
+      "Unable to load invitation details.",
+  };
+}
 
+function mapInvitationErrorMessage(details: {
+  code: string | null;
+  message: string;
+}) {
+  const normalizedCode = details.code?.toUpperCase();
+  const normalizedMessage = details.message.toLowerCase();
+
+  for (const mapping of INVITATION_ERROR_MAPPINGS) {
     if (
-      normalizedCode === "YOU_ARE_NOT_THE_RECIPIENT_OF_THE_INVITATION" ||
-      normalizedMessage.includes("not the recipient")
+      normalizedCode === mapping.code ||
+      normalizedMessage.includes(mapping.includes)
     ) {
-      return "This invitation belongs to another account.";
+      return mapping.message;
     }
-
-    if (
-      normalizedCode === "INVITATION_NOT_FOUND" ||
-      normalizedMessage.includes("invitation not found")
-    ) {
-      return "This invitation is invalid or has expired.";
-    }
-
-    if (
-      normalizedCode === "ORGANIZATION_NOT_FOUND" ||
-      normalizedMessage.includes("organization not found")
-    ) {
-      return "This workspace is no longer available.";
-    }
-
-    return message;
   }
 
-  return "Unable to load invitation details.";
+  return null;
 }

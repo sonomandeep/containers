@@ -60,6 +60,7 @@ export default async function Page({ params, searchParams }: Props) {
 
         {invitation.data ? (
           <JoinInvitationDecisionForm
+            invitationId={normalizedInvitationId}
             inviterEmail={invitation.data.inviterEmail}
             organizationName={invitation.data.organizationName}
           />
