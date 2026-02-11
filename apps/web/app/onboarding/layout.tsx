@@ -7,12 +7,12 @@ export default function RootLayout({
 }>) {
   return (
     <main className="flex h-svh w-full items-center justify-center overflow-hidden">
-      <div className="grid h-full w-full grid-cols-5">
-        <section className="col-span-2">{children}</section>
+      <div className="grid h-full w-full grid-cols-3">
+        <section className="col-span-1">{children}</section>
 
         <aside
           aria-hidden="true"
-          className="relative col-span-3 bg-[url(/assets/clouds.jpg)] bg-center bg-cover bg-no-repeat"
+          className="relative col-span-2 bg-[url(/assets/clouds.jpg)] bg-center bg-cover bg-no-repeat"
         >
           <Image
             alt=""
