@@ -1,13 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  AuthCard,
-  AuthCardContent,
-  AuthCardDescription,
-  AuthCardFooter,
-  AuthCardHeader,
-  AuthCardTitle,
-} from "@/components/auth/auth-card";
 import { Logo } from "@/components/core/logo";
 import { JoinInvitationIdForm } from "@/components/organizations/join/form";
 
@@ -43,24 +35,20 @@ export default async function Page({ searchParams }: Props) {
   }
 
   return (
-    <AuthCard>
-      <AuthCardContent>
-        <AuthCardHeader>
-          <div className="inline-flex w-full gap-2">
-            <Logo size={30} />
-            <div className="flex flex-col">
-              <AuthCardTitle>Join your team</AuthCardTitle>
-              <AuthCardDescription>
-                Join a workspace with an invite.
-              </AuthCardDescription>
-            </div>
-          </div>
-        </AuthCardHeader>
+    <section className="mx-auto flex w-full max-w-2xs flex-col gap-6">
+      <header className="inline-flex w-full gap-2">
+        <Logo size={30} />
+        <div className="flex flex-col">
+          <h1>Join your team</h1>
+          <p className="text-muted-foreground text-xs">
+            Join a workspace with an invite.
+          </p>
+        </div>
+      </header>
 
-        <JoinInvitationIdForm />
-      </AuthCardContent>
+      <JoinInvitationIdForm />
 
-      <AuthCardFooter>
+      <div className="inline-flex items-center justify-center gap-1 text-muted-foreground text-xs">
         <span>Need a workspace?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
@@ -68,7 +56,7 @@ export default async function Page({ searchParams }: Props) {
         >
           Create one
         </Link>
-      </AuthCardFooter>
-    </AuthCard>
+      </div>
+    </section>
   );
 }

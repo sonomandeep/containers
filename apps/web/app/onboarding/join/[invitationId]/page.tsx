@@ -1,14 +1,6 @@
 import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  AuthCard,
-  AuthCardContent,
-  AuthCardDescription,
-  AuthCardFooter,
-  AuthCardHeader,
-  AuthCardTitle,
-} from "@/components/auth/auth-card";
 import { Logo } from "@/components/core/logo";
 import { JoinInvitationDecisionForm } from "@/components/organizations/join/form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -44,39 +36,35 @@ export default async function Page({ params, searchParams }: Props) {
     : await getInvitationPreview(normalizedInvitationId);
 
   return (
-    <AuthCard>
-      <AuthCardContent>
-        <AuthCardHeader>
-          <div className="inline-flex w-full gap-2">
-            <Logo size={30} />
-            <div className="flex flex-col">
-              <AuthCardTitle>Join your team</AuthCardTitle>
-              <AuthCardDescription>
-                Join a workspace with an invite.
-              </AuthCardDescription>
-            </div>
+    <section className="mx-auto flex w-full max-w-2xs flex-col gap-6">
+      <header className="inline-flex w-full gap-2">
+        <Logo size={30} />
+        <div className="flex flex-col">
+          <h1>Join your team</h1>
+          <p className="text-muted-foreground text-xs">
+            Join a workspace with an invite.
+          </p>
+        </div>
+      </header>
+
+      {invitation.data ? (
+        <JoinInvitationDecisionForm
+          invitationId={normalizedInvitationId}
+          inviterEmail={invitation.data.inviterEmail}
+          organizationName={invitation.data.organizationName}
+        />
+      ) : (
+        <Alert variant="destructive">
+          <div className="inline-flex items-center gap-2">
+            <AlertCircleIcon className="size-3" />
+            <AlertTitle>
+              {invitation.error || "Unable to load invitation details."}
+            </AlertTitle>
           </div>
-        </AuthCardHeader>
+        </Alert>
+      )}
 
-        {invitation.data ? (
-          <JoinInvitationDecisionForm
-            invitationId={normalizedInvitationId}
-            inviterEmail={invitation.data.inviterEmail}
-            organizationName={invitation.data.organizationName}
-          />
-        ) : (
-          <Alert variant="destructive">
-            <div className="inline-flex items-center gap-2">
-              <AlertCircleIcon className="size-3" />
-              <AlertTitle>
-                {invitation.error || "Unable to load invitation details."}
-              </AlertTitle>
-            </div>
-          </Alert>
-        )}
-      </AuthCardContent>
-
-      <AuthCardFooter>
+      <div className="inline-flex items-center justify-center gap-1 text-muted-foreground text-xs">
         <span>Wrong invite?</span>
         <Link
           className="underline transition-colors hover:text-foreground"
@@ -84,7 +72,7 @@ export default async function Page({ params, searchParams }: Props) {
         >
           Go back
         </Link>
-      </AuthCardFooter>
-    </AuthCard>
+      </div>
+    </section>
   );
 }
