@@ -3,7 +3,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, deviceAuthorization, organization } from "better-auth/plugins";
 import { db } from "@/db";
 import env from "@/env";
-import { sendVerificationEmail } from "./services/auth.service";
+import {
+  sendOrganizationInvitationEmail,
+  sendVerificationEmail,
+} from "./services/auth.service";
 
 const crossSubDomainCookiesEnabled = env.AUTH_CROSS_SUBDOMAIN_COOKIES_ENABLED;
 const crossSubDomainCookiesDomain = env.AUTH_CROSS_SUBDOMAIN_COOKIES_DOMAIN;
@@ -45,7 +48,20 @@ export const auth = betterAuth({
   },
   plugins: [
     bearer(),
-    organization(),
+    organization({
+      async sendInvitationEmail(data) {
+        const inviteUrl = new URL("/onboarding/join", env.APP_URL);
+        inviteUrl.searchParams.set("invitationId", data.id);
+
+        await sendOrganizationInvitationEmail({
+          email: data.email,
+          inviteLink: inviteUrl.toString(),
+          invitedByEmail: data.inviter.user.email,
+          invitedByName: data.inviter.user.name,
+          organizationName: data.organization.name,
+        });
+      },
+    }),
     deviceAuthorization({
       verificationUri: new URL("/agents/auth", env.APP_URL).toString(),
       expiresIn: "3m",
