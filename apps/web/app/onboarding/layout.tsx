@@ -10,16 +10,19 @@ export default function RootLayout({
       <div className="grid h-full w-full grid-cols-5">
         <section className="col-span-2">{children}</section>
 
-        <section className="relative col-span-3 bg-[url(/assets/clouds.jpg)]">
+        <aside
+          aria-hidden="true"
+          className="relative col-span-3 bg-[url(/assets/clouds.jpg)] bg-center bg-cover bg-no-repeat"
+        >
           <Image
-            alt="Paper dashboard"
+            alt=""
             className="object-cover object-left py-24 pl-24"
             fill
             priority
             sizes="66vw"
             src="/assets/mock.png"
           />
-        </section>
+        </aside>
       </div>
     </main>
   );
