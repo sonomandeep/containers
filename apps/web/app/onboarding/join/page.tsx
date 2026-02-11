@@ -1,62 +1,87 @@
+import { ArrowRightIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Logo } from "@/components/core/logo";
-import { JoinInvitationIdForm } from "@/components/organizations/join/form";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { listPendingJoinInvitations } from "@/lib/services/organizations.service";
 
-type Props = {
-  searchParams: Promise<{
-    invitationId?: string;
-    inviterEmail?: string;
-    organizationName?: string;
-  }>;
+type PendingInvitationItem = {
+  id: string;
+  organizationName: string;
+  organizationSlug: string;
 };
 
-export default async function Page({ searchParams }: Props) {
-  const { invitationId, inviterEmail, organizationName } = await searchParams;
-  const normalizedInvitationId = invitationId?.trim();
-  const normalizedInviterEmail = inviterEmail?.trim();
-  const normalizedOrganizationName = organizationName?.trim();
-
-  if (normalizedInvitationId) {
-    const nextSearchParams = new URLSearchParams();
-
-    if (normalizedInviterEmail) {
-      nextSearchParams.set("inviterEmail", normalizedInviterEmail);
-    }
-
-    if (normalizedOrganizationName) {
-      nextSearchParams.set("organizationName", normalizedOrganizationName);
-    }
-
-    const query = nextSearchParams.toString();
-    redirect(
-      `/onboarding/join/${encodeURIComponent(normalizedInvitationId)}${query ? `?${query}` : ""}`
-    );
-  }
+export default async function Page() {
+  const { data: pendingInvitations } = await listPendingJoinInvitations();
+  const invitations: Array<PendingInvitationItem> = pendingInvitations ?? [];
 
   return (
-    <section className="mx-auto flex w-full max-w-2xs flex-col gap-6">
-      <header className="inline-flex w-full gap-2">
-        <Logo size={30} />
-        <div className="flex flex-col">
-          <h1>Join your team</h1>
-          <p className="text-muted-foreground text-xs">
-            Join a workspace with an invite.
-          </p>
+    <section className="mx-auto flex w-full max-w-2xs flex-col gap-4">
+      <h1 className="sr-only">Join your team</h1>
+
+      {invitations.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          {invitations.map((invitation) => {
+            const organizationInitial =
+              invitation.organizationName.trim().charAt(0) || "A";
+
+            return (
+              <Link
+                className="inline-flex w-full items-center justify-between gap-3 rounded-md border border-card-border bg-card p-2.5 transition-colors duration-150 hover:border-black hover:bg-white focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 dark:hover:border-white/40 dark:hover:bg-black"
+                href={`/onboarding/join/${encodeURIComponent(invitation.id)}`}
+                key={invitation.id}
+              >
+                <div className="inline-flex min-w-0 items-center gap-2.5">
+                  <Avatar className="size-8 after:rounded-md">
+                    <AvatarFallback className="rounded-md font-medium font-mono uppercase">
+                      {organizationInitial}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-sm">
+                      {invitation.organizationName}
+                    </p>
+                    <p className="truncate font-mono text-muted-foreground text-xs">
+                      paper.mando.sh/{invitation.organizationSlug}
+                    </p>
+                  </div>
+                </div>
+
+                <ArrowRightIcon className="size-3 text-muted-foreground" />
+              </Link>
+            );
+          })}
         </div>
-      </header>
+      ) : (
+        <Empty className="rounded-md border border-card-border border-dashed bg-card/50">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <UsersIcon className="size-4" />
+            </EmptyMedia>
+            <EmptyTitle>No invitations yet</EmptyTitle>
+            <EmptyDescription>
+              You do not have pending workspace invitations right now.
+            </EmptyDescription>
+          </EmptyHeader>
 
-      <JoinInvitationIdForm />
-
-      <div className="inline-flex items-center justify-center gap-1 text-muted-foreground text-xs">
-        <span>Need a workspace?</span>
-        <Link
-          className="underline transition-colors hover:text-foreground"
-          href="/onboarding/create"
-        >
-          Create one
-        </Link>
-      </div>
+          <EmptyContent>
+            <Link
+              className="inline-flex items-center gap-1 underline transition-colors hover:text-foreground"
+              href="/onboarding/create"
+            >
+              Create your workspace
+              <ArrowRightIcon className="size-3" />
+            </Link>
+          </EmptyContent>
+        </Empty>
+      )}
     </section>
   );
 }

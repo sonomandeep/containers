@@ -8,32 +8,17 @@ import { getInvitationPreview } from "@/lib/services/organizations.service";
 
 type Props = {
   params: Promise<{ invitationId: string }>;
-  searchParams: Promise<{ organizationName?: string; inviterEmail?: string }>;
 };
 
-export default async function Page({ params, searchParams }: Props) {
+export default async function Page({ params }: Props) {
   const { invitationId } = await params;
-  const { organizationName, inviterEmail } = await searchParams;
   const normalizedInvitationId = invitationId.trim();
 
   if (!normalizedInvitationId) {
     redirect("/onboarding/join");
   }
 
-  const previewFromUrl = {
-    organizationName: organizationName?.trim() || "",
-    inviterEmail: inviterEmail?.trim() || "",
-  };
-
-  const hasPreviewFromUrl = Boolean(
-    previewFromUrl.organizationName && previewFromUrl.inviterEmail
-  );
-  const invitation = hasPreviewFromUrl
-    ? {
-        data: previewFromUrl,
-        error: null,
-      }
-    : await getInvitationPreview(normalizedInvitationId);
+  const invitation = await getInvitationPreview(normalizedInvitationId);
 
   return (
     <section className="mx-auto flex w-full max-w-2xs flex-col gap-6">
