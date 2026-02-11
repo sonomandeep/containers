@@ -5,7 +5,7 @@ import { Logo } from "@/components/core/logo";
 export default async function Page() {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <section className="col-span-2 mx-auto flex w-sm flex-col items-center justify-center gap-6">
+      <div className="col-span-2 mx-auto flex w-sm flex-col items-center justify-center gap-6">
         <header className="inline-flex w-full gap-4">
           <Logo size={32} />
           <div className="flex flex-col">
@@ -31,7 +31,7 @@ export default async function Page() {
             title="Create workspace"
           />
         </div>
-      </section>
+      </div>
     </div>
   );
 }

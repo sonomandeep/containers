@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <main className="flex h-svh w-full items-center justify-center overflow-hidden">
       <div className="grid h-full w-full grid-cols-5">
-        <main className="col-span-2">{children}</main>
+        <section className="col-span-2">{children}</section>
 
         <section className="relative col-span-3 bg-[url(/assets/clouds.jpg)]">
           <Image
