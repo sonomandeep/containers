@@ -194,3 +194,119 @@ describe("uploadLogo", () => {
     expect(updateTagMock).not.toHaveBeenCalled();
   });
 });
+
+describe("removeLogo", () => {
+  test("removes uploaded logo when api succeeds", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const fileId = "file/with space";
+
+    apiMock.mockResolvedValue({ error: null });
+
+    const result = await service.removeLogo(fileId);
+
+    expect(getSessionSpy).toHaveBeenCalledWith({
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).toHaveBeenCalledWith("/files/file%2Fwith%20space", {
+      method: "delete",
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    });
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: null, error: null });
+  });
+
+  test("treats missing file as already removed", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+
+    apiMock.mockResolvedValue({
+      error: {
+        message: "Not Found",
+        status: 404,
+        statusText: "Not Found",
+      },
+    });
+
+    const result = await service.removeLogo("file-1");
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).toHaveBeenCalledTimes(1);
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: null, error: null });
+  });
+
+  test("returns cleanup error on 500", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+
+    apiMock.mockResolvedValue({
+      error: {
+        message: "Internal Server Error",
+        status: 500,
+        statusText: "Internal Server Error",
+      },
+    });
+
+    const result = await service.removeLogo("file-1");
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).toHaveBeenCalledTimes(1);
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unexpected error while removing uploaded logo.",
+    });
+  });
+
+  test("redirects when session is missing", async () => {
+    const redirectErrorMessage = "NEXT_REDIRECT";
+    const getSessionSpy = mockAuthSession(authClient, null);
+
+    redirectMock.mockImplementation(() => {
+      throw new Error(redirectErrorMessage);
+    });
+
+    const error = await service.removeLogo("file-1").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith("/auth/login");
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+  });
+
+  test("redirects when session has an error", async () => {
+    const redirectErrorMessage = "NEXT_REDIRECT";
+    const getSessionSpy = mockAuthSessionError(
+      authClient,
+      new Error("Auth failed")
+    );
+
+    redirectMock.mockImplementation(() => {
+      throw new Error(redirectErrorMessage);
+    });
+
+    const error = await service.removeLogo("file-1").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(Error);
+    if (error instanceof Error) {
+      expect(error.message).toBe(redirectErrorMessage);
+    }
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).toHaveBeenCalledWith("/auth/login");
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+  });
+});

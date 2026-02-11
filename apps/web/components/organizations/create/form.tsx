@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
-import { uploadLogo } from "@/lib/services/organizations.service";
+import { removeLogo, uploadLogo } from "@/lib/services/organizations.service";
 import { cn, toSlug } from "@/lib/utils";
 
 const ACCEPTED_LOGO_FORMATS = "image/png,image/jpeg,image/webp";
@@ -72,6 +72,7 @@ export function CreateOrganizationForm() {
     form.clearErrors();
     setIsPending(true);
 
+    let uploadedLogoId: string | undefined;
     let logoUrl: string | undefined;
     if (input.logo instanceof File) {
       const uploadedLogo = await uploadLogo(input.logo);
@@ -84,6 +85,7 @@ export function CreateOrganizationForm() {
         return;
       }
 
+      uploadedLogoId = uploadedLogo.data.id;
       logoUrl = uploadedLogo.data.url;
     }
 
@@ -101,6 +103,10 @@ export function CreateOrganizationForm() {
           router.replace("/onboarding/invite");
         },
         onError: ({ error }) => {
+          if (uploadedLogoId) {
+            removeLogo(uploadedLogoId).catch((cleanupError) => cleanupError);
+          }
+
           if (error.code === "ORGANIZATION_ALREADY_EXISTS") {
             form.setError("slug", {
               message: "Workspace handle is already taken",
