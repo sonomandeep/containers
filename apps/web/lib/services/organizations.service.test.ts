@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, jest, test } from "bun:test";
+import { afterEach, describe, expect, jest, spyOn, test } from "bun:test";
 import type { StoredFile } from "@containers/shared";
 import { mockAuthSession, mockAuthSessionError } from "@/test/auth";
 import { setupServiceMocks } from "@/test/mocks";
@@ -308,5 +308,303 @@ describe("removeLogo", () => {
     expect(redirectMock).toHaveBeenCalledWith("/auth/login");
     expect(apiMock).not.toHaveBeenCalled();
     expect(updateTagMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getActiveOrganizationSummary", () => {
+  test("returns active organization summary when auth request succeeds", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const getFullOrganizationSpy = spyOn(
+      authClient.organization,
+      "getFullOrganization"
+    ).mockResolvedValue({
+      data: {
+        id: "org-1",
+        name: "Acme",
+        slug: "acme",
+        logo: "http://localhost/logo.png",
+      },
+      error: null,
+    });
+
+    const result = await service.getActiveOrganizationSummary();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(getFullOrganizationSpy).toHaveBeenCalledWith({
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: {
+        id: "org-1",
+        name: "Acme",
+        slug: "acme",
+        logo: "http://localhost/logo.png",
+      },
+      error: null,
+    });
+  });
+
+  test("returns error when active organization lookup fails", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const getFullOrganizationSpy = spyOn(
+      authClient.organization,
+      "getFullOrganization"
+    ).mockResolvedValue({
+      data: null,
+      error: {
+        message: "forbidden",
+      },
+    });
+
+    const result = await service.getActiveOrganizationSummary();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(getFullOrganizationSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unable to load active workspace.",
+    });
+  });
+
+  test("returns no active workspace message when no organization is active", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const getFullOrganizationSpy = spyOn(
+      authClient.organization,
+      "getFullOrganization"
+    ).mockResolvedValue({
+      data: null,
+      error: null,
+    });
+
+    const result = await service.getActiveOrganizationSummary();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(getFullOrganizationSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "No active workspace found.",
+    });
+  });
+
+  test("returns parse error when organization payload is invalid", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const getFullOrganizationSpy = spyOn(
+      authClient.organization,
+      "getFullOrganization"
+    ).mockResolvedValue({
+      data: {
+        id: "org-1",
+      },
+      error: null,
+    });
+
+    const result = await service.getActiveOrganizationSummary();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(getFullOrganizationSpy).toHaveBeenCalledTimes(1);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unable to load active workspace.",
+    });
+  });
+});
+
+describe("listPendingJoinInvitations", () => {
+  test("returns pending invitations with organization slug details", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const listInvitationsSpy = spyOn(
+      authClient.organization,
+      "listUserInvitations"
+    ).mockResolvedValue({
+      data: [{ id: "inv-1" }, { id: "inv-2" }],
+      error: null,
+    });
+
+    const getInvitationSpy = spyOn(
+      authClient.organization,
+      "getInvitation"
+    ).mockImplementation((options?: unknown) => {
+      const invitationId =
+        typeof options === "object" &&
+        options !== null &&
+        "query" in options &&
+        typeof options.query === "object" &&
+        options.query !== null &&
+        "id" in options.query
+          ? String(options.query.id)
+          : "";
+
+      if (invitationId === "inv-1") {
+        return Promise.resolve({
+          data: {
+            id: "inv-1",
+            organizationName: "Acme",
+            organizationSlug: "acme",
+          },
+          error: null,
+        });
+      }
+
+      return Promise.resolve({
+        data: {
+          id: "inv-2",
+          organizationName: "Beta",
+          organizationSlug: "beta",
+        },
+        error: null,
+      });
+    });
+
+    const result = await service.listPendingJoinInvitations();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(listInvitationsSpy).toHaveBeenCalledWith({
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(getInvitationSpy).toHaveBeenCalledTimes(2);
+    expect(getInvitationSpy).toHaveBeenNthCalledWith(1, {
+      query: { id: "inv-1" },
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(getInvitationSpy).toHaveBeenNthCalledWith(2, {
+      query: { id: "inv-2" },
+      fetchOptions: {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      },
+    });
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(apiMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: [
+        {
+          id: "inv-1",
+          organizationName: "Acme",
+          organizationSlug: "acme",
+        },
+        {
+          id: "inv-2",
+          organizationName: "Beta",
+          organizationSlug: "beta",
+        },
+      ],
+      error: null,
+    });
+  });
+
+  test("returns error when listing pending invitations fails", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const listInvitationsSpy = spyOn(
+      authClient.organization,
+      "listUserInvitations"
+    ).mockResolvedValue({
+      data: null,
+      error: {
+        message: "unexpected",
+      },
+    });
+    const getInvitationSpy = spyOn(authClient.organization, "getInvitation");
+
+    const result = await service.listPendingJoinInvitations();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(listInvitationsSpy).toHaveBeenCalledTimes(1);
+    expect(getInvitationSpy).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unable to load pending invitations.",
+    });
+  });
+
+  test("returns error when pending invitations payload is invalid", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const listInvitationsSpy = spyOn(
+      authClient.organization,
+      "listUserInvitations"
+    ).mockResolvedValue({
+      data: [
+        {
+          noId: "inv-1",
+        },
+      ],
+      error: null,
+    });
+    const getInvitationSpy = spyOn(authClient.organization, "getInvitation");
+
+    const result = await service.listPendingJoinInvitations();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(listInvitationsSpy).toHaveBeenCalledTimes(1);
+    expect(getInvitationSpy).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: null,
+      error: "Unable to load pending invitations.",
+    });
+  });
+
+  test("skips invitations whose detail lookup fails", async () => {
+    const getSessionSpy = mockAuthSession(authClient);
+    const listInvitationsSpy = spyOn(
+      authClient.organization,
+      "listUserInvitations"
+    ).mockResolvedValue({
+      data: [{ id: "inv-1" }, { id: "inv-2" }],
+      error: null,
+    });
+
+    const getInvitationSpy = spyOn(authClient.organization, "getInvitation")
+      .mockResolvedValueOnce({
+        data: null,
+        error: {
+          message: "not found",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          id: "inv-2",
+          organizationName: "Beta",
+          organizationSlug: "beta",
+        },
+        error: null,
+      });
+
+    const result = await service.listPendingJoinInvitations();
+
+    expect(getSessionSpy).toHaveBeenCalledTimes(1);
+    expect(listInvitationsSpy).toHaveBeenCalledTimes(1);
+    expect(getInvitationSpy).toHaveBeenCalledTimes(2);
+    expect(redirectMock).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      data: [
+        {
+          id: "inv-2",
+          organizationName: "Beta",
+          organizationSlug: "beta",
+        },
+      ],
+      error: null,
+    });
   });
 });
