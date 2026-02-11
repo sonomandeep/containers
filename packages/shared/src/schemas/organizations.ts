@@ -3,6 +3,8 @@ import z from "zod";
 const ORGANIZATION_NAME_MAX_LENGTH = 100;
 const ORGANIZATION_SLUG_MAX_LENGTH = 100;
 const ORGANIZATION_LOGO_MAX_SIZE_BYTES = 2 * 1024 * 1024;
+const ORGANIZATION_INVITES_MAX_COUNT = 20;
+const ORGANIZATION_INVITE_EMAIL_MAX_LENGTH = 255;
 
 const organizationNameSchema = z
   .string()
@@ -25,6 +27,19 @@ const organizationSlugSchema = z
     message:
       "Workspace handle can only include lowercase letters, numbers, and hyphens",
   });
+
+const organizationInviteEmailSchema = z
+  .email("Please enter a valid email address")
+  .max(
+    ORGANIZATION_INVITE_EMAIL_MAX_LENGTH,
+    `Email must not exceed ${ORGANIZATION_INVITE_EMAIL_MAX_LENGTH} characters`
+  )
+  .toLowerCase()
+  .trim();
+
+const organizationInviteSchema = z.object({
+  email: organizationInviteEmailSchema,
+});
 
 const organizationLogoUrlSchema = z
   .string()
@@ -102,3 +117,31 @@ export const createOrganizationSchema = z.object({
   logo: organizationLogoFileSchema,
 });
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
+
+export const inviteMembersSchema = z
+  .object({
+    invites: z
+      .array(organizationInviteSchema)
+      .min(1, "Add at least one teammate email")
+      .max(
+        ORGANIZATION_INVITES_MAX_COUNT,
+        `You can invite up to ${ORGANIZATION_INVITES_MAX_COUNT} teammates at a time`
+      ),
+  })
+  .superRefine((input, context) => {
+    const seenEmails = new Set<string>();
+
+    for (const [index, invite] of input.invites.entries()) {
+      if (!seenEmails.has(invite.email)) {
+        seenEmails.add(invite.email);
+        continue;
+      }
+
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "This email is duplicated",
+        path: ["invites", index, "email"],
+      });
+    }
+  });
+export type InviteMembersInput = z.infer<typeof inviteMembersSchema>;
