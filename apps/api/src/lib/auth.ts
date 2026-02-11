@@ -50,8 +50,12 @@ export const auth = betterAuth({
     bearer(),
     organization({
       async sendInvitationEmail(data) {
-        const inviteUrl = new URL("/onboarding/join", env.APP_URL);
-        inviteUrl.searchParams.set("invitationId", data.id);
+        const inviteUrl = new URL(
+          `/onboarding/join/${encodeURIComponent(data.id)}`,
+          env.APP_URL
+        );
+        inviteUrl.searchParams.set("organizationName", data.organization.name);
+        inviteUrl.searchParams.set("inviterEmail", data.inviter.user.email);
 
         await sendOrganizationInvitationEmail({
           email: data.email,

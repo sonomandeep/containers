@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   AuthCard,
   AuthCardContent,
@@ -8,15 +9,38 @@ import {
   AuthCardTitle,
 } from "@/components/auth/auth-card";
 import { Logo } from "@/components/core/logo";
-import { JoinTeamForm } from "@/components/organizations/join/form";
+import { JoinInvitationIdForm } from "@/components/organizations/join/form";
 
 type Props = {
-  searchParams: Promise<{ invitationId?: string }>;
+  searchParams: Promise<{
+    invitationId?: string;
+    inviterEmail?: string;
+    organizationName?: string;
+  }>;
 };
 
 export default async function Page({ searchParams }: Props) {
-  const { invitationId } = await searchParams;
-  const hasInvitationId = Boolean(invitationId?.trim());
+  const { invitationId, inviterEmail, organizationName } = await searchParams;
+  const normalizedInvitationId = invitationId?.trim();
+  const normalizedInviterEmail = inviterEmail?.trim();
+  const normalizedOrganizationName = organizationName?.trim();
+
+  if (normalizedInvitationId) {
+    const nextSearchParams = new URLSearchParams();
+
+    if (normalizedInviterEmail) {
+      nextSearchParams.set("inviterEmail", normalizedInviterEmail);
+    }
+
+    if (normalizedOrganizationName) {
+      nextSearchParams.set("organizationName", normalizedOrganizationName);
+    }
+
+    const query = nextSearchParams.toString();
+    redirect(
+      `/onboarding/join/${encodeURIComponent(normalizedInvitationId)}${query ? `?${query}` : ""}`
+    );
+  }
 
   return (
     <AuthCard>
@@ -33,31 +57,17 @@ export default async function Page({ searchParams }: Props) {
           </div>
         </AuthCardHeader>
 
-        <JoinTeamForm initialInvitationId={invitationId} />
+        <JoinInvitationIdForm />
       </AuthCardContent>
 
       <AuthCardFooter>
-        {hasInvitationId ? (
-          <>
-            <span>Wrong invite?</span>
-            <Link
-              className="underline transition-colors hover:text-foreground"
-              href="/onboarding/join"
-            >
-              Go back
-            </Link>
-          </>
-        ) : (
-          <>
-            <span>Need a workspace?</span>
-            <Link
-              className="underline transition-colors hover:text-foreground"
-              href="/onboarding/create"
-            >
-              Create one
-            </Link>
-          </>
-        )}
+        <span>Need a workspace?</span>
+        <Link
+          className="underline transition-colors hover:text-foreground"
+          href="/onboarding/create"
+        >
+          Create one
+        </Link>
       </AuthCardFooter>
     </AuthCard>
   );

@@ -5,9 +5,31 @@ import {
   type ServiceResponse,
   type StoredFile,
 } from "@containers/shared";
+import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
 import { checkAuthentication } from "./auth.service";
+
+const invitationPreviewSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  role: z.string().nullable().optional(),
+  organizationId: z.string(),
+  inviterId: z.string(),
+  status: z.string(),
+  expiresAt: z.union([z.string(), z.date()]),
+  organizationName: z.string(),
+  organizationSlug: z.string(),
+  inviterEmail: z.string(),
+});
+
+type InvitationPreview = z.infer<typeof invitationPreviewSchema>;
+
+type InvitationErrorDetails = {
+  code: string | null;
+  message: string;
+};
 
 export async function uploadLogo(
   file: File
@@ -87,4 +109,132 @@ export async function removeLogo(
   }
 
   return { data: null, error: null };
+}
+
+export async function getInvitationPreview(
+  invitationId: string
+): Promise<ServiceResponse<InvitationPreview, string>> {
+  const normalizedInvitationId = invitationId.trim();
+  if (!normalizedInvitationId) {
+    return {
+      data: null,
+      error: "Invitation ID is required.",
+    };
+  }
+
+  const { cookies } = await checkAuthentication();
+  const { data, error } = await auth.organization.getInvitation({
+    query: { id: normalizedInvitationId },
+    fetchOptions: {
+      headers: {
+        Cookie: cookies.toString(),
+      },
+    },
+  });
+
+  if (error || !data) {
+    logger.error(
+      {
+        error,
+        invitationId: normalizedInvitationId,
+      },
+      "getInvitationPreview error"
+    );
+
+    return {
+      data: null,
+      error: mapInvitationPreviewError(error),
+    };
+  }
+
+  const parsedData = invitationPreviewSchema.safeParse(data);
+  if (!parsedData.success) {
+    logger.error(
+      {
+        invitationId: normalizedInvitationId,
+        issues: parsedData.error.issues,
+      },
+      "invalid invitation preview payload"
+    );
+
+    return {
+      data: null,
+      error: "Unable to load invitation details.",
+    };
+  }
+
+  return {
+    data: parsedData.data,
+    error: null,
+  };
+}
+
+function parseInvitationError(error: unknown): InvitationErrorDetails {
+  if (!error) {
+    return {
+      code: null,
+      message: "Unable to load invitation details.",
+    };
+  }
+
+  if (typeof error === "string") {
+    return {
+      code: null,
+      message: error,
+    };
+  }
+
+  if (typeof error === "object") {
+    const details = error as {
+      code?: string;
+      error?: string;
+      error_description?: string;
+      message?: string;
+      statusText?: string;
+    };
+
+    return {
+      code: typeof details.code === "string" ? details.code : null,
+      message:
+        details.message ||
+        details.error_description ||
+        details.error ||
+        details.statusText ||
+        "Unable to load invitation details.",
+    };
+  }
+
+  return {
+    code: null,
+    message: "Unable to load invitation details.",
+  };
+}
+
+function mapInvitationPreviewError(error: unknown) {
+  const details = parseInvitationError(error);
+  const normalizedCode = details.code?.toUpperCase();
+  const normalizedMessage = details.message.toLowerCase();
+
+  if (
+    normalizedCode === "YOU_ARE_NOT_THE_RECIPIENT_OF_THE_INVITATION" ||
+    normalizedMessage.includes("not the recipient")
+  ) {
+    return "This invitation belongs to another account.";
+  }
+
+  if (
+    normalizedCode === "INVITATION_NOT_FOUND" ||
+    normalizedMessage.includes("invitation not found")
+  ) {
+    return "This invitation is invalid or has expired.";
+  }
+
+  if (
+    normalizedCode === "ORGANIZATION_NOT_FOUND" ||
+    normalizedMessage.includes("organization not found")
+  ) {
+    return "This workspace is no longer available.";
+  }
+
+  return details.message;
 }
