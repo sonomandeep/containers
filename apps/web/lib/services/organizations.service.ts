@@ -24,7 +24,30 @@ const invitationPreviewSchema = z.object({
   inviterEmail: z.string(),
 });
 
+const activeOrganizationSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  logo: z.string().nullable().optional(),
+});
+
+const pendingInvitationListSchema = z.array(
+  z.object({
+    id: z.string(),
+  })
+);
+
+const pendingJoinInvitationSchema = z.object({
+  id: z.string(),
+  organizationName: z.string(),
+  organizationSlug: z.string(),
+});
+
 type InvitationPreview = z.infer<typeof invitationPreviewSchema>;
+type ActiveOrganizationSummary = z.infer<
+  typeof activeOrganizationSummarySchema
+>;
+type PendingJoinInvitation = z.infer<typeof pendingJoinInvitationSchema>;
 
 type InvitationErrorDetails = {
   code: string | null;
@@ -109,6 +132,161 @@ export async function removeLogo(
   }
 
   return { data: null, error: null };
+}
+
+export async function getActiveOrganizationSummary(): Promise<
+  ServiceResponse<ActiveOrganizationSummary, string>
+> {
+  const { cookies } = await checkAuthentication();
+
+  const { data, error } = await auth.organization.getFullOrganization({
+    fetchOptions: {
+      headers: {
+        Cookie: cookies.toString(),
+      },
+    },
+  });
+
+  if (error) {
+    logger.error(error, "getActiveOrganizationSummary error");
+    return {
+      data: null,
+      error: "Unable to load active workspace.",
+    };
+  }
+
+  if (!data) {
+    return {
+      data: null,
+      error: "No active workspace found.",
+    };
+  }
+
+  const parsedData = activeOrganizationSummarySchema.safeParse(data);
+  if (!parsedData.success) {
+    logger.error(
+      {
+        issues: parsedData.error.issues,
+      },
+      "invalid active organization payload"
+    );
+
+    return {
+      data: null,
+      error: "Unable to load active workspace.",
+    };
+  }
+
+  return {
+    data: parsedData.data,
+    error: null,
+  };
+}
+
+export async function listPendingJoinInvitations(): Promise<
+  ServiceResponse<Array<PendingJoinInvitation>, string>
+> {
+  const { cookies } = await checkAuthentication();
+  const cookieHeader = cookies.toString();
+
+  const { data, error } = await auth.organization.listUserInvitations({
+    fetchOptions: {
+      headers: {
+        Cookie: cookieHeader,
+      },
+    },
+  });
+
+  if (error || !data) {
+    logger.error({ error }, "listPendingJoinInvitations error");
+    return {
+      data: null,
+      error: "Unable to load pending invitations.",
+    };
+  }
+
+  const parsedInvitations = pendingInvitationListSchema.safeParse(data);
+  if (!parsedInvitations.success) {
+    logger.error(
+      {
+        issues: parsedInvitations.error.issues,
+      },
+      "invalid pending invitations payload"
+    );
+
+    return {
+      data: null,
+      error: "Unable to load pending invitations.",
+    };
+  }
+
+  const invitationsWithDetails = await Promise.allSettled(
+    parsedInvitations.data.map(async (invitation) => {
+      const { data: invitationDetail, error: invitationError } =
+        await auth.organization.getInvitation({
+          query: { id: invitation.id },
+          fetchOptions: {
+            headers: {
+              Cookie: cookieHeader,
+            },
+          },
+        });
+
+      if (invitationError || !invitationDetail) {
+        logger.warn(
+          {
+            error: invitationError,
+            invitationId: invitation.id,
+          },
+          "pending invitation details lookup failed"
+        );
+
+        return null;
+      }
+
+      const parsedInvitation = pendingJoinInvitationSchema.safeParse({
+        id: invitationDetail.id,
+        organizationName: invitationDetail.organizationName,
+        organizationSlug: invitationDetail.organizationSlug,
+      });
+
+      if (!parsedInvitation.success) {
+        logger.error(
+          {
+            invitationId: invitation.id,
+            issues: parsedInvitation.error.issues,
+          },
+          "invalid pending invitation detail payload"
+        );
+
+        return null;
+      }
+
+      return parsedInvitation.data;
+    })
+  );
+
+  const invitations = invitationsWithDetails.flatMap((result) => {
+    if (result.status === "fulfilled" && result.value) {
+      return [result.value];
+    }
+
+    if (result.status === "rejected") {
+      logger.error(
+        {
+          error: result.reason,
+        },
+        "pending invitation detail request failed"
+      );
+    }
+
+    return [];
+  });
+
+  return {
+    data: invitations,
+    error: null,
+  };
 }
 
 export async function getInvitationPreview(

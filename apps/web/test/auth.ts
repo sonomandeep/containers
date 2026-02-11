@@ -26,6 +26,20 @@ export type AuthSessionResponse = {
 
 export type AuthClientMock = {
   getSession: (options?: unknown) => Promise<AuthSessionResponse>;
+  organization: {
+    getFullOrganization: (options?: unknown) => Promise<{
+      data: unknown;
+      error: unknown | null;
+    }>;
+    listUserInvitations: (options?: unknown) => Promise<{
+      data: unknown;
+      error: unknown | null;
+    }>;
+    getInvitation: (options?: unknown) => Promise<{
+      data: unknown;
+      error: unknown | null;
+    }>;
+  };
 };
 
 export const createMockSession = (): MockSession => {
@@ -56,6 +70,20 @@ export const createAuthClientMock = (): AuthClientMock => ({
     data: null,
     error: null,
   }),
+  organization: {
+    getFullOrganization: async (_options?: unknown) => ({
+      data: null,
+      error: null,
+    }),
+    listUserInvitations: async (_options?: unknown) => ({
+      data: [],
+      error: null,
+    }),
+    getInvitation: async (_options?: unknown) => ({
+      data: null,
+      error: null,
+    }),
+  },
 });
 
 export const mockAuthSession = (

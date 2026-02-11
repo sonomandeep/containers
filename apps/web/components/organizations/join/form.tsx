@@ -1,43 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircleIcon, CornerDownLeftIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
-
-const joinInvitationIdSchema = z.object({
-  invitationId: z
-    .string()
-    .trim()
-    .min(1, "Invitation ID is required.")
-    .refine((value) => !isInviteLink(value), {
-      message: "Enter the invitation ID only.",
-    }),
-});
-
-const invitationLookupSchema = z.object({
-  organizationName: z.string(),
-  inviterEmail: z.string(),
-});
-
-type JoinInvitationIdInput = z.infer<typeof joinInvitationIdSchema>;
-
-type JoinInvitationIdFormProps = {
-  initialInvitationId?: string;
-};
 
 type JoinInvitationDecisionFormProps = {
   invitationId: string;
@@ -46,107 +15,6 @@ type JoinInvitationDecisionFormProps = {
 };
 
 type InvitationAction = "accept" | "decline";
-
-function normalizeInvitationId(value: string) {
-  return value.trim();
-}
-
-function isInviteLink(value: string) {
-  return (
-    value.includes("://") ||
-    value.includes("/") ||
-    value.includes("?") ||
-    value.includes("&") ||
-    value.includes("=")
-  );
-}
-
-export function JoinInvitationIdForm({
-  initialInvitationId,
-}: JoinInvitationIdFormProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
-  const form = useForm<JoinInvitationIdInput>({
-    resolver: zodResolver(joinInvitationIdSchema),
-    defaultValues: {
-      invitationId: normalizeInvitationId(initialInvitationId ?? ""),
-    },
-  });
-
-  async function handleContinue(input: JoinInvitationIdInput) {
-    setIsPending(true);
-    form.clearErrors("root");
-
-    const invitationId = normalizeInvitationId(input.invitationId);
-
-    const preview = await lookupInvitationPreview(invitationId);
-    if (!preview.data || preview.error) {
-      form.setError("root", {
-        message: preview.error || "Unable to load invitation details.",
-      });
-      setIsPending(false);
-      return;
-    }
-
-    router.replace(
-      buildJoinInvitationDetailUrl({
-        invitationId,
-        organizationName: preview.data.organizationName,
-        inviterEmail: preview.data.inviterEmail,
-      })
-    );
-  }
-
-  return (
-    <form
-      className="flex flex-col gap-4"
-      onSubmit={form.handleSubmit(handleContinue)}
-    >
-      <Controller
-        control={form.control}
-        disabled={isPending}
-        name="invitationId"
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor={field.name}>Invitation ID</FieldLabel>
-            <Input
-              {...field}
-              aria-invalid={fieldState.invalid}
-              autoCapitalize="off"
-              autoCorrect="off"
-              id={field.name}
-              placeholder="inv_123456"
-              spellCheck={false}
-              type="text"
-            />
-            <FieldDescription>
-              Enter the invitation ID from your invite email.
-            </FieldDescription>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-          </Field>
-        )}
-      />
-
-      {form.formState.errors.root && (
-        <Alert variant="destructive">
-          <div className="inline-flex items-center gap-2">
-            <AlertCircleIcon className="size-3" />
-            <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
-          </div>
-        </Alert>
-      )}
-
-      <Button className="w-full" disabled={isPending} type="submit">
-        Continue
-        {isPending ? (
-          <Spinner className="size-3 opacity-60" />
-        ) : (
-          <CornerDownLeftIcon className="size-3 opacity-60" />
-        )}
-      </Button>
-    </form>
-  );
-}
 
 export function JoinInvitationDecisionForm({
   invitationId,
@@ -251,56 +119,6 @@ async function executeInvitationAction(
     };
   } catch (error) {
     return {
-      error: parseInvitationLookupError(error),
-    };
-  }
-}
-
-function buildJoinInvitationDetailUrl({
-  invitationId,
-  organizationName,
-  inviterEmail,
-}: {
-  invitationId: string;
-  organizationName: string;
-  inviterEmail: string;
-}) {
-  const searchParams = new URLSearchParams({
-    organizationName,
-    inviterEmail,
-  });
-
-  return `/onboarding/join/${encodeURIComponent(invitationId)}?${searchParams.toString()}`;
-}
-
-async function lookupInvitationPreview(invitationId: string) {
-  try {
-    const { data, error } = await auth.organization.getInvitation({
-      query: { id: invitationId },
-    });
-
-    if (error || !data) {
-      return {
-        data: null,
-        error: parseInvitationLookupError(error),
-      };
-    }
-
-    const parsedPreview = invitationLookupSchema.safeParse(data);
-    if (!parsedPreview.success) {
-      return {
-        data: null,
-        error: "Unable to load invitation details.",
-      };
-    }
-
-    return {
-      data: parsedPreview.data,
-      error: null,
-    };
-  } catch (error) {
-    return {
-      data: null,
       error: parseInvitationLookupError(error),
     };
   }

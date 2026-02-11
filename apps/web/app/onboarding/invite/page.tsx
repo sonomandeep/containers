@@ -1,43 +1,50 @@
+import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
-import {
-  AuthCard,
-  AuthCardContent,
-  AuthCardDescription,
-  AuthCardFooter,
-  AuthCardHeader,
-  AuthCardTitle,
-} from "@/components/auth/auth-card";
-import { Logo } from "@/components/core/logo";
+import { redirect } from "next/navigation";
 import { InviteMembersForm } from "@/components/organizations/invite/form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getActiveOrganizationSummary } from "@/lib/services/organizations.service";
 
 export default async function Page() {
+  const { data: organization } = await getActiveOrganizationSummary();
+
+  if (!organization) {
+    redirect("/onboarding/create");
+  }
+
+  const workspaceInitial = organization.name.trim().charAt(0) || "A";
+
   return (
-    <AuthCard>
-      <AuthCardContent>
-        <AuthCardHeader>
-          <div className="inline-flex w-full gap-2">
-            <Logo size={30} />
-            <div className="flex flex-col">
-              <AuthCardTitle>Invite your team</AuthCardTitle>
-              <AuthCardDescription>
-                Add emails and we'll send the invites.
-              </AuthCardDescription>
-            </div>
-          </div>
-        </AuthCardHeader>
+    <section className="mx-auto flex w-full max-w-2xs flex-col gap-6">
+      <header className="inline-flex w-full items-center gap-3">
+        <Avatar className="size-9 after:rounded-md has-[img]:after:border-0">
+          <AvatarImage
+            alt={`${organization.name} logo`}
+            className="rounded-md"
+            src={organization.logo || undefined}
+          />
+          <AvatarFallback className="rounded-md font-medium font-mono uppercase">
+            {workspaceInitial}
+          </AvatarFallback>
+        </Avatar>
 
-        <InviteMembersForm />
-      </AuthCardContent>
+        <div className="flex flex-col">
+          <h1>{organization.name}</h1>
+          <p className="font-mono text-muted-foreground text-xs">
+            paper.mando.sh/{organization.slug}
+          </p>
+        </div>
+      </header>
 
-      <AuthCardFooter>
-        <span>Prefer to do this later?</span>
-        <Link
-          className="underline transition-colors hover:text-foreground"
-          href="/containers"
-        >
-          Skip
-        </Link>
-      </AuthCardFooter>
-    </AuthCard>
+      <InviteMembersForm />
+
+      <Link
+        className="inline-flex items-center justify-center gap-1 text-muted-foreground text-xs underline transition-colors hover:text-foreground"
+        href="/containers"
+      >
+        Do it later
+        <ArrowRightIcon className="size-3" />
+      </Link>
+    </section>
   );
 }

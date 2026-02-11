@@ -54,8 +54,6 @@ export const auth = betterAuth({
           `/onboarding/join/${encodeURIComponent(data.id)}`,
           env.APP_URL
         );
-        inviteUrl.searchParams.set("organizationName", data.organization.name);
-        inviteUrl.searchParams.set("inviterEmail", data.inviter.user.email);
 
         await sendOrganizationInvitationEmail({
           email: data.email,
