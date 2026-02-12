@@ -1,7 +1,6 @@
 "use client";
 
 import { BoxIcon, HardDriveIcon, LayersIcon } from "lucide-react";
-import { Logo } from "@/components/core/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +10,7 @@ import {
 import { auth } from "@/lib/auth";
 import { NavMain } from "./main";
 import { NavUser } from "./user";
+import { WorkspaceSwitcher } from "./workspace-switcher";
 
 type AppSidebarProps = {
   workspaceSlug: string;
@@ -43,10 +43,7 @@ export function AppSidebar({ workspaceSlug }: AppSidebarProps) {
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
-        <div className="inline-flex items-center gap-3">
-          <Logo size={24} />
-          <h1>ACME Inc.</h1>
-        </div>
+        <WorkspaceSwitcher workspaceSlug={workspaceSlug} />
       </SidebarHeader>
 
       <SidebarContent>
