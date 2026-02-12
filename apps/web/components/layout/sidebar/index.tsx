@@ -1,7 +1,6 @@
 "use client";
 
 import { BoxIcon, HardDriveIcon, LayersIcon } from "lucide-react";
-import { Logo } from "@/components/core/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -11,35 +10,40 @@ import {
 import { auth } from "@/lib/auth";
 import { NavMain } from "./main";
 import { NavUser } from "./user";
+import { WorkspaceSwitcher } from "./workspace-switcher";
 
-const items = [
-  {
-    name: "Containers",
-    url: "/containers",
-    icon: BoxIcon,
-  },
-  {
-    name: "Images",
-    url: "/images",
-    icon: LayersIcon,
-  },
-  {
-    name: "Volumes",
-    url: "/volumes",
-    icon: HardDriveIcon,
-  },
-];
+type AppSidebarProps = {
+  workspaceSlug: string;
+};
 
-export function AppSidebar() {
+function buildNavigationItems(workspaceSlug: string) {
+  return [
+    {
+      name: "Containers",
+      url: `/${workspaceSlug}/containers`,
+      icon: BoxIcon,
+    },
+    {
+      name: "Images",
+      url: `/${workspaceSlug}/images`,
+      icon: LayersIcon,
+    },
+    {
+      name: "Volumes",
+      url: `/${workspaceSlug}/volumes`,
+      icon: HardDriveIcon,
+    },
+  ];
+}
+
+export function AppSidebar({ workspaceSlug }: AppSidebarProps) {
   const { data: session } = auth.useSession();
+  const items = buildNavigationItems(workspaceSlug);
 
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
-        <div className="inline-flex items-center gap-3">
-          <Logo size={24} />
-          <h1>ACME Inc.</h1>
-        </div>
+        <WorkspaceSwitcher workspaceSlug={workspaceSlug} />
       </SidebarHeader>
 
       <SidebarContent>

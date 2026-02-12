@@ -58,7 +58,11 @@ type InviteSubmissionResult = {
   sentInvitesCount: number;
 };
 
-export function InviteMembersForm() {
+type InviteMembersFormProps = {
+  workspaceSlug: string;
+};
+
+export function InviteMembersForm({ workspaceSlug }: InviteMembersFormProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [partialSuccessMessage, setPartialSuccessMessage] = useState<
@@ -84,7 +88,7 @@ export function InviteMembersForm() {
 
     if (submissionResult.failedInvites.length === 0) {
       setIsPending(false);
-      router.replace("/containers");
+      router.replace(`/${workspaceSlug}/containers`);
       return;
     }
 

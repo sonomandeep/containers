@@ -26,11 +26,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
 
-type Props = {
-  callbackUrl: string;
-};
-
-export function LoginForm({ callbackUrl }: Props) {
+export function LoginForm() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
@@ -53,12 +49,7 @@ export function LoginForm({ callbackUrl }: Props) {
         setIsPending(false);
       },
       onSuccess: () => {
-        if (callbackUrl?.startsWith("/")) {
-          router.replace(callbackUrl);
-          return;
-        }
-
-        router.replace("/containers");
+        router.replace("/");
       },
       onError: ({ error }) => {
         if (error.code === "EMAIL_NOT_VERIFIED") {

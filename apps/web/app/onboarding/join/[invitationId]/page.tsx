@@ -37,6 +37,7 @@ export default async function Page({ params }: Props) {
           invitationId={normalizedInvitationId}
           inviterEmail={invitation.data.inviterEmail}
           organizationName={invitation.data.organizationName}
+          workspaceSlug={invitation.data.organizationSlug}
         />
       ) : (
         <Alert variant="destructive">

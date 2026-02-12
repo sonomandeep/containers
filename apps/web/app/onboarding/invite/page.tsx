@@ -36,11 +36,11 @@ export default async function Page() {
         </div>
       </header>
 
-      <InviteMembersForm />
+      <InviteMembersForm workspaceSlug={organization.slug} />
 
       <Link
         className="inline-flex items-center justify-center gap-1 text-muted-foreground text-xs underline transition-colors hover:text-foreground"
-        href="/containers"
+        href={`/${organization.slug}/containers`}
       >
         Do it later
         <ArrowRightIcon className="size-3" />

@@ -35,11 +35,10 @@ type ActionState = "approve" | "deny" | null;
 type ResultState = "idle" | "approved" | "denied";
 
 type Props = {
-  callbackUrl: string;
   userCode: string;
 };
 
-export function DeviceVerificationForm({ callbackUrl, userCode }: Props) {
+export function DeviceVerificationForm({ userCode }: Props) {
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = auth.useSession();
   const [action, setAction] = useState<ActionState>(null);
@@ -67,11 +66,9 @@ export function DeviceVerificationForm({ callbackUrl, userCode }: Props) {
     }
 
     if (!session) {
-      router.replace(
-        `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
-      );
+      router.replace("/auth/login");
     }
-  }, [isSessionPending, callbackUrl, router, session]);
+  }, [isSessionPending, router, session]);
 
   const isBusy = action !== null;
   const isDone = result !== "idle";

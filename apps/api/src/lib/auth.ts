@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, deviceAuthorization, organization } from "better-auth/plugins";
+import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
+import { member } from "@/db/schema";
 import env from "@/env";
 import {
   sendOrganizationInvitationEmail,
@@ -18,6 +20,24 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+  },
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const initialOrganizationId = await getInitialOrganizationId(
+            session.userId
+          );
+
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: initialOrganizationId,
+            },
+          };
+        },
+      },
+    },
   },
   trustedOrigins: [env.APP_URL],
   ...(crossSubDomainCookiesEnabled
@@ -70,3 +90,18 @@ export const auth = betterAuth({
     }),
   ],
 });
+
+async function getInitialOrganizationId(userId: string) {
+  try {
+    const memberships = await db
+      .select({ organizationId: member.organizationId })
+      .from(member)
+      .where(eq(member.userId, userId))
+      .orderBy(asc(member.createdAt))
+      .limit(1);
+
+    return memberships.at(0)?.organizationId ?? null;
+  } catch {
+    return null;
+  }
+}

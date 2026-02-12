@@ -7,6 +7,7 @@ import {
 } from "@containers/shared";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { NO_ACTIVE_WORKSPACE_ERROR } from "@/lib/constants/organizations";
 import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
 import { checkAuthentication } from "./auth.service";
@@ -158,7 +159,7 @@ export async function getActiveOrganizationSummary(): Promise<
   if (!data) {
     return {
       data: null,
-      error: "No active workspace found.",
+      error: NO_ACTIVE_WORKSPACE_ERROR,
     };
   }
 
