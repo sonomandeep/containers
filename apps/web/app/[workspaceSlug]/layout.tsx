@@ -5,9 +5,12 @@ import { listImages } from "@/lib/services/images.service";
 
 export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ workspaceSlug: string }>;
 }>) {
+  const { workspaceSlug } = await params;
   const images = await listImages();
 
   if (images.error !== null) {
@@ -16,7 +19,7 @@ export default async function RootLayout({
 
   return (
     <SidebarProvider className="h-svh overflow-hidden">
-      <AppSidebar />
+      <AppSidebar workspaceSlug={workspaceSlug} />
 
       <SidebarInset className="min-h-0 overflow-hidden rounded-none! bg-transparent! shadow-none!">
         <main className="h-full min-h-0 w-full overflow-hidden">

@@ -12,26 +12,33 @@ import { auth } from "@/lib/auth";
 import { NavMain } from "./main";
 import { NavUser } from "./user";
 
-const items = [
-  {
-    name: "Containers",
-    url: "/containers",
-    icon: BoxIcon,
-  },
-  {
-    name: "Images",
-    url: "/images",
-    icon: LayersIcon,
-  },
-  {
-    name: "Volumes",
-    url: "/volumes",
-    icon: HardDriveIcon,
-  },
-];
+type AppSidebarProps = {
+  workspaceSlug: string;
+};
 
-export function AppSidebar() {
+function buildNavigationItems(workspaceSlug: string) {
+  return [
+    {
+      name: "Containers",
+      url: `/${workspaceSlug}/containers`,
+      icon: BoxIcon,
+    },
+    {
+      name: "Images",
+      url: `/${workspaceSlug}/images`,
+      icon: LayersIcon,
+    },
+    {
+      name: "Volumes",
+      url: `/${workspaceSlug}/volumes`,
+      icon: HardDriveIcon,
+    },
+  ];
+}
+
+export function AppSidebar({ workspaceSlug }: AppSidebarProps) {
   const { data: session } = auth.useSession();
+  const items = buildNavigationItems(workspaceSlug);
 
   return (
     <Sidebar variant="inset">

@@ -12,6 +12,7 @@ type JoinInvitationDecisionFormProps = {
   invitationId: string;
   inviterEmail: string;
   organizationName: string;
+  workspaceSlug: string;
 };
 
 type InvitationAction = "accept" | "decline";
@@ -20,6 +21,7 @@ export function JoinInvitationDecisionForm({
   invitationId,
   inviterEmail,
   organizationName,
+  workspaceSlug,
 }: JoinInvitationDecisionFormProps) {
   const router = useRouter();
   const [pendingAction, setPendingAction] = useState<InvitationAction | null>(
@@ -41,7 +43,7 @@ export function JoinInvitationDecisionForm({
     }
 
     if (action === "accept") {
-      router.replace("/containers");
+      router.replace(`/${workspaceSlug}/containers`);
       return;
     }
 

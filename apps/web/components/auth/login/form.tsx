@@ -52,13 +52,24 @@ export function LoginForm({ callbackUrl }: Props) {
       onResponse: () => {
         setIsPending(false);
       },
-      onSuccess: () => {
-        if (callbackUrl?.startsWith("/")) {
-          router.replace(callbackUrl);
+      onSuccess: async () => {
+        const activeWorkspaceSlug = await getActiveWorkspaceSlug();
+        const callbackPath = resolvePostLoginPath(
+          callbackUrl,
+          activeWorkspaceSlug
+        );
+
+        if (callbackPath) {
+          router.replace(callbackPath);
           return;
         }
 
-        router.replace("/containers");
+        if (activeWorkspaceSlug) {
+          router.replace(`/${activeWorkspaceSlug}/containers`);
+          return;
+        }
+
+        router.replace("/onboarding");
       },
       onError: ({ error }) => {
         if (error.code === "EMAIL_NOT_VERIFIED") {
@@ -190,4 +201,62 @@ export function LoginForm({ callbackUrl }: Props) {
       </div>
     </form>
   );
+}
+
+async function getActiveWorkspaceSlug() {
+  try {
+    const { data } = await auth.organization.getFullOrganization();
+    if (typeof data?.slug === "string" && data.slug.length > 0) {
+      return data.slug;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function resolvePostLoginPath(
+  callbackUrl: string,
+  activeWorkspaceSlug: string | null
+) {
+  const parsedCallbackUrl = parseInternalCallbackUrl(callbackUrl);
+  if (!parsedCallbackUrl) {
+    return null;
+  }
+
+  const section = getLegacyPlatformSection(parsedCallbackUrl.pathname);
+  if (section && activeWorkspaceSlug) {
+    const legacyPrefix = `/${section}`;
+    const suffix = parsedCallbackUrl.pathname.slice(legacyPrefix.length);
+    return `/${activeWorkspaceSlug}/${section}${suffix}${parsedCallbackUrl.search}${parsedCallbackUrl.hash}`;
+  }
+
+  if (section) {
+    return null;
+  }
+
+  return `${parsedCallbackUrl.pathname}${parsedCallbackUrl.search}${parsedCallbackUrl.hash}`;
+}
+
+function parseInternalCallbackUrl(callbackUrl: string) {
+  if (!callbackUrl.startsWith("/")) {
+    return null;
+  }
+
+  try {
+    return new URL(callbackUrl, "https://paper.mando.sh");
+  } catch {
+    return null;
+  }
+}
+
+function getLegacyPlatformSection(pathname: string) {
+  for (const section of ["containers", "images", "volumes"] as const) {
+    if (pathname === `/${section}` || pathname.startsWith(`/${section}/`)) {
+      return section;
+    }
+  }
+
+  return null;
 }
