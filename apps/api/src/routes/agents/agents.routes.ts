@@ -130,3 +130,34 @@ export const update = createRoute({
   },
 });
 export type UpdateRoute = typeof update;
+
+export const remove = createRoute({
+  path: "/agents/{agentId}",
+  method: "delete",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("agent deleted"),
+      "Agent deleted"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type RemoveRoute = typeof remove;

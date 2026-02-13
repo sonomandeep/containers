@@ -50,6 +50,13 @@ type UpdateAgentError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
+type RemoveAgentError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
 function getDbErrorCode(error: unknown): string | null {
   const MAX_ERROR_DEPTH = 5;
   let currentError: unknown = error;
@@ -336,6 +343,49 @@ export async function updateAgent(
       };
     }
 
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function removeAgent(
+  organizationId: string,
+  agentId: string
+): Promise<ServiceResponse<null, RemoveAgentError>> {
+  try {
+    const deletedRecords = await db
+      .delete(agentTable)
+      .where(
+        and(
+          eq(agentTable.organizationId, organizationId),
+          eq(agentTable.id, agentId)
+        )
+      )
+      .returning({
+        id: agentTable.id,
+      });
+
+    const deletedRecord = deletedRecords.at(0);
+    if (!deletedRecord) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch {
     return {
       data: null,
       error: {

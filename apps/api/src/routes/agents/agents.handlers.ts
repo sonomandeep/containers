@@ -12,6 +12,7 @@ import type {
   CreateRoute,
   GetByIdRoute,
   ListRoute,
+  RemoveRoute,
   UpdateRoute,
 } from "./agents.routes";
 import {
@@ -19,6 +20,7 @@ import {
   createAgent,
   getAgentById,
   listAgents,
+  removeAgent,
   storeContainer,
   storeContainersSnapshot,
   updateAgent,
@@ -138,6 +140,40 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
   }
 
   return c.json(result.data, HttpStatusCodes.OK);
+};
+
+export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+  const params = c.req.valid("param");
+  const organizationId = c.var.session?.activeOrganizationId;
+
+  if (!organizationId) {
+    return c.json(
+      {
+        message: "Active workspace is required.",
+      },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  const result = await removeAgent(organizationId, params.agentId);
+  if (result.error) {
+    c.var.logger.error(result.error, "error deleting agent");
+
+    return c.json(
+      {
+        message:
+          result.error.message ?? HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+      },
+      result.error.code ?? HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  return c.json(
+    {
+      message: "agent deleted",
+    },
+    HttpStatusCodes.OK
+  );
 };
 
 export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
