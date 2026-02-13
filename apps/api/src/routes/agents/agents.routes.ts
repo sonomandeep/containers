@@ -1,4 +1,8 @@
-import { agentSchema, createAgentSchema } from "@containers/shared";
+import {
+  agentSchema,
+  createAgentSchema,
+  updateAgentSchema,
+} from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
@@ -91,3 +95,38 @@ export const getById = createRoute({
   },
 });
 export type GetByIdRoute = typeof getById;
+
+export const update = createRoute({
+  path: "/agents/{agentId}",
+  method: "patch",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+    body: jsonContentRequired(updateAgentSchema, "Agent update payload"),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(agentSchema, "Updated agent"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema(
+        "An agent with the same name already exists in this workspace."
+      ),
+      "Duplicate agent name"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type UpdateRoute = typeof update;

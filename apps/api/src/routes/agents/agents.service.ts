@@ -4,6 +4,7 @@ import type {
   Container,
   CreateAgentInput,
   ServiceResponse,
+  UpdateAgentInput,
 } from "@containers/shared";
 import type { RedisClient } from "bun";
 import { and, desc, eq } from "drizzle-orm";
@@ -41,13 +42,36 @@ type GetAgentByIdError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
+type UpdateAgentError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.CONFLICT
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+function getDbErrorCode(error: unknown): string | null {
+  const MAX_ERROR_DEPTH = 5;
+  let currentError: unknown = error;
+
+  for (let depth = 0; depth < MAX_ERROR_DEPTH; depth += 1) {
+    if (typeof currentError !== "object" || currentError === null) {
+      return null;
+    }
+
+    const errorCode = (currentError as { code?: unknown }).code;
+    if (typeof errorCode === "string") {
+      return errorCode;
+    }
+
+    currentError = (currentError as { cause?: unknown }).cause;
+  }
+
+  return null;
+}
+
 function isUniqueViolation(error: unknown) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "23505"
-  );
+  return getDbErrorCode(error) === "23505";
 }
 
 function toAgent(record: typeof agentTable.$inferSelect): Agent {
@@ -238,6 +262,61 @@ export async function createAgent(
         error: {
           message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
           code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+        },
+      };
+    }
+
+    return {
+      data: toAgent(record),
+      error: null,
+    };
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      return {
+        data: null,
+        error: {
+          message: DUPLICATE_AGENT_NAME_MESSAGE,
+          code: HttpStatusCodes.CONFLICT,
+        },
+      };
+    }
+
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function updateAgent(
+  organizationId: string,
+  agentId: string,
+  input: UpdateAgentInput
+): Promise<ServiceResponse<Agent, UpdateAgentError>> {
+  try {
+    const records = await db
+      .update(agentTable)
+      .set({
+        name: input.name,
+      })
+      .where(
+        and(
+          eq(agentTable.organizationId, organizationId),
+          eq(agentTable.id, agentId)
+        )
+      )
+      .returning();
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
         },
       };
     }

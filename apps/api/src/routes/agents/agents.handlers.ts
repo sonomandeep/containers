@@ -8,7 +8,12 @@ import {
   parseAgentMessage,
 } from "@/lib/services/agent-protocol.service";
 import type { AppBindings, AppRouteHandler } from "@/lib/types";
-import type { CreateRoute, GetByIdRoute, ListRoute } from "./agents.routes";
+import type {
+  CreateRoute,
+  GetByIdRoute,
+  ListRoute,
+  UpdateRoute,
+} from "./agents.routes";
 import {
   agentsRegistry,
   createAgent,
@@ -16,6 +21,7 @@ import {
   listAgents,
   storeContainer,
   storeContainersSnapshot,
+  updateAgent,
 } from "./agents.service";
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
@@ -91,6 +97,36 @@ export const getById: AppRouteHandler<GetByIdRoute> = async (c) => {
   const result = await getAgentById(organizationId, params.agentId);
   if (result.error || result.data === null) {
     c.var.logger.error(result.error, "error getting agent by id");
+
+    return c.json(
+      {
+        message:
+          result.error?.message ?? HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+      },
+      result.error?.code ?? HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  return c.json(result.data, HttpStatusCodes.OK);
+};
+
+export const update: AppRouteHandler<UpdateRoute> = async (c) => {
+  const params = c.req.valid("param");
+  const input = c.req.valid("json");
+  const organizationId = c.var.session?.activeOrganizationId;
+
+  if (!organizationId) {
+    return c.json(
+      {
+        message: "Active workspace is required.",
+      },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  const result = await updateAgent(organizationId, params.agentId, input);
+  if (result.error || result.data === null) {
+    c.var.logger.error(result.error, "error updating agent");
 
     return c.json(
       {
