@@ -3,7 +3,11 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createMessageObjectSchema } from "stoker/openapi/schemas";
-import { internalServerErrorSchema, unauthorizedSchema } from "@/lib/constants";
+import {
+  internalServerErrorSchema,
+  notFoundSchema,
+  unauthorizedSchema,
+} from "@/lib/constants";
 
 const tags = ["agents"];
 
@@ -59,3 +63,31 @@ export const list = createRoute({
   },
 });
 export type ListRoute = typeof list;
+
+export const getById = createRoute({
+  path: "/agents/{agentId}",
+  method: "get",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(agentSchema, "Requested agent"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type GetByIdRoute = typeof getById;

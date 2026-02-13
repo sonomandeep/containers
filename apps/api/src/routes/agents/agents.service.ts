@@ -6,7 +6,7 @@ import type {
   ServiceResponse,
 } from "@containers/shared";
 import type { RedisClient } from "bun";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
@@ -32,6 +32,13 @@ type CreateAgentError = {
 type ListAgentsError = {
   message: string;
   code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+type GetAgentByIdError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
 function isUniqueViolation(error: unknown) {
@@ -155,6 +162,48 @@ export async function listAgents(
 
     return {
       data: records.map((record) => toAgent(record)),
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function getAgentById(
+  organizationId: string,
+  agentId: string
+): Promise<ServiceResponse<Agent, GetAgentByIdError>> {
+  try {
+    const records = await db
+      .select()
+      .from(agentTable)
+      .where(
+        and(
+          eq(agentTable.organizationId, organizationId),
+          eq(agentTable.id, agentId)
+        )
+      )
+      .limit(1);
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    return {
+      data: toAgent(record),
       error: null,
     };
   } catch {
