@@ -6,6 +6,7 @@ import type {
   ServiceResponse,
 } from "@containers/shared";
 import type { RedisClient } from "bun";
+import { desc, eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
@@ -26,6 +27,11 @@ type CreateAgentError = {
   code:
     | typeof HttpStatusCodes.CONFLICT
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+type ListAgentsError = {
+  message: string;
+  code: typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
 function isUniqueViolation(error: unknown) {
@@ -136,6 +142,31 @@ export class AgentsRegistry<T = unknown> {
 }
 
 export const agentsRegistry = new AgentsRegistry();
+
+export async function listAgents(
+  organizationId: string
+): Promise<ServiceResponse<Array<Agent>, ListAgentsError>> {
+  try {
+    const records = await db
+      .select()
+      .from(agentTable)
+      .where(eq(agentTable.organizationId, organizationId))
+      .orderBy(desc(agentTable.createdAt));
+
+    return {
+      data: records.map((record) => toAgent(record)),
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
 
 export async function createAgent(
   organizationId: string,

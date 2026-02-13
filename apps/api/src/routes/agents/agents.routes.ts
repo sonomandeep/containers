@@ -44,6 +44,10 @@ export const list = createRoute({
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(z.array(agentSchema), "List of agents"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       unauthorizedSchema,
       "Unauthorized"

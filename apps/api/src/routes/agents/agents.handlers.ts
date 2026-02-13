@@ -12,6 +12,7 @@ import type { CreateRoute, ListRoute } from "./agents.routes";
 import {
   agentsRegistry,
   createAgent,
+  listAgents,
   storeContainer,
   storeContainersSnapshot,
 } from "./agents.service";
@@ -45,12 +46,32 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
   return c.json(result.data, HttpStatusCodes.CREATED);
 };
 
-export const list: AppRouteHandler<ListRoute> = (c) => {
-  const agents = agentsRegistry
-    .getAgents()
-    .map((agent) => ({ id: agent.id, client: null }));
+export const list: AppRouteHandler<ListRoute> = async (c) => {
+  const organizationId = c.var.session?.activeOrganizationId;
 
-  return c.json(agents, HttpStatusCodes.OK);
+  if (!organizationId) {
+    return c.json(
+      {
+        message: "Active workspace is required.",
+      },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  const result = await listAgents(organizationId);
+  if (result.error || result.data === null) {
+    c.var.logger.error(result.error, "error listing agents");
+
+    return c.json(
+      {
+        message:
+          result.error?.message ?? HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+      },
+      result.error?.code ?? HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  return c.json(result.data, HttpStatusCodes.OK);
 };
 
 export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
