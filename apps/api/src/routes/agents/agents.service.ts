@@ -1,13 +1,51 @@
-import type { Container, ServiceResponse } from "@containers/shared";
+import crypto from "node:crypto";
+import type {
+  Agent,
+  Container,
+  CreateAgentInput,
+  ServiceResponse,
+} from "@containers/shared";
 import type { RedisClient } from "bun";
 import type { WSContext } from "hono/ws";
+import * as HttpStatusCodes from "stoker/http-status-codes";
+import * as HttpStatusPhrases from "stoker/http-status-phrases";
+import { db } from "@/db";
+import { agent as agentTable } from "@/db/schema";
 
 const CONTAINERS_KEY = "containers";
+const DUPLICATE_AGENT_NAME_MESSAGE =
+  "An agent with the same name already exists in this workspace.";
 
 type ConnectedAgent<T = unknown> = {
   id: string;
   client: WSContext<T>;
 };
+
+type CreateAgentError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.CONFLICT
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+function isUniqueViolation(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "23505"
+  );
+}
+
+function toAgent(record: typeof agentTable.$inferSelect): Agent {
+  return {
+    id: record.id,
+    organizationId: record.organizationId,
+    name: record.name,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
+  };
+}
 
 export class AgentsRegistry<T = unknown> {
   private readonly clients = new Map<string, WSContext<T>>();
@@ -98,6 +136,56 @@ export class AgentsRegistry<T = unknown> {
 }
 
 export const agentsRegistry = new AgentsRegistry();
+
+export async function createAgent(
+  organizationId: string,
+  input: CreateAgentInput
+): Promise<ServiceResponse<Agent, CreateAgentError>> {
+  try {
+    const records = await db
+      .insert(agentTable)
+      .values({
+        id: crypto.randomUUID(),
+        organizationId,
+        name: input.name,
+      })
+      .returning();
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+          code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+        },
+      };
+    }
+
+    return {
+      data: toAgent(record),
+      error: null,
+    };
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      return {
+        data: null,
+        error: {
+          message: DUPLICATE_AGENT_NAME_MESSAGE,
+          code: HttpStatusCodes.CONFLICT,
+        },
+      };
+    }
+
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
 
 function isContainerRemovalEvent(eventType: string) {
   return (
