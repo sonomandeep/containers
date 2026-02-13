@@ -1,8 +1,13 @@
-import type { Agent, Container, ServiceResponse } from "@containers/shared";
+import type { Container, ServiceResponse } from "@containers/shared";
 import type { RedisClient } from "bun";
 import type { WSContext } from "hono/ws";
 
 const CONTAINERS_KEY = "containers";
+
+type ConnectedAgent<T = unknown> = {
+  id: string;
+  client: WSContext<T>;
+};
 
 export class AgentsRegistry<T = unknown> {
   private readonly clients = new Map<string, WSContext<T>>();
@@ -24,8 +29,8 @@ export class AgentsRegistry<T = unknown> {
     return { data: this.clients.get(id), error: null };
   }
 
-  getAgents(): Array<Agent<WSContext<T>>> {
-    const agents: Array<Agent<WSContext<T>>> = [];
+  getAgents(): Array<ConnectedAgent<T>> {
+    const agents: Array<ConnectedAgent<T>> = [];
 
     for (const [id, client] of this.clients) {
       if (client.readyState === WebSocket.OPEN) {
