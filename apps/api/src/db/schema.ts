@@ -136,6 +136,28 @@ export const invitation = pgTable(
   ]
 );
 
+export const agent = pgTable(
+  "agent",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("agent_organizationId_name_uidx").on(
+      table.organizationId,
+      table.name
+    ),
+  ]
+);
+
 export const deviceCode = pgTable("device_code", {
   id: text("id").primaryKey(),
   deviceCode: text("device_code").notNull(),
@@ -186,6 +208,14 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
+  agents: many(agent),
+}));
+
+export const agentRelations = relations(agent, ({ one }) => ({
+  organization: one(organization, {
+    fields: [agent.organizationId],
+    references: [organization.id],
+  }),
 }));
 
 export const memberRelations = relations(member, ({ one }) => ({
