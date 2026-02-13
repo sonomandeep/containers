@@ -1,10 +1,50 @@
-import { agentSchema } from "@containers/shared";
+import {
+  agentSchema,
+  createAgentSchema,
+  updateAgentSchema,
+} from "@containers/shared";
 import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { jsonContent } from "stoker/openapi/helpers";
-import { internalServerErrorSchema, unauthorizedSchema } from "@/lib/constants";
+import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
+import { createMessageObjectSchema } from "stoker/openapi/schemas";
+import {
+  internalServerErrorSchema,
+  notFoundSchema,
+  unauthorizedSchema,
+} from "@/lib/constants";
 
-const tags = ["containers"];
+const tags = ["agents"];
+
+export const create = createRoute({
+  path: "/agents",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(createAgentSchema, "Agent payload"),
+  },
+  responses: {
+    [HttpStatusCodes.CREATED]: jsonContent(agentSchema, "Created agent"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema(
+        "An agent with the same name already exists in this workspace."
+      ),
+      "Duplicate agent name"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type CreateRoute = typeof create;
 
 export const list = createRoute({
   path: "/agents",
@@ -12,6 +52,10 @@ export const list = createRoute({
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(z.array(agentSchema), "List of agents"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       unauthorizedSchema,
       "Unauthorized"
@@ -23,3 +67,97 @@ export const list = createRoute({
   },
 });
 export type ListRoute = typeof list;
+
+export const getById = createRoute({
+  path: "/agents/{agentId}",
+  method: "get",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(agentSchema, "Requested agent"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type GetByIdRoute = typeof getById;
+
+export const update = createRoute({
+  path: "/agents/{agentId}",
+  method: "patch",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+    body: jsonContentRequired(updateAgentSchema, "Agent update payload"),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(agentSchema, "Updated agent"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      createMessageObjectSchema(
+        "An agent with the same name already exists in this workspace."
+      ),
+      "Duplicate agent name"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type UpdateRoute = typeof update;
+
+export const remove = createRoute({
+  path: "/agents/{agentId}",
+  method: "delete",
+  tags,
+  request: {
+    params: z.object({
+      agentId: z.string().min(1),
+    }),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      createMessageObjectSchema("agent deleted"),
+      "Agent deleted"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Missing active workspace"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      unauthorizedSchema,
+      "Unauthorized"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Agent not found"),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      internalServerErrorSchema,
+      "Internal server error"
+    ),
+  },
+});
+export type RemoveRoute = typeof remove;
