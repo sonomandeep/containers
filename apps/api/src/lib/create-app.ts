@@ -46,8 +46,8 @@ export default function createApp() {
   });
   app.use(redisMiddleware);
 
-  app.use("/containers/*", authMiddleware);
-  app.use("/agents/*", authMiddleware);
+  app.use("/api/containers/*", authMiddleware);
+  app.use("/api/agents/*", authMiddleware);
 
   app.notFound(notFound);
   app.onError(onError);
