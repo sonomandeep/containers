@@ -1,10 +1,12 @@
 import type { Agent } from "@containers/shared";
 import {
   AlertCircleIcon,
+  ArrowRightIcon,
   BoxIcon,
   CheckIcon,
   EllipsisVerticalIcon,
 } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -20,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -27,54 +30,75 @@ import {
 } from "@/components/ui/empty";
 import { listAgents } from "@/lib/services/agents.service";
 
-export default async function Page() {
-  const { data, error } = await listAgents();
-  const agents = data ?? [];
+type Props = {
+  params: Promise<{ workspaceSlug: string }>;
+};
 
-  const firstSection = (() => {
-    if (error) {
-      return (
-        <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <AlertCircleIcon className="size-4" />
-            </EmptyMedia>
-            <EmptyTitle>Unable to load agents</EmptyTitle>
-            <EmptyDescription>{error}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      );
-    }
+export default async function Page({ params }: Props) {
+  const { workspaceSlug } = await params;
+  const { data: agents, error } = await listAgents();
 
-    if (agents.length === 0) {
-      return (
-        <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <BoxIcon className="size-4" />
-            </EmptyMedia>
-            <EmptyTitle>No agents yet</EmptyTitle>
-            <EmptyDescription>
-              Create your first agent to connect your host.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      );
-    }
-
+  if (error || agents === null) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto pr-1">
-        {agents.map((agent) => (
-          <AgentCard agent={agent} key={agent.id} />
-        ))}
+      <div className="grid h-full min-h-0 grid-cols-5 gap-3 overflow-hidden">
+        <SectionCard className="@container col-span-3 min-h-0 overflow-hidden">
+          <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <AlertCircleIcon className="size-4" />
+              </EmptyMedia>
+              <EmptyTitle>Unable to load agents</EmptyTitle>
+              <EmptyDescription>{error}</EmptyDescription>
+            </EmptyHeader>
+
+            <EmptyContent>
+              <Link
+                className="inline-flex items-center gap-1 underline transition-colors hover:text-foreground"
+                href={`/${workspaceSlug}/agents`}
+              >
+                Try again
+                <ArrowRightIcon className="size-3" />
+              </Link>
+            </EmptyContent>
+          </Empty>
+        </SectionCard>
+
+        <SectionCard className="@container col-span-2 min-h-0 overflow-hidden" />
       </div>
     );
-  })();
+  }
+
+  if (agents.length === 0) {
+    return (
+      <div className="grid h-full min-h-0 grid-cols-5 gap-3 overflow-hidden">
+        <SectionCard className="@container col-span-3 min-h-0 overflow-hidden">
+          <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <BoxIcon className="size-4" />
+              </EmptyMedia>
+              <EmptyTitle>No agents yet</EmptyTitle>
+              <EmptyDescription>
+                Create an agent and run it on your host. It will appear here
+                automatically.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </SectionCard>
+
+        <SectionCard className="@container col-span-2 min-h-0 overflow-hidden" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid h-full min-h-0 grid-cols-5 gap-3 overflow-hidden">
       <SectionCard className="@container col-span-3 min-h-0 overflow-hidden">
-        {firstSection}
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto pr-1">
+          {agents.map((agent) => (
+            <AgentCard agent={agent} key={agent.id} />
+          ))}
+        </div>
       </SectionCard>
 
       <SectionCard className="@container col-span-2 min-h-0 overflow-hidden" />
