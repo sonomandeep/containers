@@ -1,3 +1,4 @@
+import type { Agent } from "@containers/shared";
 import {
   AlertCircleIcon,
   BoxIcon,
@@ -64,7 +65,7 @@ export default async function Page() {
     return (
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto pr-1">
         {agents.map((agent) => (
-          <AgentCard key={agent.id} />
+          <AgentCard agent={agent} key={agent.id} />
         ))}
       </div>
     );
@@ -81,11 +82,11 @@ export default async function Page() {
   );
 }
 
-export function AgentCard() {
+export function AgentCard({ agent }: { agent: Agent }) {
   return (
     <Card>
       <CardToolbar>
-        <span className="font-mono">test</span>
+        <span className="font-mono">{agent.id.slice(0, 12) || "test"}</span>
 
         <div className="inline-flex items-center gap-1">
           <Button size="icon-sm" variant="ghost">
@@ -98,7 +99,7 @@ export function AgentCard() {
         <CardHeader>
           <div className="inline-flex w-full items-center justify-between">
             <div className="inline-flex gap-2">
-              <CardTitle>ACME Agent</CardTitle>
+              <CardTitle>{agent.name || "ACME Agent"}</CardTitle>
               <span className="text-muted-foreground">v0.0.1</span>
             </div>
             <Badge variant="success">
