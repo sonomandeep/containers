@@ -1,4 +1,9 @@
-import { CheckIcon, EllipsisVerticalIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  BoxIcon,
+  CheckIcon,
+  EllipsisVerticalIcon,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,17 +15,65 @@ import {
 } from "@/components/core/card";
 import { MetricInfo } from "@/components/core/metric-info";
 import { SectionCard } from "@/components/core/section-card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { listAgents } from "@/lib/services/agents.service";
 
-export default function Page() {
+export default async function Page() {
+  const { data, error } = await listAgents();
+  const agents = data ?? [];
+
+  const firstSection = (() => {
+    if (error) {
+      return (
+        <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <AlertCircleIcon className="size-4" />
+            </EmptyMedia>
+            <EmptyTitle>Unable to load agents</EmptyTitle>
+            <EmptyDescription>{error}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      );
+    }
+
+    if (agents.length === 0) {
+      return (
+        <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BoxIcon className="size-4" />
+            </EmptyMedia>
+            <EmptyTitle>No agents yet</EmptyTitle>
+            <EmptyDescription>
+              Create your first agent to connect your host.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      );
+    }
+
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto pr-1">
+        {agents.map((agent) => (
+          <AgentCard key={agent.id} />
+        ))}
+      </div>
+    );
+  })();
+
   return (
     <div className="grid h-full min-h-0 grid-cols-5 gap-3 overflow-hidden">
       <SectionCard className="@container col-span-3 min-h-0 overflow-hidden">
-        <AgentCard />
-        <AgentCard />
-        <AgentCard />
-        <AgentCard />
+        {firstSection}
       </SectionCard>
 
       <SectionCard className="@container col-span-2 min-h-0 overflow-hidden" />
