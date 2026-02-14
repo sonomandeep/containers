@@ -1,6 +1,6 @@
 "use client";
 
-import { BoxIcon, HardDriveIcon, LayersIcon } from "lucide-react";
+import { BotIcon, BoxIcon, HardDriveIcon, LayersIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -8,7 +8,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
-import { NavMain } from "./main";
+import { NavGroup } from "./main";
 import { NavUser } from "./user";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
@@ -17,23 +17,32 @@ type AppSidebarProps = {
 };
 
 function buildNavigationItems(workspaceSlug: string) {
-  return [
-    {
-      name: "Containers",
-      url: `/${workspaceSlug}/containers`,
-      icon: BoxIcon,
-    },
-    {
-      name: "Images",
-      url: `/${workspaceSlug}/images`,
-      icon: LayersIcon,
-    },
-    {
-      name: "Volumes",
-      url: `/${workspaceSlug}/volumes`,
-      icon: HardDriveIcon,
-    },
-  ];
+  return {
+    platform: [
+      {
+        name: "Containers",
+        url: `/${workspaceSlug}/containers`,
+        icon: BoxIcon,
+      },
+      {
+        name: "Images",
+        url: `/${workspaceSlug}/images`,
+        icon: LayersIcon,
+      },
+      {
+        name: "Volumes",
+        url: `/${workspaceSlug}/volumes`,
+        icon: HardDriveIcon,
+      },
+    ],
+    config: [
+      {
+        name: "Agents",
+        url: `/${workspaceSlug}/agents`,
+        icon: BotIcon,
+      },
+    ],
+  };
 }
 
 export function AppSidebar({ workspaceSlug }: AppSidebarProps) {
@@ -47,7 +56,8 @@ export function AppSidebar({ workspaceSlug }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={items} />
+        <NavGroup items={items.platform} label="Platform" />
+        <NavGroup items={items.config} label="Config" />
       </SidebarContent>
 
       <SidebarFooter>

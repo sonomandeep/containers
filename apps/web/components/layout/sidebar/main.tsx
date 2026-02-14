@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type Props = {
+  label: string;
   items: Array<{
     name: string;
     url: string;
@@ -20,12 +21,12 @@ type Props = {
   }>;
 };
 
-export function NavMain({ items }: Props) {
+export function NavGroup({ label, items }: Props) {
   const pathname = usePathname();
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
 
       <SidebarMenu>
         {items.map((item) => (
