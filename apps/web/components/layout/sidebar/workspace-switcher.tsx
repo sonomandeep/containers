@@ -95,31 +95,20 @@ export function WorkspaceSwitcher({ workspaceSlug }: WorkspaceSwitcherProps) {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton
-                className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
-                size="lg"
-              />
+              <SidebarMenuButton className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground" />
             }
           >
             <WorkspaceAvatar
-              className="size-8"
               logo={activeWorkspace?.logo ?? null}
               name={activeWorkspaceName}
               slug={activeWorkspaceHandle}
             />
-            <div className="grid min-w-0 text-left text-sm leading-tight">
-              <span className="truncate font-medium">
-                {activeWorkspaceName}
-              </span>
-              <span className="truncate font-mono text-xs">
-                {activeWorkspaceHandle}
-              </span>
-            </div>
+            <span className="truncate font-medium">{activeWorkspaceName}</span>
 
             {switchingWorkspaceId ? (
               <Spinner className="ml-auto size-3" />
             ) : (
-              <ChevronsUpDownIcon className="ml-auto size-4" />
+              <ChevronsUpDownIcon className="ml-auto size-3!" />
             )}
           </DropdownMenuTrigger>
 
