@@ -10,7 +10,7 @@ import type { GetByIdRoute, RemoveRoute, UploadRoute } from "./files.routes";
 export const upload: AppRouteHandler<UploadRoute> = async (c) => {
   const input = c.req.valid("form");
 
-  const result = await uploadFile(input.file);
+  const result = await uploadFile(input.file, c.req.url);
   if (result.error) {
     c.var.logger.error(result.error);
     return c.json(
@@ -44,7 +44,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 export const getById: AppRouteHandler<GetByIdRoute> = async (c) => {
   const params = c.req.valid("param");
 
-  const result = await getFileById(params.fileId);
+  const result = await getFileById(params.fileId, c.req.url);
   if (result.error || result.data === null) {
     c.var.logger.error(result.error);
     return c.json(

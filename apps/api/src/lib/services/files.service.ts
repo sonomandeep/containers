@@ -49,8 +49,8 @@ function buildStorageKey(filename: string) {
   return extension ? `${id}${extension}` : id;
 }
 
-function buildFileUrl(storageKey: string) {
-  return new URL(`/uploads/${storageKey}`, env.APP_URL).toString();
+function buildFileUrl(storageKey: string, requestUrl: string) {
+  return new URL(`/uploads/${storageKey}`, requestUrl).toString();
 }
 
 function isNoEntryError(error: unknown) {
@@ -63,7 +63,8 @@ function isNoEntryError(error: unknown) {
 }
 
 export async function uploadFile(
-  input: unknown
+  input: unknown,
+  requestUrl: string
 ): Promise<ServiceResponse<StoredFile, UploadFileError>> {
   if (!isUploadedFile(input)) {
     return {
@@ -118,7 +119,7 @@ export async function uploadFile(
         mimeType: record.mimeType,
         size: record.size,
         storageKey: record.storageKey,
-        url: buildFileUrl(record.storageKey),
+        url: buildFileUrl(record.storageKey, requestUrl),
         createdAt: record.createdAt.toISOString(),
         updatedAt: record.updatedAt.toISOString(),
       },
@@ -198,7 +199,8 @@ type GetFileError = {
 };
 
 export async function getFileById(
-  fileId: string
+  fileId: string,
+  requestUrl: string
 ): Promise<ServiceResponse<StoredFile, GetFileError>> {
   try {
     const records = await db
@@ -225,7 +227,7 @@ export async function getFileById(
         mimeType: record.mimeType,
         size: record.size,
         storageKey: record.storageKey,
-        url: buildFileUrl(record.storageKey),
+        url: buildFileUrl(record.storageKey, requestUrl),
         createdAt: record.createdAt.toISOString(),
         updatedAt: record.updatedAt.toISOString(),
       } satisfies StoredFile,
