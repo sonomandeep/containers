@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { bearer, deviceAuthorization, organization } from "better-auth/plugins";
+import { organization } from "better-auth/plugins";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { member } from "@/db/schema";
@@ -67,7 +67,6 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    bearer(),
     organization({
       async sendInvitationEmail(data) {
         const inviteUrl = new URL(
@@ -83,10 +82,6 @@ export const auth = betterAuth({
           organizationName: data.organization.name,
         });
       },
-    }),
-    deviceAuthorization({
-      verificationUri: new URL("/agents/auth", env.APP_URL).toString(),
-      expiresIn: "3m",
     }),
   ],
 });
