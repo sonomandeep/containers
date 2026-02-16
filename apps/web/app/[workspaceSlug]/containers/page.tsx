@@ -1,6 +1,8 @@
 import {
+  AlertCircleIcon,
   ArrowDownIcon,
   ArrowDownUpIcon,
+  ArrowRightIcon,
   ArrowUpIcon,
   CpuIcon,
   FunnelIcon,
@@ -8,6 +10,7 @@ import {
   MemoryStickIcon,
   NetworkIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { ContainersGrid } from "@/components/containers/containers-grid";
 import { MetricsStreamController } from "@/components/containers/metrics-stream-controller";
 import {
@@ -29,14 +32,55 @@ import {
 } from "@/components/core/section-card";
 import { SegmentedProgressBar } from "@/components/core/segmented-progress-bar";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { logger } from "@/lib/logger";
 import { listContainers } from "@/lib/services/containers.service";
 
-export default async function Page() {
+type Props = {
+  params: Promise<{ workspaceSlug: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { workspaceSlug } = await params;
   const { data, error } = await listContainers();
-  if (error) {
+
+  if (error || data === null) {
     logger.error(error);
-    throw new Error("error getting containers");
+
+    return (
+      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+        <SectionCard className="@container min-h-0 flex-1 overflow-hidden">
+          <Empty className="min-h-0 flex-1 rounded-md border border-card-border border-dashed bg-card/50">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <AlertCircleIcon className="size-4" />
+              </EmptyMedia>
+              <EmptyTitle>Unable to load containers</EmptyTitle>
+              <EmptyDescription>
+                We could not load your containers right now.
+              </EmptyDescription>
+            </EmptyHeader>
+
+            <EmptyContent>
+              <Link
+                className="inline-flex items-center gap-1 underline transition-colors hover:text-foreground"
+                href={`/${workspaceSlug}/containers`}
+              >
+                Try again
+                <ArrowRightIcon className="size-3" />
+              </Link>
+            </EmptyContent>
+          </Empty>
+        </SectionCard>
+      </div>
+    );
   }
 
   return (
@@ -174,7 +218,7 @@ export default async function Page() {
           </SectionCardActions>
         </SectionCardHeader>
 
-        <ContainersGrid />
+        <ContainersGrid initialContainers={data} />
       </SectionCard>
     </div>
   );
