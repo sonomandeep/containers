@@ -11,6 +11,7 @@ import {
   AgentsRegistry,
   createAgent,
   getAgentById,
+  getAgentConnectionInfo,
   listAgents,
   removeAgent,
   storeContainer,
@@ -147,6 +148,67 @@ describe("getAgentById", () => {
     spyOn(db, "select").mockReturnValue({ from } as never);
 
     const result = await getAgentById("org-1", "agent-1");
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    });
+  });
+});
+
+describe("getAgentConnectionInfo", () => {
+  test("returns connection info when the agent exists", async () => {
+    const record = {
+      id: "agent-7",
+      organizationId: "org-9",
+    };
+    const limit = jest.fn().mockResolvedValue([record]);
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("agent-7");
+
+    expect(limit).toHaveBeenCalledWith(1);
+    expect(result).toEqual({
+      data: {
+        id: "agent-7",
+        organizationId: "org-9",
+      },
+      error: null,
+    });
+  });
+
+  test("returns not found when the agent does not exist", async () => {
+    const limit = jest.fn().mockResolvedValue([]);
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("missing");
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.NOT_FOUND,
+        code: HttpStatusCodes.NOT_FOUND,
+      },
+    });
+  });
+
+  test("returns internal server error on database failure", async () => {
+    const limit = jest.fn().mockRejectedValue(new Error("boom"));
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("agent-1");
 
     expect(result).toEqual({
       data: null,

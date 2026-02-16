@@ -38,6 +38,13 @@ type GetAgentByIdError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
+type GetAgentConnectionInfoError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
 type UpdateAgentError = {
   message: string;
   code:
@@ -141,6 +148,51 @@ export async function getAgentById(
 
     return {
       data: toAgent(record),
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function getAgentConnectionInfo(agentId: string): Promise<
+  ServiceResponse<
+    {
+      id: string;
+      organizationId: string;
+    },
+    GetAgentConnectionInfoError
+  >
+> {
+  try {
+    const records = await db
+      .select({
+        id: agentTable.id,
+        organizationId: agentTable.organizationId,
+      })
+      .from(agentTable)
+      .where(eq(agentTable.id, agentId))
+      .limit(1);
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    return {
+      data: record,
       error: null,
     };
   } catch {
