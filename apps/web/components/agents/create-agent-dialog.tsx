@@ -196,7 +196,7 @@ export function CreateAgentDialog() {
                 Done
               </DialogClose>
 
-              <Button onClick={copyCommand} type="button" variant="secondary">
+              <Button onClick={copyCommand} type="button" variant="default">
                 {copied ? "Copied" : "Copy command"}
                 {copied ? (
                   <CheckIcon className="size-3 opacity-60" />
