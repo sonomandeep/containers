@@ -277,14 +277,45 @@ export function stopContainer(
       | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
   }
 > {
-  const commandResult = buildCommand({
-    name: "container.stop",
-    payload: {
-      containerId,
-    },
-  });
+  try {
+    const commandResult = buildCommand({
+      name: "container.stop",
+      payload: {
+        containerId,
+      },
+    });
 
-  if (commandResult.error || commandResult.data === null) {
+    if (commandResult.error || commandResult.data === null) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+          code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+        },
+      };
+    }
+
+    const command = commandResult.data;
+
+    const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
+
+    if (error) {
+      return {
+        data: null,
+        error: {
+          message: error,
+          code: HttpStatusCodes.SERVICE_UNAVAILABLE,
+        },
+      };
+    }
+
+    return {
+      data: {
+        commandId: command.data.id,
+      },
+      error: null,
+    };
+  } catch {
     return {
       data: null,
       error: {
@@ -293,27 +324,6 @@ export function stopContainer(
       },
     };
   }
-
-  const command = commandResult.data;
-
-  const { error } = agentsRegistry.sendTo(agentId, JSON.stringify(command));
-
-  if (error) {
-    return {
-      data: null,
-      error: {
-        message: error,
-        code: HttpStatusCodes.SERVICE_UNAVAILABLE,
-      },
-    };
-  }
-
-  return {
-    data: {
-      commandId: command.data.id,
-    },
-    error: null,
-  };
 }
 
 export async function startContainer(
