@@ -16,6 +16,7 @@ import { agent as agentTable } from "@/db/schema";
 export { AgentsRegistry, agentsRegistry } from "./agents.registry";
 
 const CONTAINERS_KEY = "containers";
+const ORGANIZATION_CONTAINERS_KEY_PREFIX = `${CONTAINERS_KEY}:`;
 const DUPLICATE_AGENT_NAME_MESSAGE =
   "An agent with the same name already exists in this workspace.";
 
@@ -58,6 +59,11 @@ type RemoveAgentError = {
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+type AgentConnectionScope = {
+  organizationId: string;
+  agentId: string;
 };
 
 function getDbErrorCode(error: unknown): string | null {
@@ -362,26 +368,60 @@ function isContainerRemovalEvent(eventType: string) {
   );
 }
 
+function getOrganizationContainersKey(organizationId: string) {
+  return `${ORGANIZATION_CONTAINERS_KEY_PREFIX}${organizationId}`;
+}
+
+function getAgentContainerField(agentId: string, containerId: string) {
+  return `${agentId}:${containerId}`;
+}
+
+function isAgentContainerField(agentId: string, field: string) {
+  return field.startsWith(`${agentId}:`);
+}
+
+export async function clearAgentContainers(
+  redis: RedisClient,
+  scope: AgentConnectionScope
+) {
+  const key = getOrganizationContainersKey(scope.organizationId);
+  const cached = await redis.hgetall(key);
+  const fields = Object.keys(cached).filter((field) =>
+    isAgentContainerField(scope.agentId, field)
+  );
+
+  for (const field of fields) {
+    await redis.hdel(key, field);
+  }
+}
+
 export async function storeContainer(
   redis: RedisClient,
+  scope: AgentConnectionScope,
   eventType: string,
   container: Container
 ) {
+  const key = getOrganizationContainersKey(scope.organizationId);
+  const field = getAgentContainerField(scope.agentId, container.id);
+
   if (isContainerRemovalEvent(eventType)) {
-    await redis.hdel(CONTAINERS_KEY, container.id);
+    await redis.hdel(key, field);
     return;
   }
 
-  await redis.hset(CONTAINERS_KEY, {
-    [container.id]: JSON.stringify(container),
+  await redis.hset(key, {
+    [field]: JSON.stringify(container),
   });
 }
 
 export async function storeContainersSnapshot(
   redis: RedisClient,
+  scope: AgentConnectionScope,
   containers: Array<Container>
 ) {
-  await redis.del(CONTAINERS_KEY);
+  const key = getOrganizationContainersKey(scope.organizationId);
+
+  await clearAgentContainers(redis, scope);
 
   if (containers.length === 0) {
     return;
@@ -389,8 +429,9 @@ export async function storeContainersSnapshot(
 
   const entries: Record<string, string> = {};
   for (const container of containers) {
-    entries[container.id] = JSON.stringify(container);
+    const field = getAgentContainerField(scope.agentId, container.id);
+    entries[field] = JSON.stringify(container);
   }
 
-  await redis.hset(CONTAINERS_KEY, entries);
+  await redis.hset(key, entries);
 }

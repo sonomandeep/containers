@@ -224,14 +224,29 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
     },
     async onMessage(e) {
       try {
+        const connection = await connectionPromise;
+        if (connection.error || connection.data === null) {
+          logger.warn({ agentId: id }, "dropping message for unknown agent");
+          return;
+        }
+
+        const scope = {
+          organizationId: connection.data.organizationId,
+          agentId: connection.data.id,
+        };
+
         const payload = parseAgentMessage(e.data);
 
         if (isSnapshotEvent(payload)) {
-          await storeContainersSnapshot(c.var.redis, payload.data.containers);
+          await storeContainersSnapshot(
+            c.var.redis,
+            scope,
+            payload.data.containers
+          );
         }
 
         if (isContainerEvent(payload)) {
-          await storeContainer(c.var.redis, payload.type, payload.data);
+          await storeContainer(c.var.redis, scope, payload.type, payload.data);
         }
       } catch (error) {
         logger.warn({ error }, "invalid agent message");
