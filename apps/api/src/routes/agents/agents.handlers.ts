@@ -19,6 +19,7 @@ import {
   agentsRegistry,
   createAgent,
   getAgentById,
+  getAgentConnectionInfo,
   listAgents,
   removeAgent,
   storeContainer,
@@ -183,10 +184,35 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
     throw new Error("handle validation");
   }
 
+  const connectionPromise = getAgentConnectionInfo(id);
+
   return {
-    onOpen(_evt, ws) {
-      agentsRegistry.add(id, ws);
-      ws.send(JSON.stringify({ type: "welcome", id }));
+    async onOpen(_evt, ws) {
+      const connection = await connectionPromise;
+      if (connection.error || connection.data === null) {
+        if (connection.error?.code === HttpStatusCodes.NOT_FOUND) {
+          logger.warn({ agentId: id }, "agent connection rejected");
+          ws.close(1008, "agent not found");
+          return;
+        }
+
+        logger.error(
+          {
+            agentId: id,
+            error: connection.error,
+          },
+          "failed to load agent connection info"
+        );
+        ws.close(1011, "internal server error");
+        return;
+      }
+
+      agentsRegistry.add(
+        connection.data.organizationId,
+        connection.data.id,
+        ws
+      );
+      ws.send(JSON.stringify({ type: "welcome", id: connection.data.id }));
     },
     onClose(e) {
       agentsRegistry.remove(id);
@@ -198,14 +224,29 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
     },
     async onMessage(e) {
       try {
+        const connection = await connectionPromise;
+        if (connection.error || connection.data === null) {
+          logger.warn({ agentId: id }, "dropping message for unknown agent");
+          return;
+        }
+
+        const scope = {
+          organizationId: connection.data.organizationId,
+          agentId: connection.data.id,
+        };
+
         const payload = parseAgentMessage(e.data);
 
         if (isSnapshotEvent(payload)) {
-          await storeContainersSnapshot(c.var.redis, payload.data.containers);
+          await storeContainersSnapshot(
+            c.var.redis,
+            scope,
+            payload.data.containers
+          );
         }
 
         if (isContainerEvent(payload)) {
-          await storeContainer(c.var.redis, payload.type, payload.data);
+          await storeContainer(c.var.redis, scope, payload.type, payload.data);
         }
       } catch (error) {
         logger.warn({ error }, "invalid agent message");

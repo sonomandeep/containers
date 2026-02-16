@@ -8,20 +8,17 @@ import type {
 } from "@containers/shared";
 import type { RedisClient } from "bun";
 import { and, desc, eq } from "drizzle-orm";
-import type { WSContext } from "hono/ws";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { db } from "@/db";
 import { agent as agentTable } from "@/db/schema";
 
+export { AgentsRegistry, agentsRegistry } from "./agents.registry";
+
 const CONTAINERS_KEY = "containers";
+const ORGANIZATION_CONTAINERS_KEY_PREFIX = `${CONTAINERS_KEY}:`;
 const DUPLICATE_AGENT_NAME_MESSAGE =
   "An agent with the same name already exists in this workspace.";
-
-type ConnectedAgent<T = unknown> = {
-  id: string;
-  client: WSContext<T>;
-};
 
 type CreateAgentError = {
   message: string;
@@ -42,6 +39,13 @@ type GetAgentByIdError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
+type GetAgentConnectionInfoError = {
+  message: string;
+  code:
+    | typeof HttpStatusCodes.NOT_FOUND
+    | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
 type UpdateAgentError = {
   message: string;
   code:
@@ -55,6 +59,11 @@ type RemoveAgentError = {
   code:
     | typeof HttpStatusCodes.NOT_FOUND
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
+};
+
+type AgentConnectionScope = {
+  organizationId: string;
+  agentId: string;
 };
 
 function getDbErrorCode(error: unknown): string | null {
@@ -90,96 +99,6 @@ function toAgent(record: typeof agentTable.$inferSelect): Agent {
     updatedAt: record.updatedAt.toISOString(),
   };
 }
-
-export class AgentsRegistry<T = unknown> {
-  private readonly clients = new Map<string, WSContext<T>>();
-
-  add(id: string, ws: WSContext<T>) {
-    this.clients.set(id, ws);
-  }
-
-  remove(id: string) {
-    this.clients.delete(id);
-  }
-
-  get(id: string) {
-    const agent = this.clients.get(id);
-    if (!agent || agent.readyState !== WebSocket.OPEN) {
-      return { data: null, error: "agent not found" };
-    }
-
-    return { data: this.clients.get(id), error: null };
-  }
-
-  getAgents(): Array<ConnectedAgent<T>> {
-    const agents: Array<ConnectedAgent<T>> = [];
-
-    for (const [id, client] of this.clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        agents.push({ id, client });
-      } else {
-        this.clients.delete(id);
-      }
-    }
-
-    return agents;
-  }
-
-  sendTo(
-    id: string,
-    data: string | ArrayBuffer | Uint8Array<ArrayBuffer>
-  ): ServiceResponse<null, string> {
-    const client = this.clients.get(id);
-    if (!client) {
-      return {
-        data: null,
-        error: "agent not available",
-      };
-    }
-
-    if (client.readyState !== WebSocket.OPEN) {
-      this.clients.delete(id);
-      return {
-        data: null,
-        error: "agent not available",
-      };
-    }
-
-    try {
-      client.send(data);
-      return {
-        data: null,
-        error: null,
-      };
-    } catch {
-      this.clients.delete(id);
-      return {
-        data: null,
-        error: "agent not available",
-      };
-    }
-  }
-
-  broadcast(data: string | ArrayBuffer | Uint8Array<ArrayBuffer>) {
-    for (const [id, ws] of this.clients) {
-      if (ws.readyState !== WebSocket.OPEN) {
-        this.clients.delete(id);
-        continue;
-      }
-      try {
-        ws.send(data);
-      } catch {
-        this.clients.delete(id);
-      }
-    }
-  }
-
-  size() {
-    return this.clients.size;
-  }
-}
-
-export const agentsRegistry = new AgentsRegistry();
 
 export async function listAgents(
   organizationId: string
@@ -235,6 +154,51 @@ export async function getAgentById(
 
     return {
       data: toAgent(record),
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    };
+  }
+}
+
+export async function getAgentConnectionInfo(agentId: string): Promise<
+  ServiceResponse<
+    {
+      id: string;
+      organizationId: string;
+    },
+    GetAgentConnectionInfoError
+  >
+> {
+  try {
+    const records = await db
+      .select({
+        id: agentTable.id,
+        organizationId: agentTable.organizationId,
+      })
+      .from(agentTable)
+      .where(eq(agentTable.id, agentId))
+      .limit(1);
+
+    const record = records.at(0);
+    if (!record) {
+      return {
+        data: null,
+        error: {
+          message: HttpStatusPhrases.NOT_FOUND,
+          code: HttpStatusCodes.NOT_FOUND,
+        },
+      };
+    }
+
+    return {
+      data: record,
       error: null,
     };
   } catch {
@@ -404,26 +368,60 @@ function isContainerRemovalEvent(eventType: string) {
   );
 }
 
+function getOrganizationContainersKey(organizationId: string) {
+  return `${ORGANIZATION_CONTAINERS_KEY_PREFIX}${organizationId}`;
+}
+
+function getAgentContainerField(agentId: string, containerId: string) {
+  return `${agentId}:${containerId}`;
+}
+
+function isAgentContainerField(agentId: string, field: string) {
+  return field.startsWith(`${agentId}:`);
+}
+
+export async function clearAgentContainers(
+  redis: RedisClient,
+  scope: AgentConnectionScope
+) {
+  const key = getOrganizationContainersKey(scope.organizationId);
+  const cached = await redis.hgetall(key);
+  const fields = Object.keys(cached).filter((field) =>
+    isAgentContainerField(scope.agentId, field)
+  );
+
+  for (const field of fields) {
+    await redis.hdel(key, field);
+  }
+}
+
 export async function storeContainer(
   redis: RedisClient,
+  scope: AgentConnectionScope,
   eventType: string,
   container: Container
 ) {
+  const key = getOrganizationContainersKey(scope.organizationId);
+  const field = getAgentContainerField(scope.agentId, container.id);
+
   if (isContainerRemovalEvent(eventType)) {
-    await redis.hdel(CONTAINERS_KEY, container.id);
+    await redis.hdel(key, field);
     return;
   }
 
-  await redis.hset(CONTAINERS_KEY, {
-    [container.id]: JSON.stringify(container),
+  await redis.hset(key, {
+    [field]: JSON.stringify(container),
   });
 }
 
 export async function storeContainersSnapshot(
   redis: RedisClient,
+  scope: AgentConnectionScope,
   containers: Array<Container>
 ) {
-  await redis.del(CONTAINERS_KEY);
+  const key = getOrganizationContainersKey(scope.organizationId);
+
+  await clearAgentContainers(redis, scope);
 
   if (containers.length === 0) {
     return;
@@ -431,8 +429,9 @@ export async function storeContainersSnapshot(
 
   const entries: Record<string, string> = {};
   for (const container of containers) {
-    entries[container.id] = JSON.stringify(container);
+    const field = getAgentContainerField(scope.agentId, container.id);
+    entries[field] = JSON.stringify(container);
   }
 
-  await redis.hset(CONTAINERS_KEY, entries);
+  await redis.hset(key, entries);
 }

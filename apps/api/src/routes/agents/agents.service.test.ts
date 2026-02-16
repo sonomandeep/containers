@@ -9,8 +9,10 @@ import { db } from "@/db";
 import { agent as agentTable } from "@/db/schema";
 import {
   AgentsRegistry,
+  clearAgentContainers,
   createAgent,
   getAgentById,
+  getAgentConnectionInfo,
   listAgents,
   removeAgent,
   storeContainer,
@@ -147,6 +149,67 @@ describe("getAgentById", () => {
     spyOn(db, "select").mockReturnValue({ from } as never);
 
     const result = await getAgentById("org-1", "agent-1");
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
+        code: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      },
+    });
+  });
+});
+
+describe("getAgentConnectionInfo", () => {
+  test("returns connection info when the agent exists", async () => {
+    const record = {
+      id: "agent-7",
+      organizationId: "org-9",
+    };
+    const limit = jest.fn().mockResolvedValue([record]);
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("agent-7");
+
+    expect(limit).toHaveBeenCalledWith(1);
+    expect(result).toEqual({
+      data: {
+        id: "agent-7",
+        organizationId: "org-9",
+      },
+      error: null,
+    });
+  });
+
+  test("returns not found when the agent does not exist", async () => {
+    const limit = jest.fn().mockResolvedValue([]);
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("missing");
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message: HttpStatusPhrases.NOT_FOUND,
+        code: HttpStatusCodes.NOT_FOUND,
+      },
+    });
+  });
+
+  test("returns internal server error on database failure", async () => {
+    const limit = jest.fn().mockRejectedValue(new Error("boom"));
+    const where = jest.fn().mockReturnValue({ limit });
+    const from = jest.fn().mockReturnValue({ where });
+
+    spyOn(db, "select").mockReturnValue({ from } as never);
+
+    const result = await getAgentConnectionInfo("agent-1");
 
     expect(result).toEqual({
       data: null,
@@ -468,6 +531,11 @@ describe("AgentsRegistry", () => {
 });
 
 describe("storeContainer", () => {
+  const scope = {
+    organizationId: "org-1",
+    agentId: "agent-1",
+  };
+
   test("deletes cached container for removal events", async () => {
     const redis = {
       hdel: jest.fn().mockResolvedValue(1),
@@ -475,9 +543,12 @@ describe("storeContainer", () => {
     } as unknown as RedisClient;
     const container = createContainer("container-1");
 
-    await storeContainer(redis, "container.remove", container);
+    await storeContainer(redis, scope, "container.remove", container);
 
-    expect(redis.hdel).toHaveBeenCalledWith("containers", "container-1");
+    expect(redis.hdel).toHaveBeenCalledWith(
+      "containers:org-1",
+      "agent-1:container-1"
+    );
     expect(redis.hset).not.toHaveBeenCalled();
   });
 
@@ -488,42 +559,103 @@ describe("storeContainer", () => {
     } as unknown as RedisClient;
     const container = createContainer("container-2");
 
-    await storeContainer(redis, "container.start", container);
+    await storeContainer(redis, scope, "container.start", container);
 
-    expect(redis.hset).toHaveBeenCalledWith("containers", {
-      "container-2": JSON.stringify(container),
+    expect(redis.hset).toHaveBeenCalledWith("containers:org-1", {
+      "agent-1:container-2": JSON.stringify(container),
     });
     expect(redis.hdel).not.toHaveBeenCalled();
   });
 });
 
-describe("storeContainersSnapshot", () => {
-  test("replaces cache with snapshot entries", async () => {
+describe("clearAgentContainers", () => {
+  const scope = {
+    organizationId: "org-1",
+    agentId: "agent-1",
+  };
+
+  test("deletes only fields owned by the selected agent", async () => {
     const redis = {
-      del: jest.fn().mockResolvedValue(1),
+      hgetall: jest.fn().mockResolvedValue({
+        "agent-1:container-1": "{}",
+        "agent-2:container-1": "{}",
+      }),
+      hdel: jest.fn().mockResolvedValue(1),
+    } as unknown as RedisClient;
+
+    await clearAgentContainers(redis, scope);
+
+    expect(redis.hgetall).toHaveBeenCalledWith("containers:org-1");
+    expect(redis.hdel).toHaveBeenCalledTimes(1);
+    expect(redis.hdel).toHaveBeenCalledWith(
+      "containers:org-1",
+      "agent-1:container-1"
+    );
+  });
+
+  test("skips deletion when the selected agent has no cached fields", async () => {
+    const redis = {
+      hgetall: jest.fn().mockResolvedValue({
+        "agent-2:container-1": "{}",
+      }),
+      hdel: jest.fn().mockResolvedValue(1),
+    } as unknown as RedisClient;
+
+    await clearAgentContainers(redis, scope);
+
+    expect(redis.hgetall).toHaveBeenCalledWith("containers:org-1");
+    expect(redis.hdel).not.toHaveBeenCalled();
+  });
+});
+
+describe("storeContainersSnapshot", () => {
+  const scope = {
+    organizationId: "org-1",
+    agentId: "agent-1",
+  };
+
+  test("replaces only snapshot entries of the selected agent", async () => {
+    const redis = {
+      hgetall: jest.fn().mockResolvedValue({
+        "agent-1:container-old": "{}",
+        "agent-2:container-keep": "{}",
+      }),
+      hdel: jest.fn().mockResolvedValue(1),
       hset: jest.fn().mockResolvedValue(1),
     } as unknown as RedisClient;
     const first = createContainer("container-1");
     const second = createContainer("container-2");
 
-    await storeContainersSnapshot(redis, [first, second]);
+    await storeContainersSnapshot(redis, scope, [first, second]);
 
-    expect(redis.del).toHaveBeenCalledWith("containers");
-    expect(redis.hset).toHaveBeenCalledWith("containers", {
-      "container-1": JSON.stringify(first),
-      "container-2": JSON.stringify(second),
+    expect(redis.hgetall).toHaveBeenCalledWith("containers:org-1");
+    expect(redis.hdel).toHaveBeenCalledWith(
+      "containers:org-1",
+      "agent-1:container-old"
+    );
+    expect(redis.hset).toHaveBeenCalledWith("containers:org-1", {
+      "agent-1:container-1": JSON.stringify(first),
+      "agent-1:container-2": JSON.stringify(second),
     });
   });
 
-  test("clears cache and skips hset for empty snapshots", async () => {
+  test("clears selected agent cache and skips hset for empty snapshots", async () => {
     const redis = {
-      del: jest.fn().mockResolvedValue(1),
+      hgetall: jest.fn().mockResolvedValue({
+        "agent-1:container-old": "{}",
+        "agent-2:container-keep": "{}",
+      }),
+      hdel: jest.fn().mockResolvedValue(1),
       hset: jest.fn().mockResolvedValue(1),
     } as unknown as RedisClient;
 
-    await storeContainersSnapshot(redis, []);
+    await storeContainersSnapshot(redis, scope, []);
 
-    expect(redis.del).toHaveBeenCalledWith("containers");
+    expect(redis.hgetall).toHaveBeenCalledWith("containers:org-1");
+    expect(redis.hdel).toHaveBeenCalledWith(
+      "containers:org-1",
+      "agent-1:container-old"
+    );
     expect(redis.hset).not.toHaveBeenCalled();
   });
 });
