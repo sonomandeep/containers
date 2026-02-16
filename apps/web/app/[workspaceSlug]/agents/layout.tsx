@@ -1,4 +1,5 @@
 import { BoxIcon } from "lucide-react";
+import { CreateAgentDialog } from "@/components/agents/create-agent-dialog";
 
 export default function Layout({
   children,
@@ -12,7 +13,7 @@ export default function Layout({
           <BoxIcon className="size-3.5 opacity-80" />
           <h1>Agents</h1>
         </div>
-        action
+        <CreateAgentDialog />
       </div>
 
       <div className="min-h-0 flex-1">{children}</div>
