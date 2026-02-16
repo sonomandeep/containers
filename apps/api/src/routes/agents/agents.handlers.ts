@@ -17,6 +17,7 @@ import type {
 } from "./agents.routes";
 import {
   agentsRegistry,
+  clearAgentContainers,
   createAgent,
   getAgentById,
   getAgentConnectionInfo,
@@ -186,6 +187,18 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
 
   const connectionPromise = getAgentConnectionInfo(id);
 
+  async function clearAgentCacheIfConnected() {
+    const connection = await connectionPromise;
+    if (connection.error || connection.data === null) {
+      return;
+    }
+
+    await clearAgentContainers(c.var.redis, {
+      organizationId: connection.data.organizationId,
+      agentId: connection.data.id,
+    });
+  }
+
   return {
     async onOpen(_evt, ws) {
       const connection = await connectionPromise;
@@ -214,12 +227,26 @@ export const socket = upgradeWebSocket((c: Context<AppBindings>) => {
       );
       ws.send(JSON.stringify({ type: "welcome", id: connection.data.id }));
     },
-    onClose(e) {
+    async onClose(e) {
       agentsRegistry.remove(id);
+
+      try {
+        await clearAgentCacheIfConnected();
+      } catch (error) {
+        logger.warn({ agentId: id, error }, "failed to clear agent cache");
+      }
+
       logger.debug(e, "connection closed");
     },
-    onError(e) {
+    async onError(e) {
       agentsRegistry.remove(id);
+
+      try {
+        await clearAgentCacheIfConnected();
+      } catch (error) {
+        logger.warn({ agentId: id, error }, "failed to clear agent cache");
+      }
+
       logger.debug(e, "connection error");
     },
     async onMessage(e) {
