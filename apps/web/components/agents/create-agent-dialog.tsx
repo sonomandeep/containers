@@ -180,16 +180,6 @@ export function CreateAgentDialog() {
         ) : (
           <>
             <DialogCard>
-              <Alert variant="info">
-                <div className="inline-flex items-center gap-2">
-                  <AlertCircleIcon className="size-3" />
-                  <AlertTitle>
-                    The image is not published yet. This command will work once
-                    GHCR publishing is enabled.
-                  </AlertTitle>
-                </div>
-              </Alert>
-
               <div className="space-y-2">
                 <p className="text-muted-foreground text-xs">
                   Agent <span className="font-mono">{createdAgent?.name}</span>{" "}
