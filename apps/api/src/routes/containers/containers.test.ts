@@ -8,14 +8,49 @@ import {
   test,
 } from "bun:test";
 import type { Container, LaunchContainerInput } from "@containers/shared";
+import type { RedisClient } from "bun";
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
-import createApp from "@/lib/create-app";
-import { mockAuthSession } from "@/test/auth";
+import { auth } from "@/lib/auth";
+import { createRouter } from "@/lib/create-app";
+import { authMiddleware } from "@/lib/middlewares/auth.middleware";
+import { createMockSession, mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
 import * as service from "./containers.service";
 
-const createClient = () => testClient(createApp().route("/", router));
+const createClient = () => {
+  const app = createRouter();
+  const logger = {
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+    fatal: jest.fn(),
+    info: jest.fn(),
+    trace: jest.fn(),
+    child: jest.fn(),
+  };
+  logger.child.mockReturnValue(logger);
+
+  app.use("*", async (c, next) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers });
+    if (session) {
+      c.set("user", session.user);
+      c.set("session", session.session);
+    } else {
+      c.set("user", null);
+      c.set("session", null);
+    }
+
+    c.set("redis", {} as RedisClient);
+    c.set("logger", logger as never);
+
+    await next();
+  });
+
+  app.use("/containers/*", authMiddleware);
+
+  return testClient(app.route("/", router));
+};
 
 describe("list containers", () => {
   let getSessionSpy: ReturnType<typeof spyOn>;
@@ -50,6 +85,10 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(200);
     expect(result).toEqual([]);
   });
@@ -119,6 +158,10 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(200);
     expect(result).toEqual(containers);
   });
@@ -137,10 +180,35 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(500);
     expect(result).toMatchObject({
       message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
     });
+  });
+
+  test("should return bad request when active workspace is missing", async () => {
+    const session = createMockSession();
+    getSessionSpy.mockResolvedValueOnce({
+      ...session,
+      session: {
+        ...session.session,
+        activeOrganizationId: null,
+      },
+    });
+
+    const listContainersServiceSpy = spyOn(service, "listContainers");
+    listContainersServiceSpy.mockResolvedValue({ data: [], error: null });
+
+    const response = await createClient().containers.$get();
+    const result = await response.json();
+
+    expect(listContainersServiceSpy).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(result).toEqual({ message: "Active workspace is required." });
   });
 });
 

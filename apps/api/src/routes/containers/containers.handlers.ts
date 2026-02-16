@@ -29,7 +29,18 @@ import {
 } from "./containers.service";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const result = await listContainers(c.var.redis);
+  const organizationId = c.var.session?.activeOrganizationId;
+
+  if (!organizationId) {
+    return c.json(
+      {
+        message: "Active workspace is required.",
+      },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  const result = await listContainers(c.var.redis, organizationId);
   if (result.error || result.data === null) {
     c.var.logger.error(result.error, "error fetching containers");
     return c.json(
@@ -44,6 +55,16 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 };
 
 export const stream: AppSSEHandler<StreamRoute> = (c) => {
+  const organizationId = c.var.session?.activeOrganizationId;
+  if (!organizationId) {
+    return c.json(
+      {
+        message: "Active workspace is required.",
+      },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
   c.var.logger.debug("container metrics stream started");
 
   return streamSSE(c, async (s) => {
@@ -57,7 +78,7 @@ export const stream: AppSSEHandler<StreamRoute> = (c) => {
 
     while (isActive) {
       try {
-        const containers = await listContainers(c.var.redis);
+        const containers = await listContainers(c.var.redis, organizationId);
 
         if (containers.error || containers.data === null) {
           c.var.logger.error(containers.error, "error fetching containers");
