@@ -198,7 +198,7 @@ describe("createAgent", () => {
     expect(updateTagMock).not.toHaveBeenCalled();
     expect(result).toEqual({
       data: null,
-      error: "An agent with this name already exists in this workspace.",
+      error: "An agent with this name already exists.",
     });
   });
 

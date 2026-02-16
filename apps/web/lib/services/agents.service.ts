@@ -12,8 +12,7 @@ import { $api } from "@/lib/fetch";
 import { logger } from "@/lib/logger";
 import { checkAuthentication } from "./auth.service";
 
-const DUPLICATE_AGENT_NAME_ERROR =
-  "An agent with this name already exists in this workspace.";
+const DUPLICATE_AGENT_NAME_ERROR = "An agent with this name already exists.";
 
 export async function listAgents(): Promise<
   ServiceResponse<Array<Agent>, string>
