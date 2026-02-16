@@ -5,6 +5,7 @@ import {
   agentSchema,
   createAgentSchema,
   type ServiceResponse,
+  updateAgentSchema,
 } from "@containers/shared";
 import { updateTag } from "next/cache";
 import z from "zod";
@@ -75,6 +76,92 @@ export async function createAgent(
     return {
       data: null,
       error: "Unexpected error while creating the agent.",
+    };
+  }
+
+  updateTag("agents");
+
+  return { data, error: null };
+}
+
+export async function removeAgent(
+  id: string
+): Promise<ServiceResponse<{ id: string }, string>> {
+  const { cookies } = await checkAuthentication();
+  const path = `/agents/${encodeURIComponent(id)}`;
+
+  const { error } = await $api(path, {
+    method: "delete",
+    headers: {
+      Cookie: cookies.toString(),
+    },
+  });
+
+  if (error) {
+    logger.error(error, "removeAgent - api error");
+
+    if (error.status === 404) {
+      return {
+        data: null,
+        error: "Agent not found.",
+      };
+    }
+
+    return {
+      data: null,
+      error: "Unexpected error while deleting the agent.",
+    };
+  }
+
+  updateTag("agents");
+
+  return { data: { id }, error: null };
+}
+
+export async function updateAgent(
+  id: string,
+  input: unknown
+): Promise<ServiceResponse<Agent, string>> {
+  const { cookies } = await checkAuthentication();
+
+  const validation = updateAgentSchema.safeParse(input);
+  if (!validation.success) {
+    logger.error(validation, "updateAgent - validation error");
+    return { data: null, error: "validation error" };
+  }
+
+  const path = `/agents/${encodeURIComponent(id)}`;
+
+  const { data, error } = await $api(path, {
+    method: "patch",
+    headers: {
+      Cookie: cookies.toString(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(validation.data),
+    output: agentSchema,
+  });
+
+  if (error) {
+    logger.error(error, "updateAgent - api error");
+
+    if (error.status === 404) {
+      return {
+        data: null,
+        error: "Agent not found.",
+      };
+    }
+
+    if (error.status === 409) {
+      return {
+        data: null,
+        error: DUPLICATE_AGENT_NAME_ERROR,
+      };
+    }
+
+    return {
+      data: null,
+      error: "Unexpected error while updating the agent.",
     };
   }
 
