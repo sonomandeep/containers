@@ -10,6 +10,7 @@ export const createMockSession = () => {
       createdAt: now,
       updatedAt: now,
       userId: "user-1",
+      activeOrganizationId: "org-1",
       expiresAt: new Date(now.getTime() + 60 * 60 * 1000),
       token: "token-1",
     },
