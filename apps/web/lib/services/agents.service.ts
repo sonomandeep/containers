@@ -82,3 +82,37 @@ export async function createAgent(
 
   return { data, error: null };
 }
+
+export async function removeAgent(
+  id: string
+): Promise<ServiceResponse<{ id: string }, string>> {
+  const { cookies } = await checkAuthentication();
+  const path = `/agents/${encodeURIComponent(id)}`;
+
+  const { error } = await $api(path, {
+    method: "delete",
+    headers: {
+      Cookie: cookies.toString(),
+    },
+  });
+
+  if (error) {
+    logger.error(error, "removeAgent - api error");
+
+    if (error.status === 404) {
+      return {
+        data: null,
+        error: "Agent not found.",
+      };
+    }
+
+    return {
+      data: null,
+      error: "Unexpected error while deleting the agent.",
+    };
+  }
+
+  updateTag("agents");
+
+  return { data: { id }, error: null };
+}

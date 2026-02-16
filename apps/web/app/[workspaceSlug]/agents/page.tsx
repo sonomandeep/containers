@@ -4,9 +4,9 @@ import {
   ArrowRightIcon,
   BoxIcon,
   CheckIcon,
-  EllipsisVerticalIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { AgentMenu } from "@/components/agents/agent-menu";
 import {
   Card,
   CardContent,
@@ -19,7 +19,6 @@ import {
 import { MetricInfo } from "@/components/core/metric-info";
 import { SectionCard } from "@/components/core/section-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -113,9 +112,7 @@ export function AgentCard({ agent }: { agent: Agent }) {
         <span className="font-mono">{agent.id.slice(0, 12) || "test"}</span>
 
         <div className="inline-flex items-center gap-1">
-          <Button size="icon-sm" variant="ghost">
-            <EllipsisVerticalIcon />
-          </Button>
+          <AgentMenu agent={agent} />
         </div>
       </CardToolbar>
 
