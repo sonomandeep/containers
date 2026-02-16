@@ -17,6 +17,12 @@ import { buildCommand } from "@/lib/services/agent-protocol.service";
 import { isDockerodeError } from "@/lib/utils";
 import { agentsRegistry } from "@/routes/agents/agents.service";
 
+const CONTAINERS_KEY_PREFIX = "containers:";
+
+function getOrganizationContainersKey(organizationId: string) {
+  return `${CONTAINERS_KEY_PREFIX}${organizationId}`;
+}
+
 type LaunchContainerError = {
   message: string;
   code:
@@ -62,7 +68,10 @@ type RestartContainerError = {
     | typeof HttpStatusCodes.INTERNAL_SERVER_ERROR;
 };
 
-export async function listContainers(redis: RedisClient): Promise<
+export async function listContainers(
+  redis: RedisClient,
+  organizationId: string
+): Promise<
   ServiceResponse<
     Array<Container>,
     {
@@ -72,7 +81,8 @@ export async function listContainers(redis: RedisClient): Promise<
   >
 > {
   try {
-    const cached = await redis.hgetall("containers");
+    const key = getOrganizationContainersKey(organizationId);
+    const cached = await redis.hgetall(key);
     const values = Object.values(cached);
     const parsed = values.map((value) => JSON.parse(value));
     const validation = containerSchema.array().safeParse(parsed);

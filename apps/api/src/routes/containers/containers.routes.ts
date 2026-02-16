@@ -24,6 +24,10 @@ export const list = createRoute({
       z.array(containerSchema),
       "The list of container"
     ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Bad request"
+    ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
       unauthorizedSchema,
       "Unauthorized"
@@ -40,7 +44,12 @@ export const stream = createRoute({
   path: "/containers/stream",
   method: "get",
   tags,
-  responses: {},
+  responses: {
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      createMessageObjectSchema("Active workspace is required."),
+      "Bad request"
+    ),
+  },
 });
 export type StreamRoute = typeof stream;
 

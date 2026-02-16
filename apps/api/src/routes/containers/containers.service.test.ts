@@ -82,16 +82,18 @@ describe("listContainers", () => {
     ] satisfies Array<Container>;
 
     const redis = {
-      hgetall: async () => ({
+      hgetall: jest.fn().mockResolvedValue({
         "running-1": JSON.stringify(cachedContainers[0]),
         "stopped-1": JSON.stringify(cachedContainers[1]),
       }),
     } satisfies FakeRedis;
 
     const result = await service.listContainers(
-      redis as unknown as RedisClient
+      redis as unknown as RedisClient,
+      "org-1"
     );
 
+    expect(redis.hgetall).toHaveBeenCalledWith("containers:org-1");
     expect(result.error).toBeNull();
     expect(result.data).toEqual(cachedContainers);
   });

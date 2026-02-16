@@ -11,7 +11,7 @@ import type { Container, LaunchContainerInput } from "@containers/shared";
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import createApp from "@/lib/create-app";
-import { mockAuthSession } from "@/test/auth";
+import { createMockSession, mockAuthSession } from "@/test/auth";
 import router from "./containers.index";
 import * as service from "./containers.service";
 
@@ -50,6 +50,10 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(200);
     expect(result).toEqual([]);
   });
@@ -119,6 +123,10 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(200);
     expect(result).toEqual(containers);
   });
@@ -137,10 +145,35 @@ describe("list containers", () => {
     const result = await response.json();
 
     expect(listContainersServiceSpy).toHaveBeenCalledTimes(1);
+    expect(listContainersServiceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      "org-1"
+    );
     expect(response.status).toBe(500);
     expect(result).toMatchObject({
       message: HttpStatusPhrases.INTERNAL_SERVER_ERROR,
     });
+  });
+
+  test("should return bad request when active workspace is missing", async () => {
+    const session = createMockSession();
+    getSessionSpy.mockResolvedValueOnce({
+      ...session,
+      session: {
+        ...session.session,
+        activeOrganizationId: null,
+      },
+    });
+
+    const listContainersServiceSpy = spyOn(service, "listContainers");
+    listContainersServiceSpy.mockResolvedValue({ data: [], error: null });
+
+    const response = await createClient().containers.$get();
+    const result = await response.json();
+
+    expect(listContainersServiceSpy).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(result).toEqual({ message: "Active workspace is required." });
   });
 });
 
