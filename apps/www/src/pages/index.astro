@@ -1,26 +1,17 @@
 ---
-import Container from "@/components/layout/container.astro";
-import Footer from "@/components/layout/footer.astro";
-import Header from "@/components/layout/header.astro";
-import Faq from "@/components/sections/faq.astro";
-import Features from "@/components/sections/features.astro";
-import Hero from "@/components/sections/hero.astro";
-import How from "@/components/sections/how.astro";
-import Roadmap from "@/components/sections/roadmap.astro";
-import Layout from "@/layouts/layout.astro";
+
 ---
 
-<Layout>
-  <Container class="min-h-screen">
-    <Header/>
-
-    <Hero/>
-  </Container>
-
-  <How/>
-  <Features/>
-  <Roadmap/>
-  <Faq/>
-
-  <Footer/>
-</Layout>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+	</body>
+</html>
