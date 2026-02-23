@@ -1,7 +1,79 @@
 ---
+import { Image } from "astro:assets";
+import heroUi from "../assets/hero-ui.jpg";
+import Button from "../components/ui/Button.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-  <h1>Paper</h1>
+<Layout
+  description="Deploy containers on your VPS in minutes, monitor them live and execute commands."
+  title="Paper - Ship like a PaaS, stay self-hosted."
+>
+  <section class="w-full bg-white">
+    <div
+      class="mx-auto flex w-full max-w-5xl flex-col gap-24 px-6 pb-16 pt-6 lg:gap-32 lg:px-0"
+    >
+      <header class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <img alt="" class="size-6" src="/light.svg">
+          <p
+            class="font-mono text-base font-semibold tracking-tight text-neutral-900"
+          >
+            pap<span class="tracking-tighter">er</span>
+          </p>
+        </div>
+        <Button size="sm">Join Waitlist</Button>
+      </header>
+
+      <div class="flex flex-col items-center">
+        <div class="flex w-full max-w-2xl flex-col items-center gap-6">
+          <div class="flex w-full flex-col items-center gap-4 text-center">
+            <h1
+              class="font-display text-4xl font-semibold leading-none tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl"
+            >
+              Ship like a PaaS,
+              <br>
+              stay self-hosted.
+            </h1>
+            <p
+              class="w-full max-w-md text-base leading-7 text-neutral-500 sm:text-lg"
+            >
+              Deploy containers on your VPS in minutes, monitor them live and
+              execute commands.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <Button>Join Waitlist</Button>
+            <Button href="#demo" variant="secondary">Open Demo</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="relative h-160 w-full overflow-hidden bg-neutral-100"
+    id="demo"
+  >
+    <div class="absolute inset-x-0 top-16">
+      <div class="mx-auto w-full max-w-5xl px-6 lg:px-0">
+        <div
+          class="overflow-hidden rounded-xl border border-neutral-200 shadow-[0_0_24px_rgba(0,0,0,0.12)]"
+        >
+          <Image
+            alt="Paper dashboard showing cluster metrics and running containers."
+            class="block h-auto w-full"
+            loading="eager"
+            sizes="(min-width: 1024px) 1024px, 100vw"
+            src={heroUi}
+            widths={[1024, 1536, 2048]}
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="pointer-events-none absolute inset-x-0 top-16 h-144 bg-linear-to-b from-transparent from-50% to-white"
+    />
+  </section>
 </Layout>
