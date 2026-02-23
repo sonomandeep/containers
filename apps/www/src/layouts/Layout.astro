@@ -1,0 +1,32 @@
+---
+import "../styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const {
+  title = "Paper - Ship like a PaaS, stay self-hosted.",
+  description = "Deploy containers on your VPS in minutes, monitor them live and execute commands.",
+} = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width" name="viewport" />
+    <link href="/light.svg" media="(prefers-color-scheme: light)" rel="icon" />
+    <link href="/dark.svg" media="(prefers-color-scheme: dark)" rel="icon" />
+    <meta content={description} name="description" />
+    <meta content={Astro.generator} name="generator" />
+    <title>{title}</title>
+  </head>
+
+  <body>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
