@@ -1,11 +1,13 @@
 ---
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
+import LogStreamFeature from "../components/features/log-stream-feature.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/Layout.astro";
 
 type FeatureItem = {
+  id: string;
   title: string;
   description: string;
   cardClass: string;
@@ -13,28 +15,33 @@ type FeatureItem = {
 
 const featureItems: Array<FeatureItem> = [
   {
+    id: "monitor-cluster",
     title: "Monitor your cluster",
     description:
       "Stream live Docker events and resource metrics across all connected hosts.",
     cardClass: "h-80 md:col-span-2",
   },
   {
+    id: "remote-terminal",
     title: "Remote terminal",
     description:
       "Open a shell inside running containers directly from the interface.",
     cardClass: "h-80 justify-end",
   },
   {
+    id: "manage-containers",
     title: "Manage containers",
     description: "Manage your containers directly from the interface.",
     cardClass: "h-80 justify-end",
   },
   {
+    id: "log-stream",
     title: "Log stream",
     description: "Follow your containers log stream from Paper interface.",
     cardClass: "h-80 justify-end",
   },
   {
+    id: "multi-host-support",
     title: "Multi host support",
     description: "Deploy agent on your nodes to manage your VPS cluster.",
     cardClass: "h-80 justify-end",
@@ -160,18 +167,22 @@ const featureItems: Array<FeatureItem> = [
           class="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
           {
-            featureItems.map((item) => (
-              <Card as="article" class={item.cardClass}>
-                <h3
-                  class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-                >
-                  {item.title}
-                </h3>
-                <p class="mt-1 text-balance text-sm text-neutral-500">
-                  {item.description}
-                </p>
-              </Card>
-            ))
+            featureItems.map((item) =>
+              item.id === "log-stream" ? (
+                <LogStreamFeature class={item.cardClass} />
+              ) : (
+                <Card as="article" class={item.cardClass}>
+                  <h3
+                    class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+                  >
+                    {item.title}
+                  </h3>
+                  <p class="mt-1 text-balance text-sm text-neutral-500">
+                    {item.description}
+                  </p>
+                </Card>
+              ),
+            )
           }
         </div>
       </div>
