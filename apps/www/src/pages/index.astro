@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
-import LogStreamFeature from "../components/features/log-stream-feature.astro";
+import LogStream from "../components/features/LogStream.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/Layout.astro";
@@ -169,7 +169,7 @@ const featureItems: Array<FeatureItem> = [
           {
             featureItems.map((item) =>
               item.id === "log-stream" ? (
-                <LogStreamFeature class={item.cardClass} />
+                <LogStream class={item.cardClass} />
               ) : (
                 <Card as="article" class={item.cardClass}>
                   <h3
