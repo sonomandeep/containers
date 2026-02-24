@@ -1,7 +1,7 @@
 ---
 import Card from "../ui/Card.astro";
 
-type LogTone = "info" | "warning" | "error";
+type LogTone = "info" | "warn" | "error";
 
 type LogRow = {
   tone: LogTone;
@@ -28,12 +28,12 @@ const logRows: Array<LogRow> = [
     message: "Retrying database connection (attempt 2/5)",
   },
   {
-    tone: "warning",
+    tone: "warn",
     service: "web",
     message: "Slow response detected on /api/products (1.8s)",
   },
   {
-    tone: "warning",
+    tone: "warn",
     service: "redis",
     message: "Memory usage at 82%, eviction may occur soon",
   },
@@ -63,7 +63,7 @@ const logRows: Array<LogRow> = [
     message: "Background saving completed successfully",
   },
   {
-    tone: "warning",
+    tone: "warn",
     service: "postgres",
     message: "Autovacuum process taking longer than expected",
   },
@@ -73,7 +73,7 @@ const logRows: Array<LogRow> = [
     message: "Job queue processor started (concurrency=4)",
   },
   {
-    tone: "warning",
+    tone: "warn",
     service: "api",
     message: "Deprecated endpoint /v1/orders accessed by client 10.0.4.21",
   },
@@ -96,7 +96,7 @@ const logRows: Array<LogRow> = [
 
 const toneClasses: Record<LogTone, string> = {
   info: "text-blue-600",
-  warning: "text-amber-600",
+  warn: "text-amber-600",
   error: "text-red-600",
 };
 ---
@@ -105,7 +105,7 @@ const toneClasses: Record<LogTone, string> = {
   <div aria-hidden="true" class="relative flex-1 overflow-hidden pb-8">
     <div class="space-y-2">
       <div
-        class="grid grid-cols-[64px_64px_minmax(0,1fr)] gap-x-1.5 font-mono text-[10px] tracking-[0.06em] text-neutral-400 uppercase"
+        class="grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 font-mono text-[10px] tracking-[0.06em] text-neutral-400 uppercase"
       >
         <span>SERVICE</span>
         <span>LEVEL</span>
@@ -113,7 +113,7 @@ const toneClasses: Record<LogTone, string> = {
       </div>
 
       <div
-        class="grid grid-cols-[64px_64px_minmax(0,1fr)] gap-x-1.5 gap-y-1 text-xs leading-[1.25]"
+        class="grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 gap-y-1 text-xs leading-[1.25]"
       >
         {
           logRows.map((row) => (
