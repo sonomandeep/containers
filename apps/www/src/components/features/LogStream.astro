@@ -102,7 +102,13 @@ const toneClasses: Record<LogTone, string> = {
 ---
 
 <Card as="article" class={cardClass}>
-  <div aria-hidden="true" class="relative flex-1 overflow-hidden pb-8">
+  <div
+    aria-hidden="true"
+    class="relative flex-1 overflow-hidden pb-8"
+    data-log-stream
+    data-max-rows={logRows.length}
+    data-log-rows={JSON.stringify(logRows)}
+  >
     <div class="space-y-2">
       <div
         class="grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 font-mono text-[10px] tracking-[0.06em] text-neutral-400 uppercase"
@@ -112,21 +118,22 @@ const toneClasses: Record<LogTone, string> = {
         <span>MESSAGE</span>
       </div>
 
-      <div
-        class="grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 gap-y-1 text-xs leading-[1.25]"
+      <ul
+        class="m-0 flex list-none flex-col gap-y-1 p-0 will-change-transform"
+        data-log-stream-list
       >
         {
           logRows.map((row) => (
-            <div class="contents">
+            <li class="grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 text-xs leading-[1.25]">
               <span class="font-mono text-neutral-500">[{row.service}]</span>
               <span class={`font-mono ${toneClasses[row.tone]}`}>
                 {row.tone.toUpperCase()}
               </span>
               <span class="truncate text-neutral-700">{row.message}</span>
-            </div>
+            </li>
           ))
         }
-      </div>
+      </ul>
     </div>
 
     <div
@@ -143,3 +150,174 @@ const toneClasses: Record<LogTone, string> = {
     Follow your containers log stream from Paper interface.
   </p>
 </Card>
+
+<script is:inline>
+  const LOG_INSERT_INTERVAL_MS = 1600;
+  const LOG_ANIMATION_DURATION_MS = 350;
+  const LOG_ANIMATION_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+  const toneClassMap = {
+    info: "text-blue-600",
+    warn: "text-amber-600",
+    error: "text-red-600",
+  };
+
+  const reducedMotionMediaQuery = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
+
+  const createLogRowElement = (row) => {
+    const rowElement = document.createElement("li");
+    rowElement.className =
+      "grid grid-cols-[84px_52px_minmax(0,1fr)] gap-x-1.5 text-xs leading-[1.25]";
+
+    const serviceElement = document.createElement("span");
+    serviceElement.className = "font-mono text-neutral-500";
+    serviceElement.textContent = `[${row.service}]`;
+
+    const levelElement = document.createElement("span");
+    levelElement.className = `font-mono ${toneClassMap[row.tone] ?? toneClassMap.info}`;
+    levelElement.textContent = row.tone.toUpperCase();
+
+    const messageElement = document.createElement("span");
+    messageElement.className = "truncate text-neutral-700";
+    messageElement.textContent = row.message;
+
+    rowElement.append(serviceElement, levelElement, messageElement);
+
+    return rowElement;
+  };
+
+  const parseRowsFromRoot = (root) => {
+    const serializedRows = root.dataset.logRows;
+
+    if (!serializedRows) {
+      return [];
+    }
+
+    try {
+      const parsedRows = JSON.parse(serializedRows);
+
+      return Array.isArray(parsedRows) ? parsedRows : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const setupLogStreamAnimation = (root) => {
+    if (root.dataset.logStreamInitialized === "true") {
+      return;
+    }
+
+    root.dataset.logStreamInitialized = "true";
+
+    const listElement = root.querySelector("[data-log-stream-list]");
+
+    if (!(listElement instanceof HTMLUListElement)) {
+      return;
+    }
+
+    const rows = parseRowsFromRoot(root);
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    const maxRows =
+      Number.parseInt(root.dataset.maxRows ?? "", 10) ||
+      listElement.childElementCount;
+
+    let intervalId = 0;
+    let nextRowIndex = 0;
+    let isAnimating = false;
+
+    const stopAnimation = () => {
+      if (intervalId === 0) {
+        return;
+      }
+
+      window.clearInterval(intervalId);
+      intervalId = 0;
+    };
+
+    const animateNextRow = () => {
+      if (isAnimating || document.hidden || reducedMotionMediaQuery.matches) {
+        return;
+      }
+
+      const nextRow = rows[nextRowIndex % rows.length];
+      nextRowIndex += 1;
+
+      const newRowElement = createLogRowElement(nextRow);
+      listElement.prepend(newRowElement);
+
+      const rowGap = Number.parseFloat(
+        window.getComputedStyle(listElement).rowGap || "0"
+      );
+      const shift = newRowElement.getBoundingClientRect().height + rowGap;
+
+      isAnimating = true;
+      listElement.style.transition = "none";
+      listElement.style.transform = `translateY(-${shift}px)`;
+      listElement.getBoundingClientRect();
+      listElement.style.transition = `transform ${LOG_ANIMATION_DURATION_MS}ms ${LOG_ANIMATION_EASING}`;
+      listElement.style.transform = "translateY(0)";
+
+      window.setTimeout(() => {
+        if (listElement.childElementCount > maxRows) {
+          listElement.lastElementChild?.remove();
+        }
+
+        listElement.style.transition = "";
+        listElement.style.transform = "";
+        isAnimating = false;
+      }, LOG_ANIMATION_DURATION_MS);
+    };
+
+    const startAnimation = () => {
+      if (intervalId !== 0 || reducedMotionMediaQuery.matches) {
+        return;
+      }
+
+      intervalId = window.setInterval(animateNextRow, LOG_INSERT_INTERVAL_MS);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            stopAnimation();
+            continue;
+          }
+
+          startAnimation();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(root);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopAnimation();
+        return;
+      }
+
+      const bounds = root.getBoundingClientRect();
+      const isVisible = bounds.top < window.innerHeight && bounds.bottom > 0;
+
+      if (isVisible) {
+        startAnimation();
+      }
+    });
+  };
+
+  for (const root of document.querySelectorAll("[data-log-stream]")) {
+    if (!(root instanceof HTMLElement)) {
+      continue;
+    }
+
+    setupLogStreamAnimation(root);
+  }
+</script>
