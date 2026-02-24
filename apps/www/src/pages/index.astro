@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
 import Button from "../components/ui/Button.astro";
+import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
@@ -16,7 +17,7 @@ import Layout from "../layouts/Layout.astro";
       >
         <header class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <img alt="" class="size-6" src="/light.svg" />
+            <img alt="" class="size-6" src="/light.svg">
             <p
               class="font-mono text-base font-semibold tracking-tight text-neutral-900"
             >
@@ -33,7 +34,7 @@ import Layout from "../layouts/Layout.astro";
                 class="font-display text-4xl font-semibold leading-none tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl"
               >
                 Ship like a PaaS,
-                <br />
+                <br>
                 stay self-hosted.
               </h1>
               <p
@@ -94,6 +95,93 @@ import Layout from "../layouts/Layout.astro";
         <div
           class="pointer-events-none absolute inset-x-0 top-16 hidden h-144 bg-linear-to-b from-transparent from-50% to-white lg:block"
         />
+      </div>
+    </div>
+  </section>
+
+  <section class="w-full bg-white" id="features">
+    <div
+      class="mx-auto w-full max-w-5xl px-4 py-20 sm:px-6 sm:py-24 lg:px-0 lg:py-32"
+    >
+      <div class="flex flex-col items-center gap-16">
+        <div class="flex flex-col items-center gap-3 text-center">
+          <span
+            class="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 px-2 py-1 text-xs text-neutral-500"
+          >
+            Features
+          </span>
+
+          <h2
+            class="max-w-[41.25rem] font-display text-3xl font-semibold leading-[1.1] tracking-tight text-neutral-900 sm:text-4xl"
+          >
+            Everything you need to deploy, run
+            <br>
+            and manage your containerized services
+          </h2>
+        </div>
+
+        <div
+          class="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
+          <Card as="article" class="h-80 md:col-span-2">
+            <h3
+              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+            >
+              Monitor your cluster
+            </h3>
+            <p class="mt-1 max-w-[17.5625rem] text-sm text-neutral-500">
+              Stream live Docker events and resource metrics across all
+              connected hosts.
+            </p>
+          </Card>
+
+          <Card as="article" class="h-80 justify-end">
+            <h3
+              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+            >
+              Remote terminal
+            </h3>
+            <p class="mt-1 max-w-[15.125rem] text-sm text-neutral-500">
+              Open a shell inside running containers directly from the
+              interface.
+            </p>
+          </Card>
+
+          <Card as="article" class="h-80 justify-end">
+            <h3
+              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+            >
+              Manage containers
+            </h3>
+            <p class="mt-1 max-w-[13.3125rem] text-sm text-neutral-500">
+              Manage your containers directly from the interface.
+            </p>
+          </Card>
+
+          <Card as="article" class="h-80 justify-end">
+            <h3
+              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+            >
+              Log stream
+            </h3>
+            <p class="mt-1 max-w-[13.375rem] text-sm text-neutral-500">
+              Follow your containers log stream from Paper interface.
+            </p>
+          </Card>
+
+          <Card as="article" class="h-80 justify-end">
+            <h3
+              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+            >
+              Multi host support
+            </h3>
+            <p class="mt-1 max-w-[15.125rem] text-sm text-neutral-500">
+              Deploy agent on your nodes
+              <br>
+              to manage your VPS cluster.
+            </p>
+          </Card>
+        </div>
       </div>
     </div>
   </section>
