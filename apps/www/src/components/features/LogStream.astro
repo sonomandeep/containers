@@ -20,77 +20,132 @@ const logRows: Array<LogRow> = [
   {
     tone: "info",
     service: "nginx",
-    message: "Worker process started successfully, listening on port 80",
+    message: "Config reload completed from /etc/nginx/nginx.conf",
   },
   {
     tone: "info",
     service: "api",
-    message: "Retrying database connection (attempt 2/5)",
-  },
-  {
-    tone: "warn",
-    service: "web",
-    message: "Slow response detected on /api/products (1.8s)",
-  },
-  {
-    tone: "warn",
-    service: "redis",
-    message: "Memory usage at 82%, eviction may occur soon",
-  },
-  {
-    tone: "error",
-    service: "api",
-    message: "Failed to connect to postgres: connection timeout",
+    message: "HTTP server listening on 0.0.0.0:3000",
   },
   {
     tone: "info",
     service: "postgres",
-    message: "Database system ready to accept connections",
-  },
-  {
-    tone: "error",
-    service: "nginx",
-    message: "Upstream server api:3000 is not responding (502 Bad Gateway)",
-  },
-  {
-    tone: "info",
-    service: "web",
-    message: "Build assets loaded, server running in production mode",
-  },
-  {
-    tone: "info",
-    service: "redis",
-    message: "Background saving completed successfully",
-  },
-  {
-    tone: "warn",
-    service: "postgres",
-    message: "Autovacuum process taking longer than expected",
+    message: "Connection pool initialized (max=20)",
   },
   {
     tone: "info",
     service: "worker",
-    message: "Job queue processor started (concurrency=4)",
+    message: "Job processor started (concurrency=4)",
+  },
+  {
+    tone: "info",
+    service: "redis",
+    message: "AOF rewrite completed in 428ms",
+  },
+  {
+    tone: "info",
+    service: "web",
+    message: "New deployment detected: paper-www@2026.02.25-2",
   },
   {
     tone: "warn",
     service: "api",
-    message: "Deprecated endpoint /v1/orders accessed by client 10.0.4.21",
+    message: "p95 latency on GET /api/products reached 842ms",
+  },
+  {
+    tone: "info",
+    service: "api",
+    message: "Latency recovered on GET /api/products (p95=436ms)",
+  },
+  {
+    tone: "warn",
+    service: "redis",
+    message: "Memory usage at 79%, eviction policy allkeys-lru",
+  },
+  {
+    tone: "info",
+    service: "redis",
+    message: "Evicted 12 keys, memory pressure normalized",
+  },
+  {
+    tone: "error",
+    service: "nginx",
+    message: "Upstream api:3000 returned 502 for GET /checkout",
   },
   {
     tone: "info",
     service: "nginx",
-    message: "Starting nginx 1.25.3",
+    message: "Upstream api:3000 recovered after 1 retry",
   },
   {
     tone: "info",
-    service: "nginx",
-    message: "Starting nginx 1.25.3",
+    service: "worker",
+    message: "Processed job payment.capture in 184ms",
+  },
+  {
+    tone: "warn",
+    service: "worker",
+    message: "Queue depth high (critical-jobs=46)",
   },
   {
     tone: "info",
-    service: "nginx",
-    message: "Starting nginx 1.25.3",
+    service: "worker",
+    message: "Autoscaled worker replicas from 2 to 3",
+  },
+  {
+    tone: "info",
+    service: "worker",
+    message: "Queue depth back to normal (critical-jobs=8)",
+  },
+  {
+    tone: "error",
+    service: "postgres",
+    message: "Deadlock detected while updating order_events",
+  },
+  {
+    tone: "info",
+    service: "postgres",
+    message: "Deadlock resolved after transaction retry",
+  },
+  {
+    tone: "warn",
+    service: "postgres",
+    message: "Replication lag to replica-1 reached 2.1s",
+  },
+  {
+    tone: "info",
+    service: "postgres",
+    message: "Replication lag recovered to 180ms",
+  },
+  {
+    tone: "warn",
+    service: "api",
+    message: "Circuit breaker opened for billing-provider",
+  },
+  {
+    tone: "info",
+    service: "api",
+    message: "Circuit breaker closed after successful probes",
+  },
+  {
+    tone: "error",
+    service: "worker",
+    message: "Webhook dispatch to stripe failed (attempt 1/5)",
+  },
+  {
+    tone: "info",
+    service: "worker",
+    message: "Webhook dispatch to stripe succeeded on retry (attempt 2/5)",
+  },
+  {
+    tone: "info",
+    service: "api",
+    message: "Health check passed (uptime=13h12m)",
+  },
+  {
+    tone: "info",
+    service: "web",
+    message: "Static assets cache warmed (37 files)",
   },
 ];
 
@@ -204,6 +259,20 @@ const toneClasses: Record<LogTone, string> = {
     }
   };
 
+  const shuffleRows = (rows) => {
+    const shuffledRows = [...rows];
+
+    for (let index = shuffledRows.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      const row = shuffledRows[index];
+
+      shuffledRows[index] = shuffledRows[randomIndex];
+      shuffledRows[randomIndex] = row;
+    }
+
+    return shuffledRows;
+  };
+
   const setupLogStreamAnimation = (root) => {
     if (root.dataset.logStreamInitialized === "true") {
       return;
@@ -217,9 +286,9 @@ const toneClasses: Record<LogTone, string> = {
       return;
     }
 
-    const rows = parseRowsFromRoot(root);
+    const sourceRows = parseRowsFromRoot(root);
 
-    if (rows.length === 0) {
+    if (sourceRows.length === 0) {
       return;
     }
 
@@ -227,8 +296,15 @@ const toneClasses: Record<LogTone, string> = {
       Number.parseInt(root.dataset.maxRows ?? "", 10) ||
       listElement.childElementCount;
 
+    let rows = shuffleRows(sourceRows);
+    const initialRows = rows.slice(0, maxRows);
+
+    listElement.replaceChildren(
+      ...initialRows.map((row) => createLogRowElement(row))
+    );
+
     let intervalId = 0;
-    let nextRowIndex = 0;
+    let nextRowIndex = initialRows.length;
     let isAnimating = false;
 
     const stopAnimation = () => {
@@ -245,7 +321,12 @@ const toneClasses: Record<LogTone, string> = {
         return;
       }
 
-      const nextRow = rows[nextRowIndex % rows.length];
+      if (nextRowIndex >= rows.length) {
+        rows = shuffleRows(sourceRows);
+        nextRowIndex = 0;
+      }
+
+      const nextRow = rows[nextRowIndex];
       nextRowIndex += 1;
 
       const newRowElement = createLogRowElement(nextRow);
