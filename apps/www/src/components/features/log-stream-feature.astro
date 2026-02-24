@@ -102,21 +102,31 @@ const toneClasses: Record<LogTone, string> = {
 ---
 
 <Card as="article" class={cardClass}>
-  <div aria-hidden="true" class="relative flex-1 overflow-hidden py-8">
-    <div
-      class="grid grid-cols-[64px_64px_minmax(0,1fr)] gap-x-1.5 gap-y-1 text-[10px] leading-[1.2]"
-    >
-      {
-        logRows.map((row) => (
-          <div class="contents">
-            <span class={`font-mono ${toneClasses[row.tone]}`}>
-              {row.tone.toUpperCase()}
-            </span>
-            <span class="font-mono text-neutral-500">[{row.service}]</span>
-            <span class="truncate text-neutral-700">{row.message}</span>
-          </div>
-        ))
-      }
+  <div aria-hidden="true" class="relative flex-1 overflow-hidden pb-8">
+    <div class="space-y-2">
+      <div
+        class="grid grid-cols-[64px_64px_minmax(0,1fr)] gap-x-1.5 font-mono text-[10px] tracking-[0.06em] text-neutral-400 uppercase"
+      >
+        <span>SERVICE</span>
+        <span>LEVEL</span>
+        <span>MESSAGE</span>
+      </div>
+
+      <div
+        class="grid grid-cols-[64px_64px_minmax(0,1fr)] gap-x-1.5 gap-y-1 text-xs leading-[1.25]"
+      >
+        {
+          logRows.map((row) => (
+            <div class="contents">
+              <span class="font-mono text-neutral-500">[{row.service}]</span>
+              <span class={`font-mono ${toneClasses[row.tone]}`}>
+                {row.tone.toUpperCase()}
+              </span>
+              <span class="truncate text-neutral-700">{row.message}</span>
+            </div>
+          ))
+        }
+      </div>
     </div>
 
     <div
