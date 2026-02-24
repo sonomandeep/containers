@@ -4,6 +4,42 @@ import heroUi from "../assets/hero-ui.jpg";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/Layout.astro";
+
+type FeatureItem = {
+  title: string;
+  description: string;
+  cardClass: string;
+};
+
+const featureItems: Array<FeatureItem> = [
+  {
+    title: "Monitor your cluster",
+    description:
+      "Stream live Docker events and resource metrics across all connected hosts.",
+    cardClass: "h-80 md:col-span-2",
+  },
+  {
+    title: "Remote terminal",
+    description:
+      "Open a shell inside running containers directly from the interface.",
+    cardClass: "h-80 justify-end",
+  },
+  {
+    title: "Manage containers",
+    description: "Manage your containers directly from the interface.",
+    cardClass: "h-80 justify-end",
+  },
+  {
+    title: "Log stream",
+    description: "Follow your containers log stream from Paper interface.",
+    cardClass: "h-80 justify-end",
+  },
+  {
+    title: "Multi host support",
+    description: "Deploy agent on your nodes to manage your VPS cluster.",
+    cardClass: "h-80 justify-end",
+  },
+];
 ---
 
 <Layout
@@ -123,64 +159,20 @@ import Layout from "../layouts/Layout.astro";
         <div
           class="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
-          <Card as="article" class="h-80 md:col-span-2">
-            <h3
-              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-            >
-              Monitor your cluster
-            </h3>
-            <p class="mt-1 max-w-[17.5625rem] text-sm text-neutral-500">
-              Stream live Docker events and resource metrics across all
-              connected hosts.
-            </p>
-          </Card>
-
-          <Card as="article" class="h-80 justify-end">
-            <h3
-              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-            >
-              Remote terminal
-            </h3>
-            <p class="mt-1 max-w-[15.125rem] text-sm text-neutral-500">
-              Open a shell inside running containers directly from the
-              interface.
-            </p>
-          </Card>
-
-          <Card as="article" class="h-80 justify-end">
-            <h3
-              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-            >
-              Manage containers
-            </h3>
-            <p class="mt-1 max-w-[13.3125rem] text-sm text-neutral-500">
-              Manage your containers directly from the interface.
-            </p>
-          </Card>
-
-          <Card as="article" class="h-80 justify-end">
-            <h3
-              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-            >
-              Log stream
-            </h3>
-            <p class="mt-1 max-w-[13.375rem] text-sm text-neutral-500">
-              Follow your containers log stream from Paper interface.
-            </p>
-          </Card>
-
-          <Card as="article" class="h-80 justify-end">
-            <h3
-              class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
-            >
-              Multi host support
-            </h3>
-            <p class="mt-1 max-w-[15.125rem] text-sm text-neutral-500">
-              Deploy agent on your nodes
-              <br>
-              to manage your VPS cluster.
-            </p>
-          </Card>
+          {
+            featureItems.map((item) => (
+              <Card as="article" class={item.cardClass}>
+                <h3
+                  class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+                >
+                  {item.title}
+                </h3>
+                <p class="mt-1 text-balance text-sm text-neutral-500">
+                  {item.description}
+                </p>
+              </Card>
+            ))
+          }
         </div>
       </div>
     </div>
