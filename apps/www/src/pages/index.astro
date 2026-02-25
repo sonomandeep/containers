@@ -2,8 +2,9 @@
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
 import LogStream from "../components/features/log-stream.astro";
-import MultiHostSupport from "../components/features/multi-host-support.astro";
 import MonitorCluster from "../components/features/monitor-cluster.astro";
+import MultiHostSupport from "../components/features/multi-host-support.astro";
+import RemoteTerminal from "../components/features/remote-terminal.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/layout.astro";
@@ -24,29 +25,23 @@ const featureItems: Array<FeatureItem> = [
     cardClass: "h-80 md:col-span-2",
   },
   {
-    id: "remote-terminal",
-    title: "Remote terminal",
-    description:
-      "Open a shell inside running containers directly from the interface.",
-    cardClass: "h-80 justify-end",
-  },
-  {
-    id: "manage-containers",
-    title: "Manage containers",
-    description: "Manage your containers directly from the interface.",
-    cardClass: "h-80 justify-end",
+    id: "multi-host-support",
+    title: "Multi host support",
+    description: "Deploy agent on your nodes to manage your VPS cluster.",
+    cardClass: "h-80",
   },
   {
     id: "log-stream",
     title: "Log stream",
     description: "Follow your containers log stream from Paper interface.",
-    cardClass: "h-80 justify-end",
+    cardClass: "h-80",
   },
   {
-    id: "multi-host-support",
-    title: "Multi host support",
-    description: "Deploy agent on your nodes to manage your VPS cluster.",
-    cardClass: "h-80 justify-end",
+    id: "remote-terminal",
+    title: "Remote terminal",
+    description:
+      "Open a shell inside running containers directly from the interface.",
+    cardClass: "h-80 md:col-span-2",
   },
 ];
 ---
@@ -180,6 +175,10 @@ const featureItems: Array<FeatureItem> = [
 
               if (item.id === "multi-host-support") {
                 return <MultiHostSupport class={item.cardClass} />;
+              }
+
+              if (item.id === "remote-terminal") {
+                return <RemoteTerminal class={item.cardClass} />;
               }
 
               return (
