@@ -35,7 +35,6 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         <svg
           aria-hidden="true"
           class="pointer-events-none absolute inset-0 h-full w-full"
-          data-flow-svg
           fill="none"
           viewBox="0 0 256 113"
         >
@@ -102,13 +101,6 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
     const MAX_VISIBLE_PARTICLES = 3;
     const MIN_SPAWN_DELAY_MS = 260;
     const MAX_SPAWN_DELAY_MS = 1050;
-
-    const FLOW_COLORS = {
-      blue: "#2563eb",
-      amber: "#d97706",
-      green: "#16a34a",
-      red: "#dc2626",
-    };
 
     const multiHostReducedMotionQuery = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -178,39 +170,49 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
       return /** @type {SVGGElement} */ (particleLayer);
     };
 
+    const createFlowLineFromElement = (pathElement) => {
+      if (!(pathElement instanceof SVGElement)) {
+        return null;
+      }
+
+      if (
+        pathElement.tagName.toLowerCase() !== "path" ||
+        typeof pathElement.getTotalLength !== "function"
+      ) {
+        return null;
+      }
+
+      const pathKey = pathElement.dataset.flowPath;
+
+      if (!pathKey) {
+        return null;
+      }
+
+      const color = window.getComputedStyle(pathElement).stroke;
+
+      if (!color || color === "none") {
+        return null;
+      }
+
+      return {
+        key: pathKey,
+        path: /** @type {SVGPathElement} */ (pathElement),
+        color,
+        totalLength: pathElement.getTotalLength(),
+      };
+    };
+
     const collectFlowLines = (root) => {
       const lines = /** @type {Array<FlowLine>} */ ([]);
 
       for (const pathElement of root.querySelectorAll("[data-flow-path]")) {
-        if (!(pathElement instanceof SVGElement)) {
+        const line = createFlowLineFromElement(pathElement);
+
+        if (!line) {
           continue;
         }
 
-        if (
-          pathElement.tagName.toLowerCase() !== "path" ||
-          typeof pathElement.getTotalLength !== "function"
-        ) {
-          continue;
-        }
-
-        const pathKey = pathElement.dataset.flowPath;
-
-        if (!pathKey) {
-          continue;
-        }
-
-        const color = FLOW_COLORS[pathKey];
-
-        if (!color) {
-          continue;
-        }
-
-        lines.push({
-          key: pathKey,
-          path: /** @type {SVGPathElement} */ (pathElement),
-          color,
-          totalLength: pathElement.getTotalLength(),
-        });
+        lines.push(line);
       }
 
       return lines;
@@ -250,29 +252,10 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
     };
 
     const setupFlowLifecycle = (root, startAnimation, stopAnimation) => {
-      if (isElementVisible(root)) {
-        startAnimation();
-      }
+      const lifecycleController = new AbortController();
+      const { signal } = lifecycleController;
 
-      if ("IntersectionObserver" in window) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) {
-                stopAnimation();
-                continue;
-              }
-
-              startAnimation();
-            }
-          },
-          { threshold: 0.2 }
-        );
-
-        observer.observe(root);
-      }
-
-      document.addEventListener("visibilitychange", () => {
+      const handleVisibilityChange = () => {
         if (document.hidden) {
           stopAnimation();
           return;
@@ -281,7 +264,19 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         if (isElementVisible(root)) {
           startAnimation();
         }
-      });
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      signal.addEventListener(
+        "abort",
+        () => {
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+          );
+        },
+        { once: true }
+      );
 
       const handleReducedMotionChange = () => {
         if (multiHostReducedMotionQuery.matches) {
@@ -299,12 +294,67 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
           "change",
           handleReducedMotionChange
         );
-        return;
+        signal.addEventListener(
+          "abort",
+          () => {
+            multiHostReducedMotionQuery.removeEventListener(
+              "change",
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
+      } else if (
+        typeof multiHostReducedMotionQuery.addListener === "function"
+      ) {
+        multiHostReducedMotionQuery.addListener(handleReducedMotionChange);
+        signal.addEventListener(
+          "abort",
+          () => {
+            multiHostReducedMotionQuery.removeListener(
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
       }
 
-      if (typeof multiHostReducedMotionQuery.addListener === "function") {
-        multiHostReducedMotionQuery.addListener(handleReducedMotionChange);
+      let observer = /** @type {IntersectionObserver | null} */ (null);
+
+      if ("IntersectionObserver" in window) {
+        observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                stopAnimation();
+                continue;
+              }
+
+              startAnimation();
+            }
+          },
+          { threshold: 0.2 }
+        );
+
+        observer.observe(root);
       }
+
+      signal.addEventListener(
+        "abort",
+        () => {
+          observer?.disconnect();
+          observer = null;
+        },
+        { once: true }
+      );
+
+      if (isElementVisible(root)) {
+        startAnimation();
+      }
+
+      return () => {
+        lifecycleController.abort();
+      };
     };
 
     const setupMultiHostFlow = (root) => {
@@ -329,8 +379,12 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
       let animationFrameId = 0;
       let spawnTimeoutId = 0;
       let isRunning = false;
+      let isDisposed = false;
       const particles = /** @type {Array<FlowParticle>} */ ([]);
       const occupiedLineKeys = /** @type {Set<string>} */ (new Set());
+      let cleanupLifecycle = () => {
+        return;
+      };
 
       const clearParticleElements = () => {
         for (const particle of particles) {
@@ -358,6 +412,31 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         particle.element.remove();
         occupiedLineKeys.delete(particle.lineKey);
         particles.splice(index, 1);
+      };
+
+      const shouldDispose = () => !root.isConnected || isDisposed;
+
+      const updateParticles = (now) => {
+        for (let index = particles.length - 1; index >= 0; index -= 1) {
+          const particle = particles[index];
+
+          if (!particle) {
+            continue;
+          }
+
+          const elapsed = (now - particle.startTime) / particle.duration;
+
+          if (elapsed >= 1) {
+            removeParticleAt(index);
+            continue;
+          }
+
+          const travelProgress =
+            particle.startProgress +
+            (particle.endProgress - particle.startProgress) * elapsed;
+
+          setParticlePosition(particle, travelProgress);
+        }
       };
 
       const trySpawnParticle = (now) => {
@@ -390,6 +469,11 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         spawnTimeoutId = window.setTimeout(() => {
           spawnTimeoutId = 0;
 
+          if (shouldDispose()) {
+            disposeFlow();
+            return;
+          }
+
           if (
             !isRunning ||
             document.hidden ||
@@ -406,26 +490,13 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
       };
 
       const step = (now) => {
-        for (let index = particles.length - 1; index >= 0; index -= 1) {
-          const particle = particles[index];
-
-          if (!particle) {
-            continue;
-          }
-
-          const elapsed = (now - particle.startTime) / particle.duration;
-
-          if (elapsed >= 1) {
-            removeParticleAt(index);
-            continue;
-          }
-
-          const travelProgress =
-            particle.startProgress +
-            (particle.endProgress - particle.startProgress) * elapsed;
-
-          setParticlePosition(particle, travelProgress);
+        if (shouldDispose()) {
+          disposeFlow();
+          animationFrameId = 0;
+          return;
         }
+
+        updateParticles(now);
 
         if (!isRunning) {
           animationFrameId = 0;
@@ -451,8 +522,19 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         clearParticleElements();
       };
 
+      const disposeFlow = () => {
+        if (isDisposed) {
+          return;
+        }
+
+        isDisposed = true;
+        stopAnimation();
+        cleanupLifecycle();
+      };
+
       const startAnimation = () => {
         if (
+          isDisposed ||
           isRunning ||
           multiHostReducedMotionQuery.matches ||
           document.hidden
@@ -468,7 +550,11 @@ const agents = ["agent", "agent", "agent", "agent"] as const;
         animationFrameId = window.requestAnimationFrame(step);
       };
 
-      setupFlowLifecycle(root, startAnimation, stopAnimation);
+      cleanupLifecycle = setupFlowLifecycle(
+        root,
+        startAnimation,
+        stopAnimation
+      );
     };
 
     for (const root of document.querySelectorAll("[data-multi-host-flow]")) {
