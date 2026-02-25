@@ -27,7 +27,11 @@ const { question, answer } = Astro.props as Props;
     </span>
   </summary>
 
-  <p class="mt-3 pr-8 text-sm leading-6 text-neutral-600">{answer}</p>
+  <div class="faq-answer-grid">
+    <div class="faq-answer-inner">
+      <p class="pr-8 text-sm leading-6 text-neutral-600">{answer}</p>
+    </div>
+  </div>
 </details>
 
 <style>
@@ -44,6 +48,34 @@ const { question, answer } = Astro.props as Props;
   }
 
   .faq-chevron {
-    transition: transform 160ms ease;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .faq-answer-grid {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    padding-top: 0;
+    transition:
+      grid-template-rows 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 180ms ease,
+      padding-top 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .faq-answer-inner {
+    overflow: hidden;
+  }
+
+  details[open] .faq-answer-grid {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    padding-top: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-chevron,
+    .faq-answer-grid {
+      transition: none;
+    }
   }
 </style>
