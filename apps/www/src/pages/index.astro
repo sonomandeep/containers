@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
 import LogStream from "../components/features/LogStream.astro";
+import MonitorCluster from "../components/features/monitor-cluster.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/Layout.astro";
@@ -167,10 +168,16 @@ const featureItems: Array<FeatureItem> = [
           class="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
           {
-            featureItems.map((item) =>
-              item.id === "log-stream" ? (
-                <LogStream class={item.cardClass} />
-              ) : (
+            featureItems.map((item) => {
+              if (item.id === "monitor-cluster") {
+                return <MonitorCluster class={item.cardClass} />;
+              }
+
+              if (item.id === "log-stream") {
+                return <LogStream class={item.cardClass} />;
+              }
+
+              return (
                 <Card as="article" class={item.cardClass}>
                   <h3
                     class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
@@ -181,8 +188,8 @@ const featureItems: Array<FeatureItem> = [
                     {item.description}
                   </p>
                 </Card>
-              ),
-            )
+              );
+            })
           }
         </div>
       </div>
