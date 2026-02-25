@@ -1,0 +1,568 @@
+---
+import Card from "../ui/Card.astro";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props as Props;
+
+const agents = ["agent", "agent", "agent", "agent"] as const;
+---
+
+<Card as="article" class={className}>
+  <div class="flex h-full flex-col gap-3">
+    <div
+      aria-hidden="true"
+      class="relative min-h-0 flex-1 overflow-hidden"
+      data-multi-host-flow
+    >
+      <div
+        class="absolute left-1/2 top-[2.625rem] h-[7.0625rem] w-64 -translate-x-1/2"
+      >
+        <div class="absolute inset-x-0 top-0 flex gap-4">
+          {
+            agents.map((label) => (
+              <div class="flex h-6 w-[3.25rem] items-center justify-center rounded-xl bg-neutral-200 px-2">
+                <span class="font-mono text-xs font-medium text-neutral-700">
+                  {label}
+                </span>
+              </div>
+            ))
+          }
+        </div>
+
+        <svg
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-0 h-full w-full"
+          fill="none"
+          viewBox="0 0 256 113"
+        >
+          <path
+            class="stroke-blue-600"
+            data-flow-path="blue"
+            d="M26 23C26 58 98 52 98 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <path
+            class="stroke-amber-600"
+            data-flow-path="amber"
+            d="M94 23C94 50 118 61 118 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <path
+            class="stroke-green-600"
+            data-flow-path="green"
+            d="M162 23C162 50 138 61 138 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <path
+            class="stroke-red-600"
+            data-flow-path="red"
+            d="M230 23C230 58 158 52 158 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <g data-flow-particles></g>
+        </svg>
+
+        <div class="absolute left-1/2 top-[5.5rem] -translate-x-1/2">
+          <div
+            class="inline-flex h-[1.5625rem] w-[6.75rem] items-center justify-center rounded-xl bg-neutral-900 px-3"
+          >
+            <span class="font-mono text-[0.625rem] font-semibold text-white">
+              Paper Platform
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3
+        class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+      >
+        Multi host support
+      </h3>
+      <p class="mt-1 max-w-[15.125rem] text-balance text-sm text-neutral-500">
+        Deploy agent on your nodes to manage your VPS cluster.
+      </p>
+    </div>
+  </div>
+</Card>
+
+<script is:inline>
+  (() => {
+    const PARTICLE_RADIUS = 2.3;
+    const PARTICLE_SPEED_PX_PER_MS = 0.078;
+    const MAX_VISIBLE_PARTICLES = 3;
+    const MIN_SPAWN_DELAY_MS = 260;
+    const MAX_SPAWN_DELAY_MS = 1050;
+
+    const multiHostReducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+
+    const randomFloat = (min, max) => Math.random() * (max - min) + min;
+
+    const getRandomSpawnDelay = () =>
+      Math.round(randomFloat(MIN_SPAWN_DELAY_MS, MAX_SPAWN_DELAY_MS));
+
+    /**
+     * @typedef {"agent-to-platform" | "platform-to-agent"} FlowDirection
+     */
+
+    /**
+     * @typedef {{
+     *   key: string;
+     *   path: SVGPathElement;
+     *   color: string;
+     *   totalLength: number;
+     * }} FlowLine
+     */
+
+    /**
+     * @typedef {{
+     *   element: SVGCircleElement;
+     *   lineKey: string;
+     *   path: SVGPathElement;
+     *   totalLength: number;
+     *   startProgress: number;
+     *   endProgress: number;
+     *   startTime: number;
+     *   duration: number;
+     * }} FlowParticle
+     */
+
+    const isElementVisible = (element) => {
+      const bounds = element.getBoundingClientRect();
+
+      return bounds.top < window.innerHeight && bounds.bottom > 0;
+    };
+
+    const createParticleElement = (color) => {
+      const particle = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+      );
+      particle.setAttribute("fill", color);
+      particle.setAttribute("fill-opacity", "0.96");
+      particle.setAttribute("stroke", "#fafafa");
+      particle.setAttribute("stroke-width", "0.45");
+      particle.setAttribute("r", `${PARTICLE_RADIUS}`);
+
+      return particle;
+    };
+
+    const resolveParticleGroup = (root) => {
+      const particleLayer = root.querySelector("[data-flow-particles]");
+
+      if (
+        !(particleLayer instanceof SVGElement) ||
+        particleLayer.tagName.toLowerCase() !== "g"
+      ) {
+        return null;
+      }
+
+      return /** @type {SVGGElement} */ (particleLayer);
+    };
+
+    const createFlowLineFromElement = (pathElement) => {
+      if (!(pathElement instanceof SVGElement)) {
+        return null;
+      }
+
+      if (
+        pathElement.tagName.toLowerCase() !== "path" ||
+        typeof pathElement.getTotalLength !== "function"
+      ) {
+        return null;
+      }
+
+      const pathKey = pathElement.dataset.flowPath;
+
+      if (!pathKey) {
+        return null;
+      }
+
+      const color = window.getComputedStyle(pathElement).stroke;
+
+      if (!color || color === "none") {
+        return null;
+      }
+
+      return {
+        key: pathKey,
+        path: /** @type {SVGPathElement} */ (pathElement),
+        color,
+        totalLength: pathElement.getTotalLength(),
+      };
+    };
+
+    const collectFlowLines = (root) => {
+      const lines = /** @type {Array<FlowLine>} */ ([]);
+
+      for (const pathElement of root.querySelectorAll("[data-flow-path]")) {
+        const line = createFlowLineFromElement(pathElement);
+
+        if (!line) {
+          continue;
+        }
+
+        lines.push(line);
+      }
+
+      return lines;
+    };
+
+    const pickAvailableLine = (lines, occupiedLineKeys) => {
+      const availableLines = lines.filter(
+        (line) => !occupiedLineKeys.has(line.key)
+      );
+
+      if (availableLines.length === 0) {
+        return null;
+      }
+
+      const randomIndex = Math.floor(Math.random() * availableLines.length);
+
+      return availableLines[randomIndex] ?? null;
+    };
+
+    const createFlowParticle = (line, direction, now) => ({
+      element: createParticleElement(line.color),
+      lineKey: line.key,
+      path: line.path,
+      totalLength: line.totalLength,
+      startProgress: direction === "agent-to-platform" ? 0 : 1,
+      endProgress: direction === "agent-to-platform" ? 1 : 0,
+      startTime: now,
+      duration: line.totalLength / PARTICLE_SPEED_PX_PER_MS,
+    });
+
+    const setParticlePosition = (particle, progress) => {
+      const point = particle.path.getPointAtLength(
+        particle.totalLength * progress
+      );
+      particle.element.setAttribute("cx", `${point.x}`);
+      particle.element.setAttribute("cy", `${point.y}`);
+    };
+
+    const setupFlowLifecycle = (root, startAnimation, stopAnimation) => {
+      const lifecycleController = new AbortController();
+      const { signal } = lifecycleController;
+
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          stopAnimation();
+          return;
+        }
+
+        if (isElementVisible(root)) {
+          startAnimation();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      signal.addEventListener(
+        "abort",
+        () => {
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+          );
+        },
+        { once: true }
+      );
+
+      const handleReducedMotionChange = () => {
+        if (multiHostReducedMotionQuery.matches) {
+          stopAnimation();
+          return;
+        }
+
+        if (isElementVisible(root) && !document.hidden) {
+          startAnimation();
+        }
+      };
+
+      if (typeof multiHostReducedMotionQuery.addEventListener === "function") {
+        multiHostReducedMotionQuery.addEventListener(
+          "change",
+          handleReducedMotionChange
+        );
+        signal.addEventListener(
+          "abort",
+          () => {
+            multiHostReducedMotionQuery.removeEventListener(
+              "change",
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
+      } else if (
+        typeof multiHostReducedMotionQuery.addListener === "function"
+      ) {
+        multiHostReducedMotionQuery.addListener(handleReducedMotionChange);
+        signal.addEventListener(
+          "abort",
+          () => {
+            multiHostReducedMotionQuery.removeListener(
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
+      }
+
+      let observer = /** @type {IntersectionObserver | null} */ (null);
+
+      if ("IntersectionObserver" in window) {
+        observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                stopAnimation();
+                continue;
+              }
+
+              startAnimation();
+            }
+          },
+          { threshold: 0.2 }
+        );
+
+        observer.observe(root);
+      }
+
+      signal.addEventListener(
+        "abort",
+        () => {
+          observer?.disconnect();
+          observer = null;
+        },
+        { once: true }
+      );
+
+      if (isElementVisible(root)) {
+        startAnimation();
+      }
+
+      return () => {
+        lifecycleController.abort();
+      };
+    };
+
+    const setupMultiHostFlow = (root) => {
+      if (root.dataset.flowInitialized === "true") {
+        return;
+      }
+
+      root.dataset.flowInitialized = "true";
+
+      const particleGroup = resolveParticleGroup(root);
+
+      if (!particleGroup) {
+        return;
+      }
+
+      const lines = collectFlowLines(root);
+
+      if (lines.length === 0) {
+        return;
+      }
+
+      let animationFrameId = 0;
+      let spawnTimeoutId = 0;
+      let isRunning = false;
+      let isDisposed = false;
+      const particles = /** @type {Array<FlowParticle>} */ ([]);
+      const occupiedLineKeys = /** @type {Set<string>} */ (new Set());
+      let cleanupLifecycle = () => {
+        return;
+      };
+
+      const clearParticleElements = () => {
+        for (const particle of particles) {
+          particle.element.remove();
+        }
+
+        particles.length = 0;
+        occupiedLineKeys.clear();
+      };
+
+      const clearSpawnTimer = () => {
+        if (spawnTimeoutId !== 0) {
+          window.clearTimeout(spawnTimeoutId);
+          spawnTimeoutId = 0;
+        }
+      };
+
+      const removeParticleAt = (index) => {
+        const particle = particles[index];
+
+        if (!particle) {
+          return;
+        }
+
+        particle.element.remove();
+        occupiedLineKeys.delete(particle.lineKey);
+        particles.splice(index, 1);
+      };
+
+      const shouldDispose = () => !root.isConnected || isDisposed;
+
+      const updateParticles = (now) => {
+        for (let index = particles.length - 1; index >= 0; index -= 1) {
+          const particle = particles[index];
+
+          if (!particle) {
+            continue;
+          }
+
+          const elapsed = (now - particle.startTime) / particle.duration;
+
+          if (elapsed >= 1) {
+            removeParticleAt(index);
+            continue;
+          }
+
+          const travelProgress =
+            particle.startProgress +
+            (particle.endProgress - particle.startProgress) * elapsed;
+
+          setParticlePosition(particle, travelProgress);
+        }
+      };
+
+      const trySpawnParticle = (now) => {
+        if (particles.length >= MAX_VISIBLE_PARTICLES) {
+          return;
+        }
+
+        const line = pickAvailableLine(lines, occupiedLineKeys);
+
+        if (!line) {
+          return;
+        }
+
+        const direction = /** @type {FlowDirection} */ (
+          Math.random() > 0.5 ? "agent-to-platform" : "platform-to-agent"
+        );
+        const particle = createFlowParticle(line, direction, now);
+
+        setParticlePosition(particle, particle.startProgress);
+        particleGroup.append(particle.element);
+        particles.push(particle);
+        occupiedLineKeys.add(line.key);
+      };
+
+      const scheduleSpawn = () => {
+        if (!isRunning) {
+          return;
+        }
+
+        spawnTimeoutId = window.setTimeout(() => {
+          spawnTimeoutId = 0;
+
+          if (shouldDispose()) {
+            disposeFlow();
+            return;
+          }
+
+          if (
+            !isRunning ||
+            document.hidden ||
+            multiHostReducedMotionQuery.matches
+          ) {
+            scheduleSpawn();
+            return;
+          }
+
+          trySpawnParticle(performance.now());
+
+          scheduleSpawn();
+        }, getRandomSpawnDelay());
+      };
+
+      const step = (now) => {
+        if (shouldDispose()) {
+          disposeFlow();
+          animationFrameId = 0;
+          return;
+        }
+
+        updateParticles(now);
+
+        if (!isRunning) {
+          animationFrameId = 0;
+          return;
+        }
+
+        animationFrameId = window.requestAnimationFrame(step);
+      };
+
+      const stopAnimation = () => {
+        if (!isRunning && particles.length === 0) {
+          return;
+        }
+
+        isRunning = false;
+        clearSpawnTimer();
+
+        if (animationFrameId !== 0) {
+          window.cancelAnimationFrame(animationFrameId);
+          animationFrameId = 0;
+        }
+
+        clearParticleElements();
+      };
+
+      const disposeFlow = () => {
+        if (isDisposed) {
+          return;
+        }
+
+        isDisposed = true;
+        stopAnimation();
+        cleanupLifecycle();
+      };
+
+      const startAnimation = () => {
+        if (
+          isDisposed ||
+          isRunning ||
+          multiHostReducedMotionQuery.matches ||
+          document.hidden
+        ) {
+          return;
+        }
+
+        isRunning = true;
+
+        trySpawnParticle(performance.now());
+        scheduleSpawn();
+
+        animationFrameId = window.requestAnimationFrame(step);
+      };
+
+      cleanupLifecycle = setupFlowLifecycle(
+        root,
+        startAnimation,
+        stopAnimation
+      );
+    };
+
+    for (const root of document.querySelectorAll("[data-multi-host-flow]")) {
+      if (!(root instanceof HTMLElement)) {
+        continue;
+      }
+
+      setupMultiHostFlow(root);
+    }
+  })();
+</script>
