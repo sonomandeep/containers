@@ -1,0 +1,48 @@
+---
+import { Image } from "astro:assets";
+import heroUi from "../../assets/hero-ui.jpg";
+import Card from "../ui/Card.astro";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props as Props;
+---
+
+<Card as="article" class={className}>
+  <div class="flex h-full flex-col gap-6">
+    <div>
+      <h3 class="font-display text-base font-medium text-neutral-800">
+        monitor your cluster
+      </h3>
+      <p class="mt-1 text-balance text-sm text-neutral-500">
+        stream live docker events and resource metrics across all connected
+        hosts.
+      </p>
+    </div>
+
+    <div aria-hidden="true" class="relative min-h-0 flex-1 overflow-hidden">
+      <div
+        class="absolute origin-top-left top-12 -left-12 -rotate-12 skew-x-30"
+      >
+        <div
+          class="overflow-hidden rounded-xl border border-neutral-200 shadow-[0_0_24px_rgba(0,0,0,0.12)]"
+        >
+          <Image
+            alt=""
+            class="block h-auto w-full"
+            loading="lazy"
+            sizes="(min-width: 768px) 909px, 220vw"
+            src={heroUi}
+            widths={[1024, 1536, 2048]}
+          />
+        </div>
+      </div>
+
+      <div
+        class="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_115%_95%_at_46%_44%,rgba(250,250,250,0)_38%,rgba(250,250,250,0.74)_68%,#fafafa_100%)]"
+      />
+    </div>
+  </div>
+</Card>

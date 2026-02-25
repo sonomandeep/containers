@@ -1,0 +1,16 @@
+---
+type Props = {
+  as?: "article" | "div" | "section";
+  class?: string;
+};
+
+const { as = "div", class: className = "" } = Astro.props as Props;
+
+const Tag = as;
+const classes =
+  `group/card flex flex-col overflow-hidden rounded-xl bg-neutral-50 p-6 ${className}`.trim();
+---
+
+<Tag class={classes} data-slot="card">
+  <slot />
+</Tag>
