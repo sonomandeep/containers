@@ -37,24 +37,24 @@ const splitPromptLine = (lineText: string) => {
 
 const initialTerminalLines: Array<TerminalLine> = [
   {
-    text: "root@paper-host:~# docker exec -it api-gateway sh",
+    text: "root@paper:~# docker exec -it api-gateway sh",
   },
   {
-    text: "root@api-gateway:/app# paperctl agent ping --all",
+    text: "root@api:/app# paperctl agent ping --all",
   },
   {
     text: "3/3 agents reachable (42ms avg)",
     tone: "success",
   },
   {
-    text: "root@api-gateway:/app# curl -s localhost:8080/health",
+    text: "root@api:/app# curl -s localhost:8080/health",
   },
   {
     text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
     tone: "success",
   },
   {
-    text: "root@api-gateway:/app#",
+    text: "root@api:/app#",
   },
 ];
 ---
@@ -139,10 +139,10 @@ const initialTerminalLines: Array<TerminalLine> = [
         durationMs: 1900,
         lines: [
           {
-            text: "root@paper-host:~# docker exec -it api-gateway sh",
+            text: "root@paper:~# docker exec -it api-gateway sh",
           },
           {
-            text: "root@api-gateway:/app# paperctl agent ping --all",
+            text: "root@api:/app# paperctl agent ping --all",
             spinner: true,
           },
           {
@@ -155,7 +155,7 @@ const initialTerminalLines: Array<TerminalLine> = [
             text: "",
           },
           {
-            text: "root@api-gateway:/app#",
+            text: "root@api:/app#",
             cursor: true,
           },
         ],
@@ -164,24 +164,24 @@ const initialTerminalLines: Array<TerminalLine> = [
         durationMs: 2200,
         lines: [
           {
-            text: "root@paper-host:~# docker exec -it api-gateway sh",
+            text: "root@paper:~# docker exec -it api-gateway sh",
           },
           {
-            text: "root@api-gateway:/app# paperctl agent ping --all",
+            text: "root@api:/app# paperctl agent ping --all",
           },
           {
             text: "3/3 agents reachable (42ms avg)",
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# curl -s localhost:8080/health",
+            text: "root@api:/app# curl -s localhost:8080/health",
             spinner: true,
           },
           {
             text: "",
           },
           {
-            text: "root@api-gateway:/app#",
+            text: "root@api:/app#",
             cursor: true,
           },
         ],
@@ -190,21 +190,21 @@ const initialTerminalLines: Array<TerminalLine> = [
         durationMs: 2100,
         lines: [
           {
-            text: "root@api-gateway:/app# paperctl agent ping --all",
+            text: "root@api:/app# paperctl agent ping --all",
           },
           {
             text: "3/3 agents reachable (42ms avg)",
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# curl -s localhost:8080/health",
+            text: "root@api:/app# curl -s localhost:8080/health",
           },
           {
             text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# tail -n 1 /var/log/nginx/access.log",
+            text: "root@api:/app# tail -n 1 /var/log/nginx/access.log",
             spinner: true,
           },
           {
@@ -216,14 +216,14 @@ const initialTerminalLines: Array<TerminalLine> = [
         durationMs: 2600,
         lines: [
           {
-            text: "root@api-gateway:/app# curl -s localhost:8080/health",
+            text: "root@api:/app# curl -s localhost:8080/health",
           },
           {
             text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# tail -n 1 /var/log/nginx/access.log",
+            text: "root@api:/app# tail -n 1 /var/log/nginx/access.log",
           },
           {
             text: '172.18.0.1 - - [17/Feb/2026:10:41:23 +0000] "GET /health HTTP/1.1" 200 32',
@@ -232,7 +232,7 @@ const initialTerminalLines: Array<TerminalLine> = [
             text: "",
           },
           {
-            text: "root@api-gateway:/app#",
+            text: "root@api:/app#",
             cursor: true,
           },
         ],
