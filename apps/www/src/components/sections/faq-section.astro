@@ -1,0 +1,70 @@
+---
+import FaqItem from "../ui/FaqItem.astro";
+
+type FaqEntry = {
+  question: string;
+  answer: string;
+};
+
+const faqItems: Array<FaqEntry> = [
+  {
+    question: "How does the Paper agent connect to my servers?",
+    answer:
+      "The agent runs on each host and opens an outbound WebSocket connection to your Paper API. It streams container events and periodic snapshots, so you get live state without exposing inbound agent ports.",
+  },
+  {
+    question: "What do I need to install on each host?",
+    answer:
+      "Each node only needs Docker and the Paper agent with access to the Docker socket. The core Paper stack runs separately with the API, web app, PostgreSQL, and SMTP configured.",
+  },
+  {
+    question: "Is Paper fully self-hosted and open source?",
+    answer:
+      "Yes. Paper is self-hosted first, and you run the services on your own infrastructure. The project is open source under the Apache-2.0 license.",
+  },
+  {
+    question: "Can I manage multiple VPS providers in one workspace?",
+    answer:
+      "Yes. You can deploy agents across nodes from different providers and monitor them from a single workspace view.",
+  },
+  {
+    question: "Is there a managed cloud version available?",
+    answer:
+      "Today the primary focus is self-hosted deployments. A managed offering is planned, and you can join the waitlist for updates.",
+  },
+];
+---
+
+<section class="w-full bg-white" id="faq">
+  <div
+    class="mx-auto w-full max-w-5xl px-4 py-32 sm:px-6 sm:py-36 lg:px-0 lg:py-44"
+  >
+    <div class="flex flex-col items-center gap-8">
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span
+          class="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 px-2 py-1 text-xs text-neutral-500"
+        >
+          FAQ
+        </span>
+
+        <h2
+          class="max-w-[20.375rem] font-display text-[2rem] font-semibold leading-[1.1] tracking-tight text-neutral-900"
+        >
+          Frequently
+          <br>
+          Asked Questions
+        </h2>
+      </div>
+
+      <ul class="flex w-full max-w-[32rem] flex-col gap-3">
+        {
+          faqItems.map((item) => (
+            <li>
+              <FaqItem answer={item.answer} question={item.question} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
