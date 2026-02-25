@@ -12,6 +12,29 @@ type Props = {
 
 const { class: className = "" } = Astro.props as Props;
 
+const splitPromptLine = (lineText: string) => {
+  if (!lineText.startsWith("root@")) {
+    return {
+      prompt: "",
+      command: lineText,
+    };
+  }
+
+  const hashIndex = lineText.indexOf("#");
+
+  if (hashIndex === -1) {
+    return {
+      prompt: "",
+      command: lineText,
+    };
+  }
+
+  return {
+    prompt: lineText.slice(0, hashIndex + 1),
+    command: lineText.slice(hashIndex + 1).trimStart(),
+  };
+};
+
 const initialTerminalLines: Array<TerminalLine> = [
   {
     text: "root@paper-host:~# docker exec -it api-gateway sh",
@@ -50,9 +73,9 @@ const initialTerminalLines: Array<TerminalLine> = [
           class="absolute left-[0.01%] top-[0.19%] h-[169.44%] w-[203.47%] px-6 pt-4"
         >
           <div class="flex items-center gap-2.5">
-            <span class="size-3 rounded-full bg-red-500"></span>
-            <span class="size-3 rounded-full bg-amber-500"></span>
-            <span class="size-3 rounded-full bg-green-500"></span>
+            <span class="size-3 rounded-full bg-red-600"></span>
+            <span class="size-3 rounded-full bg-amber-600"></span>
+            <span class="size-3 rounded-full bg-green-600"></span>
           </div>
 
           <div
@@ -65,9 +88,20 @@ const initialTerminalLines: Array<TerminalLine> = [
                   return <p class="h-[1.35em]"></p>;
                 }
 
+                if (line.tone === "success") {
+                  return <p class="text-green-600">{line.text}</p>;
+                }
+
+                const parsedLine = splitPromptLine(line.text);
+
+                if (parsedLine.prompt.length === 0) {
+                  return <p>{line.text}</p>;
+                }
+
                 return (
-                  <p class={line.tone === "success" ? "text-green-500" : ""}>
-                    {line.text}
+                  <p>
+                    <span class="text-blue-600">{parsedLine.prompt}</span>
+                    {parsedLine.command.length > 0 ? ` ${parsedLine.command}` : ""}
                   </p>
                 );
               })
@@ -108,7 +142,7 @@ const initialTerminalLines: Array<TerminalLine> = [
             text: "root@paper-host:~# docker exec -it api-gateway sh",
           },
           {
-            text: "root@api-gateway:/app# paperctl agent ping --all ",
+            text: "root@api-gateway:/app# paperctl agent ping --all",
             spinner: true,
           },
           {
@@ -140,7 +174,7 @@ const initialTerminalLines: Array<TerminalLine> = [
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# curl -s localhost:8080/health ",
+            text: "root@api-gateway:/app# curl -s localhost:8080/health",
             spinner: true,
           },
           {
@@ -170,7 +204,7 @@ const initialTerminalLines: Array<TerminalLine> = [
             tone: "success",
           },
           {
-            text: "root@api-gateway:/app# tail -n 1 /var/log/nginx/access.log ",
+            text: "root@api-gateway:/app# tail -n 1 /var/log/nginx/access.log",
             spinner: true,
           },
           {
@@ -220,14 +254,95 @@ const initialTerminalLines: Array<TerminalLine> = [
     const hasCursorLine = (frame) =>
       frame.lines.some((line) => line.cursor === true);
 
-    const createLineElement = (lineText, tone) => {
-      const lineElement = document.createElement("p");
-
-      if (tone === "success") {
-        lineElement.className = "text-green-500";
+    const splitRuntimePromptLine = (lineText) => {
+      if (!lineText.startsWith("root@")) {
+        return {
+          prompt: "",
+          command: lineText,
+        };
       }
 
-      lineElement.textContent = lineText.length === 0 ? " " : lineText;
+      const hashIndex = lineText.indexOf("#");
+
+      if (hashIndex === -1) {
+        return {
+          prompt: "",
+          command: lineText,
+        };
+      }
+
+      return {
+        prompt: lineText.slice(0, hashIndex + 1),
+        command: lineText.slice(hashIndex + 1).trimStart(),
+      };
+    };
+
+    const appendLineSpan = (lineElement, text, className) => {
+      if (text.length === 0) {
+        return;
+      }
+
+      const spanElement = document.createElement("span");
+
+      if (className.length > 0) {
+        spanElement.className = className;
+      }
+
+      spanElement.textContent = text;
+      lineElement.append(spanElement);
+    };
+
+    const appendPromptAndCommand = (lineElement, lineText) => {
+      const parsedLine = splitRuntimePromptLine(lineText);
+
+      if (parsedLine.prompt.length > 0) {
+        appendLineSpan(lineElement, parsedLine.prompt, "text-blue-600");
+
+        if (parsedLine.command.length > 0) {
+          appendLineSpan(lineElement, ` ${parsedLine.command}`, "");
+        }
+
+        return;
+      }
+
+      appendLineSpan(lineElement, lineText, "");
+    };
+
+    const appendMainLineContent = (lineElement, line) => {
+      if (line.tone === "success") {
+        lineElement.className = "text-green-600";
+        lineElement.textContent = line.text;
+        return;
+      }
+
+      appendPromptAndCommand(lineElement, line.text);
+    };
+
+    const appendRuntimeIndicators = (
+      lineElement,
+      line,
+      spinnerChar,
+      isCursorVisible
+    ) => {
+      if (line.spinner) {
+        appendLineSpan(lineElement, ` ${spinnerChar}`, "text-amber-600");
+      }
+
+      if (line.cursor) {
+        appendLineSpan(lineElement, isCursorVisible ? " █" : "  ", "");
+      }
+    };
+
+    const createLineElement = (line, spinnerChar, isCursorVisible) => {
+      const lineElement = document.createElement("p");
+
+      if (line.text.length === 0) {
+        lineElement.textContent = " ";
+        return lineElement;
+      }
+
+      appendMainLineContent(lineElement, line);
+      appendRuntimeIndicators(lineElement, line, spinnerChar, isCursorVisible);
 
       return lineElement;
     };
@@ -236,17 +351,7 @@ const initialTerminalLines: Array<TerminalLine> = [
       const fragment = document.createDocumentFragment();
 
       for (const line of frame.lines) {
-        let lineText = line.text;
-
-        if (line.spinner) {
-          lineText = `${lineText}${spinnerChar}`;
-        }
-
-        if (line.cursor) {
-          lineText = `${lineText}${isCursorVisible ? " █" : "  "}`;
-        }
-
-        fragment.append(createLineElement(lineText, line.tone));
+        fragment.append(createLineElement(line, spinnerChar, isCursorVisible));
       }
 
       listElement.replaceChildren(fragment);
