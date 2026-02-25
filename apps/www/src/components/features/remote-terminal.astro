@@ -1,0 +1,628 @@
+---
+import Card from "../ui/Card.astro";
+
+type TerminalLine = {
+  text: string;
+  tone?: "success";
+};
+
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props as Props;
+
+const splitPromptLine = (lineText: string) => {
+  if (!lineText.startsWith("root@")) {
+    return {
+      prompt: "",
+      command: lineText,
+    };
+  }
+
+  const hashIndex = lineText.indexOf("#");
+
+  if (hashIndex === -1) {
+    return {
+      prompt: "",
+      command: lineText,
+    };
+  }
+
+  return {
+    prompt: lineText.slice(0, hashIndex + 1),
+    command: lineText.slice(hashIndex + 1).trimStart(),
+  };
+};
+
+const initialTerminalLines: Array<TerminalLine> = [
+  {
+    text: "root@paper:~# docker exec -it api-gateway sh",
+  },
+  {
+    text: "root@api:/app# paperctl agent ping --all",
+  },
+  {
+    text: "3/3 agents reachable (42ms avg)",
+    tone: "success",
+  },
+  {
+    text: "root@api:/app# curl -s localhost:8080/health",
+  },
+  {
+    text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
+    tone: "success",
+  },
+  {
+    text: "root@api:/app#",
+  },
+];
+---
+
+<Card as="article" class={className}>
+  <div class="flex h-full flex-col gap-6">
+    <div
+      aria-hidden="true"
+      class="relative min-h-0 flex-1 overflow-hidden rounded-bl-xl rounded-tl-xl rounded-tr-xl"
+      data-remote-terminal
+    >
+      <div
+        class="absolute inset-0 overflow-hidden rounded-bl-xl rounded-tl-xl rounded-tr-xl bg-neutral-100"
+      >
+        <div
+          class="absolute left-[0.01%] top-[0.19%] h-[169.44%] w-[203.47%] px-6 pt-4"
+        >
+          <div class="flex items-center gap-2.5">
+            <span class="size-3 rounded-full bg-red-600"></span>
+            <span class="size-3 rounded-full bg-amber-600"></span>
+            <span class="size-3 rounded-full bg-green-600"></span>
+          </div>
+
+          <div
+            class="mt-3 space-y-1 whitespace-nowrap font-mono text-sm leading-[1.35] text-neutral-800"
+            data-remote-terminal-list
+          >
+            {
+              initialTerminalLines.map((line) => {
+                if (line.text.length === 0) {
+                  return <p class="h-[1.35em]"></p>;
+                }
+
+                if (line.tone === "success") {
+                  return <p class="text-green-600">{line.text}</p>;
+                }
+
+                const parsedLine = splitPromptLine(line.text);
+
+                if (parsedLine.prompt.length === 0) {
+                  return <p>{line.text}</p>;
+                }
+
+                return (
+                  <p>
+                    <span class="text-blue-600">{parsedLine.prompt}</span>
+                    {parsedLine.command.length > 0 ? ` ${parsedLine.command}` : ""}
+                  </p>
+                );
+              })
+            }
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent from-55% to-neutral-50"
+      />
+    </div>
+
+    <div>
+      <h3
+        class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800"
+      >
+        Remote terminal
+      </h3>
+      <p class="mt-1 max-w-[15.125rem] text-balance text-sm text-neutral-500">
+        Open a shell inside running containers directly from the interface.
+      </p>
+    </div>
+  </div>
+</Card>
+
+<script is:inline>
+  (() => {
+    const SPINNER_FRAMES = ["|", "/", "-", "\\"];
+    const SPINNER_INTERVAL_MS = 140;
+    const CURSOR_INTERVAL_MS = 500;
+
+    const terminalScriptFrames = [
+      {
+        durationMs: 1900,
+        lines: [
+          {
+            text: "root@paper:~# docker exec -it api-gateway sh",
+          },
+          {
+            text: "root@api:/app# paperctl agent ping --all",
+            spinner: true,
+          },
+          {
+            text: "",
+          },
+          {
+            text: "",
+          },
+          {
+            text: "",
+          },
+          {
+            text: "root@api:/app#",
+            cursor: true,
+          },
+        ],
+      },
+      {
+        durationMs: 2200,
+        lines: [
+          {
+            text: "root@paper:~# docker exec -it api-gateway sh",
+          },
+          {
+            text: "root@api:/app# paperctl agent ping --all",
+          },
+          {
+            text: "3/3 agents reachable (42ms avg)",
+            tone: "success",
+          },
+          {
+            text: "root@api:/app# curl -s localhost:8080/health",
+            spinner: true,
+          },
+          {
+            text: "",
+          },
+          {
+            text: "root@api:/app#",
+            cursor: true,
+          },
+        ],
+      },
+      {
+        durationMs: 2100,
+        lines: [
+          {
+            text: "root@api:/app# paperctl agent ping --all",
+          },
+          {
+            text: "3/3 agents reachable (42ms avg)",
+            tone: "success",
+          },
+          {
+            text: "root@api:/app# curl -s localhost:8080/health",
+          },
+          {
+            text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
+            tone: "success",
+          },
+          {
+            text: "root@api:/app# tail -n 1 /var/log/nginx/access.log",
+            spinner: true,
+          },
+          {
+            text: "",
+          },
+        ],
+      },
+      {
+        durationMs: 2600,
+        lines: [
+          {
+            text: "root@api:/app# curl -s localhost:8080/health",
+          },
+          {
+            text: '{"status":"ok","uptime":"13h42m","version":"1.8.3"}',
+            tone: "success",
+          },
+          {
+            text: "root@api:/app# tail -n 1 /var/log/nginx/access.log",
+          },
+          {
+            text: '172.18.0.1 - - [17/Feb/2026:10:41:23 +0000] "GET /health HTTP/1.1" 200 32',
+          },
+          {
+            text: "",
+          },
+          {
+            text: "root@api:/app#",
+            cursor: true,
+          },
+        ],
+      },
+    ];
+
+    const remoteTerminalReducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+
+    const isElementVisible = (element) => {
+      const bounds = element.getBoundingClientRect();
+      return bounds.top < window.innerHeight && bounds.bottom > 0;
+    };
+
+    const hasSpinnerLine = (frame) =>
+      frame.lines.some((line) => line.spinner === true);
+
+    const hasCursorLine = (frame) =>
+      frame.lines.some((line) => line.cursor === true);
+
+    const splitRuntimePromptLine = (lineText) => {
+      if (!lineText.startsWith("root@")) {
+        return {
+          prompt: "",
+          command: lineText,
+        };
+      }
+
+      const hashIndex = lineText.indexOf("#");
+
+      if (hashIndex === -1) {
+        return {
+          prompt: "",
+          command: lineText,
+        };
+      }
+
+      return {
+        prompt: lineText.slice(0, hashIndex + 1),
+        command: lineText.slice(hashIndex + 1).trimStart(),
+      };
+    };
+
+    const appendLineSpan = (lineElement, text, className) => {
+      if (text.length === 0) {
+        return;
+      }
+
+      const spanElement = document.createElement("span");
+
+      if (className.length > 0) {
+        spanElement.className = className;
+      }
+
+      spanElement.textContent = text;
+      lineElement.append(spanElement);
+    };
+
+    const appendPromptAndCommand = (lineElement, lineText) => {
+      const parsedLine = splitRuntimePromptLine(lineText);
+
+      if (parsedLine.prompt.length > 0) {
+        appendLineSpan(lineElement, parsedLine.prompt, "text-blue-600");
+
+        if (parsedLine.command.length > 0) {
+          appendLineSpan(lineElement, ` ${parsedLine.command}`, "");
+        }
+
+        return;
+      }
+
+      appendLineSpan(lineElement, lineText, "");
+    };
+
+    const appendMainLineContent = (lineElement, line) => {
+      if (line.tone === "success") {
+        lineElement.className = "text-green-600";
+        lineElement.textContent = line.text;
+        return;
+      }
+
+      appendPromptAndCommand(lineElement, line.text);
+    };
+
+    const appendRuntimeIndicators = (
+      lineElement,
+      line,
+      spinnerChar,
+      isCursorVisible
+    ) => {
+      if (line.spinner) {
+        appendLineSpan(lineElement, ` ${spinnerChar}`, "text-amber-600");
+      }
+
+      if (line.cursor) {
+        appendLineSpan(lineElement, isCursorVisible ? " █" : "  ", "");
+      }
+    };
+
+    const createLineElement = (line, spinnerChar, isCursorVisible) => {
+      const lineElement = document.createElement("p");
+
+      if (line.text.length === 0) {
+        lineElement.textContent = " ";
+        return lineElement;
+      }
+
+      appendMainLineContent(lineElement, line);
+      appendRuntimeIndicators(lineElement, line, spinnerChar, isCursorVisible);
+
+      return lineElement;
+    };
+
+    const renderFrame = (listElement, frame, spinnerChar, isCursorVisible) => {
+      const fragment = document.createDocumentFragment();
+
+      for (const line of frame.lines) {
+        fragment.append(createLineElement(line, spinnerChar, isCursorVisible));
+      }
+
+      listElement.replaceChildren(fragment);
+    };
+
+    const setupRemoteTerminal = (root) => {
+      if (root.dataset.remoteTerminalInitialized === "true") {
+        return;
+      }
+
+      root.dataset.remoteTerminalInitialized = "true";
+
+      const listElement = root.querySelector("[data-remote-terminal-list]");
+
+      if (!(listElement instanceof HTMLDivElement)) {
+        return;
+      }
+
+      let frameIndex = 0;
+      let spinnerIndex = 0;
+      let isCursorVisible = true;
+      let frameTimeoutId = 0;
+      let spinnerIntervalId = 0;
+      let cursorIntervalId = 0;
+      let isRunning = false;
+
+      const getCurrentFrame = () => terminalScriptFrames[frameIndex];
+
+      const renderCurrentFrame = () => {
+        const frame = getCurrentFrame();
+
+        if (!frame) {
+          return;
+        }
+
+        renderFrame(
+          listElement,
+          frame,
+          SPINNER_FRAMES[spinnerIndex] ?? SPINNER_FRAMES[0],
+          isCursorVisible
+        );
+      };
+
+      const clearFrameTimer = () => {
+        if (frameTimeoutId !== 0) {
+          window.clearTimeout(frameTimeoutId);
+          frameTimeoutId = 0;
+        }
+      };
+
+      const clearSpinnerTimer = () => {
+        if (spinnerIntervalId !== 0) {
+          window.clearInterval(spinnerIntervalId);
+          spinnerIntervalId = 0;
+        }
+      };
+
+      const clearCursorTimer = () => {
+        if (cursorIntervalId !== 0) {
+          window.clearInterval(cursorIntervalId);
+          cursorIntervalId = 0;
+        }
+      };
+
+      const clearTimers = () => {
+        clearFrameTimer();
+        clearSpinnerTimer();
+        clearCursorTimer();
+      };
+
+      const scheduleNextFrame = () => {
+        const frame = getCurrentFrame();
+
+        if (!isRunning) {
+          return;
+        }
+
+        if (!frame) {
+          return;
+        }
+
+        frameTimeoutId = window.setTimeout(() => {
+          frameTimeoutId = 0;
+
+          if (!isRunning) {
+            return;
+          }
+
+          frameIndex = (frameIndex + 1) % terminalScriptFrames.length;
+          renderCurrentFrame();
+          scheduleNextFrame();
+        }, frame.durationMs);
+      };
+
+      const startSpinner = () => {
+        if (spinnerIntervalId !== 0) {
+          return;
+        }
+
+        spinnerIntervalId = window.setInterval(() => {
+          const frame = getCurrentFrame();
+
+          if (!frame) {
+            return;
+          }
+
+          if (!hasSpinnerLine(frame)) {
+            return;
+          }
+
+          spinnerIndex = (spinnerIndex + 1) % SPINNER_FRAMES.length;
+          renderCurrentFrame();
+        }, SPINNER_INTERVAL_MS);
+      };
+
+      const startCursorBlink = () => {
+        if (cursorIntervalId !== 0) {
+          return;
+        }
+
+        cursorIntervalId = window.setInterval(() => {
+          const frame = getCurrentFrame();
+
+          if (!frame) {
+            return;
+          }
+
+          if (!hasCursorLine(frame)) {
+            return;
+          }
+
+          isCursorVisible = !isCursorVisible;
+          renderCurrentFrame();
+        }, CURSOR_INTERVAL_MS);
+      };
+
+      const stopAnimation = () => {
+        if (!isRunning) {
+          return;
+        }
+
+        isRunning = false;
+        clearTimers();
+      };
+
+      const startAnimation = () => {
+        if (
+          isRunning ||
+          remoteTerminalReducedMotionQuery.matches ||
+          document.hidden
+        ) {
+          return;
+        }
+
+        isRunning = true;
+        renderCurrentFrame();
+        scheduleNextFrame();
+        startSpinner();
+        startCursorBlink();
+      };
+
+      const lifecycleController = new AbortController();
+      const { signal } = lifecycleController;
+
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          stopAnimation();
+          return;
+        }
+
+        if (isElementVisible(root)) {
+          startAnimation();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      signal.addEventListener(
+        "abort",
+        () => {
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+          );
+        },
+        { once: true }
+      );
+
+      const handleReducedMotionChange = () => {
+        if (remoteTerminalReducedMotionQuery.matches) {
+          stopAnimation();
+          return;
+        }
+
+        if (isElementVisible(root) && !document.hidden) {
+          startAnimation();
+        }
+      };
+
+      if (
+        typeof remoteTerminalReducedMotionQuery.addEventListener === "function"
+      ) {
+        remoteTerminalReducedMotionQuery.addEventListener(
+          "change",
+          handleReducedMotionChange
+        );
+        signal.addEventListener(
+          "abort",
+          () => {
+            remoteTerminalReducedMotionQuery.removeEventListener(
+              "change",
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
+      } else if (
+        typeof remoteTerminalReducedMotionQuery.addListener === "function"
+      ) {
+        remoteTerminalReducedMotionQuery.addListener(handleReducedMotionChange);
+        signal.addEventListener(
+          "abort",
+          () => {
+            remoteTerminalReducedMotionQuery.removeListener(
+              handleReducedMotionChange
+            );
+          },
+          { once: true }
+        );
+      }
+
+      let observer = /** @type {IntersectionObserver | null} */ (null);
+
+      if ("IntersectionObserver" in window) {
+        observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                stopAnimation();
+                continue;
+              }
+
+              startAnimation();
+            }
+          },
+          { threshold: 0.35 }
+        );
+
+        observer.observe(root);
+      }
+
+      signal.addEventListener(
+        "abort",
+        () => {
+          stopAnimation();
+          observer?.disconnect();
+          observer = null;
+        },
+        { once: true }
+      );
+
+      if (isElementVisible(root)) {
+        startAnimation();
+      }
+    };
+
+    for (const root of document.querySelectorAll("[data-remote-terminal]")) {
+      if (!(root instanceof HTMLElement)) {
+        continue;
+      }
+
+      setupRemoteTerminal(root);
+    }
+  })();
+</script>

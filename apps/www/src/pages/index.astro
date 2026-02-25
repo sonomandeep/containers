@@ -2,8 +2,9 @@
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
 import LogStream from "../components/features/log-stream.astro";
-import MultiHostSupport from "../components/features/multi-host-support.astro";
 import MonitorCluster from "../components/features/monitor-cluster.astro";
+import MultiHostSupport from "../components/features/multi-host-support.astro";
+import RemoteTerminal from "../components/features/remote-terminal.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/layout.astro";
@@ -24,29 +25,23 @@ const featureItems: Array<FeatureItem> = [
     cardClass: "h-80 md:col-span-2",
   },
   {
-    id: "remote-terminal",
-    title: "Remote terminal",
-    description:
-      "Open a shell inside running containers directly from the interface.",
-    cardClass: "h-80 justify-end",
-  },
-  {
-    id: "manage-containers",
-    title: "Manage containers",
-    description: "Manage your containers directly from the interface.",
-    cardClass: "h-80 justify-end",
+    id: "multi-host-support",
+    title: "Multi host support",
+    description: "Deploy agent on your nodes to manage your VPS cluster.",
+    cardClass: "h-80",
   },
   {
     id: "log-stream",
     title: "Log stream",
     description: "Follow your containers log stream from Paper interface.",
-    cardClass: "h-80 justify-end",
+    cardClass: "h-80",
   },
   {
-    id: "multi-host-support",
-    title: "Multi host support",
-    description: "Deploy agent on your nodes to manage your VPS cluster.",
-    cardClass: "h-80 justify-end",
+    id: "remote-terminal",
+    title: "Remote terminal",
+    description:
+      "Open a shell inside running containers directly from the interface.",
+    cardClass: "h-80 md:col-span-2",
   },
 ];
 ---
@@ -146,7 +141,7 @@ const featureItems: Array<FeatureItem> = [
 
   <section class="w-full bg-white" id="features">
     <div
-      class="mx-auto w-full max-w-5xl px-4 py-20 sm:px-6 sm:py-24 lg:px-0 lg:py-32"
+      class="mx-auto w-full max-w-5xl px-4 pb-20 pt-40 sm:px-6 sm:pb-24 sm:pt-48 lg:px-0 lg:pb-32 lg:pt-64"
     >
       <div class="flex flex-col items-center gap-16">
         <div class="flex flex-col items-center gap-3 text-center">
@@ -180,6 +175,10 @@ const featureItems: Array<FeatureItem> = [
 
               if (item.id === "multi-host-support") {
                 return <MultiHostSupport class={item.cardClass} />;
+              }
+
+              if (item.id === "remote-terminal") {
+                return <RemoteTerminal class={item.cardClass} />;
               }
 
               return (
