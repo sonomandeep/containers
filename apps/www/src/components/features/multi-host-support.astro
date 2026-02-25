@@ -1,0 +1,83 @@
+---
+import Card from "../ui/Card.astro";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props as Props;
+
+const agents = ["agent", "agent", "agent", "agent"] as const;
+---
+
+<Card as="article" class={className}>
+  <div class="flex h-full flex-col gap-3">
+    <div aria-hidden="true" class="relative min-h-0 flex-1 overflow-hidden">
+      <div class="absolute left-1/2 top-[2.625rem] h-[7.0625rem] w-64 -translate-x-1/2">
+        <div class="absolute inset-x-0 top-0 flex gap-4">
+          {
+            agents.map((label) => (
+              <div class="flex h-6 w-[3.25rem] items-center justify-center rounded-xl bg-neutral-200 px-2">
+                <span class="font-mono text-xs font-medium text-neutral-700">
+                  {label}
+                </span>
+              </div>
+            ))
+          }
+        </div>
+
+        <svg
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-0 h-full w-full"
+          fill="none"
+          viewBox="0 0 256 113"
+        >
+          <path
+            class="stroke-blue-600"
+            d="M26 23C26 58 98 52 98 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <path
+            class="stroke-amber-600"
+            d="M94 23C94 50 118 61 118 89"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          ></path>
+          <g transform="translate(256 0) scale(-1 1)">
+            <path
+              class="stroke-red-600"
+              d="M26 23C26 58 98 52 98 89"
+              stroke-linecap="round"
+              stroke-width="1.5"
+            ></path>
+            <path
+              class="stroke-green-600"
+              d="M94 23C94 50 118 61 118 89"
+              stroke-linecap="round"
+              stroke-width="1.5"
+            ></path>
+          </g>
+          <circle class="fill-red-600" cx="196" cy="57" r="2"></circle>
+        </svg>
+
+        <div class="absolute left-1/2 top-[5.5rem] -translate-x-1/2">
+          <div class="inline-flex h-[1.5625rem] w-[6.75rem] items-center justify-center rounded-xl bg-neutral-900 px-3">
+            <span class="font-mono text-[0.625rem] font-semibold text-white">
+              Paper Platform
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="font-display text-base font-medium tracking-[-0.01em] text-neutral-800">
+        Multi host support
+      </h3>
+      <p class="mt-1 max-w-[15.125rem] text-balance text-sm text-neutral-500">
+        Deploy agent on your nodes to manage your VPS cluster.
+      </p>
+    </div>
+  </div>
+</Card>

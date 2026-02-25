@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import heroUi from "../assets/hero-ui.jpg";
 import LogStream from "../components/features/log-stream.astro";
+import MultiHostSupport from "../components/features/multi-host-support.astro";
 import MonitorCluster from "../components/features/monitor-cluster.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
@@ -175,6 +176,10 @@ const featureItems: Array<FeatureItem> = [
 
               if (item.id === "log-stream") {
                 return <LogStream class={item.cardClass} />;
+              }
+
+              if (item.id === "multi-host-support") {
+                return <MultiHostSupport class={item.cardClass} />;
               }
 
               return (
