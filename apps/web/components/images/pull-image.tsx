@@ -3,7 +3,7 @@
 import { type PullImageInput, pullImageSchema } from "@containers/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CornerDownLeftIcon, LayersIcon } from "lucide-react";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -40,6 +40,7 @@ import { Alert, AlertTitle } from "../ui/alert";
 
 export function PullImageDialog() {
   const store = useImagesStore((state) => state);
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const form = useForm<PullImageInput>({
     resolver: zodResolver(pullImageSchema),
@@ -49,6 +50,14 @@ export function PullImageDialog() {
       tag: "",
     },
   });
+
+  function handleDialogStateChange(value: boolean) {
+    setOpen(value);
+
+    if (!value) {
+      form.reset();
+    }
+  }
 
   function handleSubmit(input: PullImageInput) {
     startTransition(() => {
@@ -66,6 +75,7 @@ export function PullImageDialog() {
             ...store.images,
             { ...data, id: formatImageId(data.id) },
           ]);
+          handleDialogStateChange(false);
 
           return data;
         }),
@@ -88,7 +98,7 @@ export function PullImageDialog() {
   const tag = form.watch("tag");
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={handleDialogStateChange} open={open}>
       <DialogTrigger render={<Button />}>
         Pull Image
         <CornerDownLeftIcon className="size-3 opacity-60" />
