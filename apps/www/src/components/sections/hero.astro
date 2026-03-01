@@ -1,0 +1,61 @@
+---
+import { Image } from "astro:assets";
+import { CodeXmlIcon, LockKeyholeIcon, ServerIcon } from "@lucide/astro";
+import heroUi from "../../assets/hero-ui.jpg";
+import Header from "../layout/header.astro";
+import Section from "../layout/section.astro";
+import Button from "../ui/Button.astro";
+---
+
+<Section>
+  <Header/>
+
+  <div class="col-span-12 mt-24 flex flex-col gap-6">
+    <h1 class="text-center">
+      The simplicity of a PaaS,
+      <br>
+      the control of self-hosting.
+    </h1>
+
+    <div class="w-full inline-flex gap-4 items-center justify-center">
+      <Button>Join Waitlist</Button>
+      <Button href="#demo" variant="secondary">Open Demo</Button>
+    </div>
+  </div>
+
+  <div class="col-span-12 mt-16">
+    <div class="inline-flex gap-8 items-center justify-center w-full">
+      <div class="text-neutral-500 inline-flex gap-2 items-center text-sm">
+        <CodeXmlIcon class="size-4"/>
+        Open Source
+      </div>
+
+      <div class="text-neutral-500 inline-flex gap-2 items-center text-sm">
+        <ServerIcon class="size-3.5"/>
+        Deploy Anywhere
+      </div>
+
+      <div class="text-neutral-500 inline-flex gap-2 items-center text-sm">
+        <LockKeyholeIcon class="size-3.5"/>
+        No Vendor Lock
+      </div>
+    </div>
+
+    <div
+      class="aspect-video bg-neutral-100 border border-neutral-200 rounded-xl px-8 pt-8 mt-6 overflow-hidden"
+    >
+      <div
+        class="border border-neutral-200 rounded-xl overflow-hidden shadow-xl"
+      >
+        <Image
+          alt="Paper dashboard showing cluster metrics and running containers."
+          class="block h-full w-full object-cover object-top"
+          loading="eager"
+          sizes="(min-width: 1024px) 1024px, 190vw"
+          src={heroUi}
+          widths={[1024, 1536, 2048]}
+        />
+      </div>
+    </div>
+  </div>
+</Section>

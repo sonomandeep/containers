@@ -1,0 +1,60 @@
+---
+import {
+  GitBranchIcon,
+  LockKeyholeIcon,
+  NetworkIcon,
+  ServerIcon,
+} from "@lucide/astro";
+import Section from "../layout/section.astro";
+---
+
+<Section>
+  <div class="col-span-3 flex flex-col gap-3 text-neutral-500">
+    <GitBranchIcon class="size-4"/>
+
+    <div class="flex flex-col gap-1">
+      <h3>100% open source</h3>
+      <p class="text-sm">
+        Inspect the code.
+        <br>
+        Contribute. Fork if needed.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-span-3 flex flex-col gap-3 text-neutral-500">
+    <ServerIcon class="size-4"/>
+
+    <div class="flex flex-col gap-1">
+      <h3>Deploy anywhere</h3>
+      <p class="text-sm">
+        Docker Compose, single <br>
+        server, or your existing stack.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-span-3 flex flex-col gap-3 text-neutral-500">
+    <LockKeyholeIcon class="size-4"/>
+
+    <div class="flex flex-col gap-1">
+      <h3>No vendor lock</h3>
+      <p class="text-sm">
+        No proprietary runtime.
+        <br>
+        Your stack, your rules.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-span-3 flex flex-col gap-3 text-neutral-500">
+    <NetworkIcon class="size-4"/>
+
+    <div class="flex flex-col gap-1">
+      <h3>Multi-host ready</h3>
+      <p class="text-sm">
+        Deploy agents across your nodes. Monitor in one place.
+      </p>
+    </div>
+  </div>
+</Section>

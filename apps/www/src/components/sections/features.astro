@@ -1,0 +1,23 @@
+---
+import LogStream from "../features/log-stream.astro";
+import MonitorCluster from "../features/monitor-cluster.astro";
+import MultiHostSupport from "../features/multi-host-support.astro";
+import RemoteTerminal from "../features/remote-terminal.astro";
+import Section from "../layout/section.astro";
+---
+
+<Section>
+  <div class="col-span-12 text-center mb-8">
+    <h2>
+      Everything you need to deploy, run
+      <br>
+      and manage your containerized services
+    </h2>
+  </div>
+
+  <MonitorCluster class="col-span-6"/>
+  <LogStream class="col-span-6"/>
+
+  <MultiHostSupport class="col-span-6 h-80"/>
+  <RemoteTerminal class="col-span-6"/>
+</Section>
