@@ -16,6 +16,10 @@
     @apply m-0 min-h-screen bg-white font-sans text-neutral-950 antialiased;
   }
 
+  h1 {
+    @apply text-5xl font-display font-semibold;
+  }
+
   :where(button, [role="button"]):not(:disabled) {
     cursor: pointer;
   }

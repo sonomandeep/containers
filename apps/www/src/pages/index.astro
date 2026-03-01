@@ -7,6 +7,7 @@ import MultiHostSupport from "../components/features/multi-host-support.astro";
 import RemoteTerminal from "../components/features/remote-terminal.astro";
 import CtaSection from "../components/sections/cta-section.astro";
 import FaqSection from "../components/sections/faq-section.astro";
+import Hero from "../components/sections/hero.astro";
 import Button from "../components/ui/Button.astro";
 import Card from "../components/ui/Card.astro";
 import Layout from "../layouts/layout.astro";
@@ -52,6 +53,8 @@ const featureItems: Array<FeatureItem> = [
   description="Deploy containers on your VPS in minutes, monitor them live and execute commands."
   title="Paper - Ship like a PaaS, stay self-hosted."
 >
+  <Hero/>
+
   <section class="w-full bg-white">
     <div class="mx-auto flex min-h-dvh w-full flex-col lg:min-h-0">
       <div
