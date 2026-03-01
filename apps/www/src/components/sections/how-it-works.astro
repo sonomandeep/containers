@@ -1,0 +1,41 @@
+---
+import Section from "../layout/section.astro";
+import Card from "../ui/Card.astro";
+---
+
+<Section>
+  <div class="col-span-12 text-center mb-8">
+    <h2>
+      From zero to monitoring
+      <br>
+      in under five minutes.
+    </h2>
+  </div>
+
+  <Card as="article" class="col-span-4">
+    <div>
+      <h3>Create a workspace</h3>
+      <p class="mt-1 text-balance text-sm text-neutral-500">
+        Manage your containers directly from the interface.
+      </p>
+    </div>
+  </Card>
+
+  <Card as="article" class="col-span-4">
+    <div>
+      <h3>Install the agent</h3>
+      <p class="mt-1 text-balance text-sm text-neutral-500">
+        Follow your containers log stream from Paper interface.
+      </p>
+    </div>
+  </Card>
+
+  <Card as="article" class="col-span-4">
+    <div>
+      <h3>Start monitoring</h3>
+      <p class="mt-1 text-balance text-sm text-neutral-500">
+        Deploy agent on your nodes to manage your VPS cluster.
+      </p>
+    </div>
+  </Card>
+</Section>
