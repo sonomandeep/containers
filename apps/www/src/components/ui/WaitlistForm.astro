@@ -1,0 +1,39 @@
+---
+import { CornerDownLeftIcon } from "@lucide/astro";
+
+type Props = {
+  id?: string;
+  inputId: string;
+  class?: string;
+};
+
+const { id, inputId, class: className = "" } = Astro.props as Props;
+const classes = `w-full max-w-[320px] ${className}`.trim();
+---
+
+<form class={classes} id={id} novalidate>
+  <label class="sr-only" for={inputId}>Email address</label>
+
+  <div
+    class="flex h-10 items-center justify-between rounded-full border border-neutral-100 bg-neutral-50 py-1 pl-4 pr-1"
+  >
+    <input
+      autocomplete="email"
+      class="h-8 w-full border-0 bg-transparent p-0 text-sm placeholder:text-neutral-500 focus:outline-none"
+      id={inputId}
+      inputmode="email"
+      name="email"
+      placeholder="hello@mando.sh"
+      required
+      type="email"
+    >
+
+    <button
+      class="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-full bg-black px-4 text-sm font-medium text-neutral-50"
+      type="button"
+    >
+      Join Waitlist
+      <CornerDownLeftIcon class="size-3 stroke-neutral-500" />
+    </button>
+  </div>
+</form>
