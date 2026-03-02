@@ -7,17 +7,15 @@ import Section from "../layout/section.astro";
 ---
 
 <Section>
-  <div class="col-span-12 text-center mb-8">
-    <h2>
-      Everything you need to deploy, run
-      <br>
-      and manage your containerized services
+  <div class="col-span-12 mb-8 text-left md:text-center">
+    <h2 class="mx-0 max-w-2xl text-balance md:mx-auto">
+      Everything you need to deploy, run and manage your containerized services
     </h2>
   </div>
 
-  <MonitorCluster class="col-span-6"/>
-  <LogStream class="col-span-6"/>
+  <MonitorCluster class="col-span-12 h-80 md:col-span-6"/>
+  <LogStream class="col-span-12 md:col-span-6"/>
 
-  <MultiHostSupport class="col-span-6 h-80"/>
-  <RemoteTerminal class="col-span-6"/>
+  <MultiHostSupport class="col-span-12 h-80 md:col-span-6"/>
+  <RemoteTerminal class="col-span-12 h-80 md:col-span-6"/>
 </Section>
