@@ -37,22 +37,20 @@ const items: Array<FaqEntry> = [
 ---
 
 <Section>
-  <div class="col-span-12 text-center mb-4">
-    <h2>
-      Frequently
-      <br>
-      Asked Questions
+  <div class="col-span-12 mb-4 text-left md:text-center">
+    <h2 class="mx-0 max-w-2xl text-balance md:mx-auto">
+      Frequently Asked Questions
     </h2>
   </div>
 
-  <div class="col-span-6 col-start-4 flex flex-col gap-3">
+  <ul class="col-span-12 m-0 flex list-none flex-col gap-3 p-0 md:col-span-10 md:col-start-2 lg:col-span-8 lg:col-start-3">
     {items.map((item) => (
-    <Card as="li" class="col-span-4 rounded-lg!">
+    <Card as="li" class="rounded-lg!">
       <div>
         <h3>{item.question}</h3>
-        <p class="mt-2 text-sm text-neutral-500">{item.answer}</p>
+        <p class="mt-2 text-balance text-sm text-neutral-500">{item.answer}</p>
       </div>
     </Card>
     ))}
-  </div>
+  </ul>
 </Section>
