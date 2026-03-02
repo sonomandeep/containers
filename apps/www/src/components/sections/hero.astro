@@ -10,24 +10,24 @@ import Button from "../ui/Button.astro";
 <Section>
   <Header/>
 
-  <div class="col-span-12 mt-12 sm:mt-24 flex flex-col gap-6">
-    <h1 class="sm:text-center">
+  <div class="col-span-12 mt-12 flex flex-col gap-6 sm:mt-20 md:mt-24">
+    <h1 class="text-balance sm:text-center md:mx-auto md:max-w-3xl">
       The simplicity of a PaaS,
       <br>
       the control of self-hosting.
     </h1>
 
     <div
-      class="w-full inline-flex gap-4 items-center justify-start sm:justify-center"
+      class="flex w-full flex-wrap items-center justify-start gap-3 sm:justify-center md:flex-nowrap md:gap-4"
     >
       <Button>Join Waitlist</Button>
       <Button href="#demo" variant="secondary">Open Demo</Button>
     </div>
   </div>
 
-  <div class="col-span-12 mt-12 sm:mt-16">
+  <div class="col-span-12 mt-12 sm:mt-16 md:mt-20">
     <div
-      class="inline-flex gap-8 items-center justify-start sm:justify-center w-full text-nowrap"
+      class="flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-2 sm:justify-center md:flex-nowrap md:gap-8"
     >
       <div class="text-neutral-500 inline-flex gap-2 items-center text-sm">
         <CodeXmlIcon class="size-4"/>
@@ -35,7 +35,7 @@ import Button from "../ui/Button.astro";
       </div>
 
       <div
-        class="text-neutral-500 gap-2 items-center text-sm hidden sm:inline-flex"
+        class="text-neutral-500 hidden items-center gap-2 text-sm md:inline-flex"
       >
         <ServerIcon class="size-3.5"/>
         Deploy Anywhere
@@ -47,19 +47,17 @@ import Button from "../ui/Button.astro";
       </div>
     </div>
 
-    <div
-      class="aspect-7/8 sm:aspect-video bg-neutral-100 border border-neutral-200 rounded-xl px-0 pl-4 sm:pl-8 sm:px-8 pt-4 sm:pt-8 mt-6 overflow-hidden"
-    >
+    <div class="mt-6 aspect-[7/8] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 pl-4 pt-4 sm:mt-8 sm:aspect-[4/3] sm:pl-6 sm:pt-6 md:aspect-[16/10] md:px-8 md:pt-8 lg:aspect-video">
       <div
-        class="border border-neutral-200 rounded-lg overflow-hidden shadow-xl"
+        class="h-full overflow-hidden rounded-lg border border-neutral-200 shadow-xl"
       >
         <Image
           alt="Paper dashboard showing cluster metrics and running containers."
-          class="block h-128 w-full object-cover object-top-left"
+          class="block h-full w-full object-cover object-left-top"
           loading="eager"
-          sizes="(min-width: 1024px) 1024px, 190vw"
+          sizes="(min-width: 1024px) 832px, (min-width: 768px) calc(100vw - 7rem), calc(100vw - 2.5rem)"
           src={heroUi}
-          widths={[1024, 1536, 2048]}
+          widths={[768, 1024, 1536, 2048]}
         />
       </div>
     </div>
