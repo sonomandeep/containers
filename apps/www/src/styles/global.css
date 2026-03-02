@@ -16,6 +16,27 @@
     @apply m-0 min-h-screen bg-white font-sans text-neutral-950 antialiased;
   }
 
+  h1 {
+    @apply font-display font-semibold text-neutral-950;
+    font-size: clamp(1.75rem, 1.2rem + 1.9vw, 3rem);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+
+  h2 {
+    @apply font-display font-semibold text-neutral-950;
+    font-size: clamp(1.375rem, 1.05rem + 1.2vw, 2.25rem);
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+  }
+
+  h3 {
+    @apply font-display font-semibold text-neutral-950;
+    font-size: clamp(1rem, 0.95rem + 0.35vw, 1.125rem);
+    letter-spacing: -0.01em;
+    line-height: 1.22;
+  }
+
   :where(button, [role="button"]):not(:disabled) {
     cursor: pointer;
   }
