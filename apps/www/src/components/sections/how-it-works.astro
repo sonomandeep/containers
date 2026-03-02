@@ -4,15 +4,13 @@ import Card from "../ui/Card.astro";
 ---
 
 <Section>
-  <div class="col-span-12 text-center mb-8">
-    <h2>
-      From zero to monitoring
-      <br>
-      in under five minutes.
+  <div class="col-span-12 mb-8 text-left md:text-center">
+    <h2 class="mx-0 max-w-2xl text-balance md:mx-auto">
+      From zero to monitoring in under five minutes.
     </h2>
   </div>
 
-  <Card as="article" class="col-span-4">
+  <Card as="article" class="col-span-12 md:col-span-6 lg:col-span-4">
     <div>
       <h3>Create a workspace</h3>
       <p class="mt-1 text-balance text-sm text-neutral-500">
@@ -21,7 +19,7 @@ import Card from "../ui/Card.astro";
     </div>
   </Card>
 
-  <Card as="article" class="col-span-4">
+  <Card as="article" class="col-span-12 md:col-span-6 lg:col-span-4">
     <div>
       <h3>Install the agent</h3>
       <p class="mt-1 text-balance text-sm text-neutral-500">
@@ -30,7 +28,7 @@ import Card from "../ui/Card.astro";
     </div>
   </Card>
 
-  <Card as="article" class="col-span-4">
+  <Card as="article" class="col-span-12 md:col-span-6 lg:col-span-4">
     <div>
       <h3>Start monitoring</h3>
       <p class="mt-1 text-balance text-sm text-neutral-500">
