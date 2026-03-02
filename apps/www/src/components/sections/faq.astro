@@ -9,29 +9,34 @@ type FaqEntry = {
 
 const items: Array<FaqEntry> = [
   {
-    question: "How does the Paper agent connect to my servers?",
+    question: "Who is this product built for?",
     answer:
-      "The agent runs on each host and opens an outbound WebSocket connection to your Paper API. It streams container events and periodic snapshots, so you get live state without exposing inbound agent ports.",
+      "This platform is built for developers, indie hackers, and small teams who run Docker in production or staging and want a clean, focused way to monitor and manage their containers without unnecessary complexity.",
   },
   {
-    question: "What do I need to install on each host?",
+    question: "How long does it take to get started?",
     answer:
-      "Each node only needs Docker and the Paper agent with access to the Docker socket. The core Paper stack runs separately with the API, web app, PostgreSQL, and SMTP configured.",
+      "Getting started takes only a few minutes. Once your access is approved, you install the lightweight agent on your server and immediately start seeing your containers in the dashboard. No complex setup or infrastructure changes required.",
   },
   {
-    question: "Is Paper fully self-hosted and open source?",
+    question: "Will this replace my existing Docker workflow?",
     answer:
-      "Yes. Paper is self-hosted first, and you run the services on your own infrastructure. The project is open source under the Apache-2.0 license.",
+      "No. It is designed to complement your existing workflow, not replace it. You can continue using Docker CLI, Compose, or any other tools you rely on. The platform provides visibility and control in a simpler, more accessible interface.",
   },
   {
-    question: "Can I manage multiple VPS providers in one workspace?",
+    question: "Can I use it for production environments?",
     answer:
-      "Yes. You can deploy agents across nodes from different providers and monitor them from a single workspace view.",
+      "Yes. The platform is designed to work with real production workloads, giving you real-time visibility into container status and activity while keeping your existing deployment processes unchanged.",
   },
   {
-    question: "Is there a managed cloud version available?",
+    question: "Does it work with remote servers?",
     answer:
-      "Today the primary focus is self-hosted deployments. A managed offering is planned, and you can join the waitlist for updates.",
+      "Yes. The agent runs directly on your server and securely connects to the managed backend, allowing you to monitor remote environments from a single dashboard.",
+  },
+  {
+    question: "What can I actually see and manage from the dashboard?",
+    answer:
+      "From the dashboard, you can see the status of your containers, whether they are running or stopped, and monitor updates in real time. The goal is to provide a clear operational overview without overwhelming you with unnecessary details.",
   },
 ];
 ---
