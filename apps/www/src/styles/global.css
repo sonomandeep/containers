@@ -17,11 +17,11 @@
   }
 
   h1 {
-    @apply text-4xl font-display font-semibold text-neutral-950;
+    @apply text-2xl sm:text-4xl font-display font-semibold text-neutral-950;
   }
 
   h2 {
-    @apply text-2xl font-display font-semibold text-neutral-950;
+    @apply text-xl font-display font-semibold text-neutral-950;
   }
 
   h3 {
