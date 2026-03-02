@@ -17,7 +17,7 @@
   }
 
   h1 {
-    @apply text-5xl font-display font-semibold text-neutral-950;
+    @apply text-4xl font-display font-semibold text-neutral-950;
   }
 
   h2 {
