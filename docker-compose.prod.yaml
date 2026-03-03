@@ -71,7 +71,7 @@ services:
       - traefik.http.routers.landing.entrypoints=web
       - traefik.http.routers.landing.priority=100
       - traefik.http.routers.landing.service=landing
-      - traefik.http.services.landing.loadbalancer.server.port=4321
+      - traefik.http.services.landing.loadbalancer.server.port=8080
 
   # api:
   # build:
