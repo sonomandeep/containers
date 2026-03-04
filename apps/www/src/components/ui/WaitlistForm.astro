@@ -1,0 +1,151 @@
+---
+import { CornerDownLeftIcon } from "@lucide/astro";
+
+type Props = {
+  id?: string;
+  inputId: string;
+  class?: string;
+};
+
+const { id, inputId, class: className = "" } = Astro.props as Props;
+const classes = `w-full max-w-[320px] ${className}`.trim();
+---
+
+<form class={classes} id={id}>
+  <label class="sr-only" for={inputId}>Email address</label>
+
+  <div
+    class="flex h-10 items-center justify-between rounded-full border border-neutral-100 bg-neutral-50 py-1 pl-4 pr-1"
+  >
+    <input
+      autocomplete="email"
+      class="h-8 w-full border-0 bg-transparent p-0 text-sm placeholder:text-neutral-500 focus:outline-none"
+      id={inputId}
+      inputmode="email"
+      name="email"
+      placeholder="hello@mando.sh"
+      required
+      type="email"
+    >
+
+    <button
+      class="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-full bg-black px-4 text-sm font-medium text-neutral-50 transition-opacity duration-150 disabled:cursor-not-allowed disabled:opacity-70"
+      data-waitlist-submit
+      type="submit"
+    >
+      <span data-waitlist-submit-label>Join Waitlist</span>
+      <CornerDownLeftIcon class="size-3 stroke-neutral-500" />
+    </button>
+  </div>
+
+  <p
+    aria-live="polite"
+    class="mt-2 min-h-5 text-center text-xs text-neutral-500"
+    data-waitlist-feedback
+  ></p>
+</form>
+
+<script is:inline>
+  (() => {
+    const WAITLIST_ENDPOINT = "https://studio.mando.sh/api/paper/waitlist";
+
+    const script = document.currentScript;
+    if (!(script instanceof HTMLScriptElement)) {
+      return;
+    }
+
+    const form = script.previousElementSibling;
+    if (!(form instanceof HTMLFormElement)) {
+      return;
+    }
+
+    const emailInput = form.querySelector('input[name="email"]');
+    const submitButton = form.querySelector("[data-waitlist-submit]");
+    const submitLabel = form.querySelector("[data-waitlist-submit-label]");
+    const feedback = form.querySelector("[data-waitlist-feedback]");
+
+    if (
+      !(emailInput instanceof HTMLInputElement) ||
+      !(submitButton instanceof HTMLButtonElement) ||
+      !(submitLabel instanceof HTMLElement) ||
+      !(feedback instanceof HTMLElement)
+    ) {
+      return;
+    }
+
+    /**
+     * @param {{ message: string; tone: "idle" | "success" | "error" }} input
+     */
+    const updateFeedback = ({ message, tone }) => {
+      feedback.textContent = message;
+      feedback.classList.remove("text-neutral-500", "text-green-700", "text-red-700");
+
+      if (tone === "success") {
+        feedback.classList.add("text-green-700");
+        return;
+      }
+
+      if (tone === "error") {
+        feedback.classList.add("text-red-700");
+        return;
+      }
+
+      feedback.classList.add("text-neutral-500");
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!form.reportValidity()) {
+        return;
+      }
+
+      const email = emailInput.value.trim();
+      if (email.length === 0) {
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitLabel.textContent = "Joining...";
+      updateFeedback({
+        message: "",
+        tone: "idle",
+      });
+
+      try {
+        const response = await fetch(WAITLIST_ENDPOINT, {
+          method: "POST",
+          headers: {
+            Accept: "*/*",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+          }),
+        });
+
+        if (!response.ok) {
+          updateFeedback({
+            message: "Unable to join right now. Please retry in a moment.",
+            tone: "error",
+          });
+          return;
+        }
+
+        form.reset();
+        updateFeedback({
+          message: "You're in. We'll keep you posted.",
+          tone: "success",
+        });
+      } catch {
+        updateFeedback({
+          message: "Network error. Please check your connection and retry.",
+          tone: "error",
+        });
+      } finally {
+        submitButton.disabled = false;
+        submitLabel.textContent = "Join Waitlist";
+      }
+    });
+  })();
+</script>

@@ -4,7 +4,7 @@ import { CodeXmlIcon, LockKeyholeIcon, ServerIcon } from "@lucide/astro";
 import heroUi from "../../assets/hero-ui.jpg";
 import Header from "../layout/header.astro";
 import Section from "../layout/section.astro";
-import Button from "../ui/Button.astro";
+import WaitlistForm from "../ui/WaitlistForm.astro";
 ---
 
 <Section>
@@ -17,10 +17,12 @@ import Button from "../ui/Button.astro";
       the control of self-hosting.
     </h1>
 
-    <div
-      class="flex w-full flex-wrap items-center justify-start gap-3 sm:justify-center md:flex-nowrap md:gap-4"
-    >
-      <Button>Join Waitlist</Button>
+    <div class="flex w-full justify-start sm:justify-center">
+      <WaitlistForm
+        class="mx-0 sm:mx-auto"
+        id="waitlist"
+        inputId="waitlist-email-hero"
+      />
     </div>
   </div>
 
@@ -46,7 +48,9 @@ import Button from "../ui/Button.astro";
       </div>
     </div>
 
-    <div class="mt-6 aspect-[7/8] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 pl-4 pt-4 sm:mt-8 sm:aspect-[4/3] sm:pl-6 sm:pt-6 md:aspect-[16/10] md:px-8 md:pt-8 lg:aspect-video">
+    <div
+      class="mt-6 aspect-[7/8] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 pl-4 pt-4 sm:mt-8 sm:aspect-[4/3] sm:pl-6 sm:pt-6 md:aspect-[16/10] md:px-8 md:pt-8 lg:aspect-video"
+    >
       <div
         class="h-full overflow-hidden rounded-lg border border-neutral-200 shadow-xl"
       >
